@@ -1,43 +1,61 @@
 package uk.ac.ox.map.carto.canvas;
 
-import java.awt.Image;
-import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
-
-import javax.imageio.ImageIO;
+import java.util.ArrayList;
 
 import org.freedesktop.cairo.Context;
-import org.freedesktop.cairo.Format;
-import org.freedesktop.cairo.ImageSurface;
+import org.freedesktop.cairo.Matrix;
 import org.freedesktop.cairo.LinearPattern;
 import org.freedesktop.cairo.Pattern;
 import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.RadialPattern;
-
-import org.gnome.gdk.Pixbuf;
 import org.gnome.pango.FontDescription;
 import org.gnome.pango.Layout;
+
+import uk.ac.ox.map.carto.server.Admin0;
+import uk.ac.ox.map.carto.server.Admin0Service;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
         
 public class CairoTest {
 	static PdfSurface pdf;
+	static Context cr;
+	static Admin0Service a0 = new Admin0Service();
+	
+	public static void drawMultiPolygon(MultiPolygon mp){
+        	Polygon p = (Polygon) mp.getGeometryN(0);
+        	for (int i = 1; i == mp.getNumGeometries(); i++) {
+        		drawPolygon(p);
+			}
+	}
+	public static void drawPolygon(Polygon p){
+        	LineString ls = (LineString) p.getBoundary();
+        	for (Coordinate c : ls.getCoordinates()) {
+        		System.out.println(c.x);
+			}
+	}
 	
 	public static void main(String[] args) throws IOException {
 		pdf = new PdfSurface("/tmp/javacairo.pdf", 500, 707);
-		//ImageSurface im = new ImageSurface(Format.ARGB32, 100, 100);
-		
-		
-		BufferedImage image = ImageIO.read(new File("/tmp/logo.gif"));
-		
 		
         final Pattern linear, radial;
-        Context cr = new Context(pdf);
+        cr = new Context(pdf);
         cr.setSource(1.0, 0.1, 0.0, 1.0);
         cr.moveTo(10, 40);
         cr.lineTo(120, 145);
         cr.stroke();
         
-
+    	Matrix m = new Matrix();
+    	m.translate(90, 180);
+        cr.transform(m);
+    	
+        ArrayList<Admin0> a = a0.getAdminUnit();
+        for (Admin0 admin0 : a) {
+        	drawMultiPolygon((MultiPolygon) admin0.getGeometry());
+		}
         
         /*
          * If youre used to using RGB triplets, just normalize them to
