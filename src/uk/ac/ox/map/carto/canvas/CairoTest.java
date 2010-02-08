@@ -13,7 +13,6 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-
         
 public class CairoTest {
 	
@@ -24,6 +23,7 @@ public class CairoTest {
         
 		Envelope env = new Envelope();
         for (Admin0 admin0 : a) {
+        	System.out.println(admin0.getName());
         	/*
         	 * Why doesn't this return an envelope? This envelope getting shouldn't be necessary
         	 */
@@ -33,10 +33,8 @@ public class CairoTest {
 			}
         }
         
-        
 		PdfSurface pdf = new PdfSurface("/tmp/javacairo.pdf", 500, 707);
-		
-		MapCanvas mc= new MapCanvas(pdf, env);
+		MapCanvas mc= new MapCanvas(pdf, 500, 707, env);
 		
 		//System.out.println(env.getMinX());
 		//System.out.println(env.getMinY());
@@ -46,6 +44,7 @@ public class CairoTest {
         for (Admin0 admin0 : a) {
         	mc.drawMultiPolygon((MultiPolygon) admin0.getGeometry());
 		}
+        
         pdf.finish();
 	}
 

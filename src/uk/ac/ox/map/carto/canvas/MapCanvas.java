@@ -1,5 +1,9 @@
 package uk.ac.ox.map.carto.canvas;
 
+import java.awt.Point;
+import java.awt.geom.AffineTransform;
+import java.awt.geom.Point2D;
+
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.LineString;
@@ -14,13 +18,21 @@ public class MapCanvas {
 	
 	private final Context cr;
 	private final Envelope env;
+    private final int width;
+    private final int height;
+	private final AffineTransform transform = new AffineTransform();
 	
 	
-	public MapCanvas(PdfSurface pdf, Envelope env) {
+	public MapCanvas(PdfSurface pdf, int width, int height, Envelope env) {
+		this.width = width;
+		this.height = height;
+		
+		
 	    cr = new Context(pdf);
+	    //cr.scale(1, -1);
 	    cr.setSource(1.0, 0.1, 0.0, 1.0);
-	    cr.setLineWidth(0.1);
-        
+	    cr.setLineWidth(0.2);
+	    
 	    this.env = env;
 	    setTransform(env);
 	    
@@ -45,26 +57,21 @@ public class MapCanvas {
     	/*
     	 * Must fit
     	 */
-    	int canvasWidth = 500;
-    	int canvasHeight = 700;
     	
-		Double xScale = canvasWidth / dX;
-		Double yScale = canvasHeight / dY;
+		Double xScale = width / dX;
+		Double yScale = height / dY;
     	
     	double d = -env.getMinX() * xScale;
-		double e = -env.getMinY() * xScale;
+		double e = -env.getMinY() * yScale;
     	
-		m.translate(d, e);
-    	m.scale(xScale, xScale);
 		
-        cr.transform(m);
+		transform.scale(xScale, xScale);
+		transform.translate(-env.getMinX(), -env.getMinY());
         
+        /*
     	System.out.println(xScale);
     	System.out.println(yScale);
-    	System.out.println(d);
-    	System.out.println(e);
 		
-        /*
         assert (xScale * env.getMaxX()) <= canvasWidth;
         assert (yScale * env.getMaxY()) <= canvasHeight;
     	System.out.println(dX);
@@ -89,21 +96,27 @@ public class MapCanvas {
         	LineString ls = (LineString) p.getBoundary();
         	Coordinate[] coordinates = ls.getCoordinates();
         	
-    		/*
-	        cr.moveTo(0,0);
-    		cr.lineTo(-40,-40);
-    		*/
-        	
+        	System.out.println(p);
         	for (int i = 0; i < coordinates.length; i++) {
 				Coordinate c = coordinates[i];
         		if (i==0){
-			        //cr.moveTo(c.x, c.y);
-	        		cr.lineTo(c.x, c.y);
-        		}
-        		cr.lineTo(c.x, c.y);
-//	        		System.out.println("X: " + c.x);
+	        		moveTo(c.x, c.y);
+        		} else {
+	        		lineTo(c.x, c.y);
+        		} 
+        		
 			}
 	        cr.stroke();
+	}
+	private void lineTo(double x, double y){
+		    Point2D.Double pt = new Point2D.Double(x,y);
+		    pt.setLocation(x, y);
+			transform.transform(pt, pt);
+			System.out.println(pt);
+    		cr.lineTo(pt.getX(), pt.getY());
+	}
+	private void moveTo(double x, double y){
+    		cr.moveTo(x, y);
 	}
 
 }
