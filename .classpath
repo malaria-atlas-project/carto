@@ -25,10 +25,10 @@
 	<classpathentry kind="lib" path="/home/will/workspace/WorldDiseaseMapper/war/WEB-INF/lib/jdo2-api-2.3-eb.jar"/>
 	<classpathentry kind="lib" path="/home/will/workspace/WorldDiseaseMapper/war/WEB-INF/lib/slf4j-api-1.5.2.jar"/>
 	<classpathentry kind="lib" path="/home/will/workspace/WorldDiseaseMapper/war/WEB-INF/lib/slf4j-jdk14-1.5.2.jar"/>
-	<classpathentry kind="lib" path="/usr/src/pkg/hibernate-spatial/jts-1.8.0/lib/jts-1.8.jar"/>
-	<classpathentry kind="lib" path="/usr/src/pkg/hibernate-spatial/hibernate-spatial-1.0-M2.jar"/>
-	<classpathentry kind="lib" path="/usr/src/pkg/hibernate-spatial/hibernate-spatial-postgis-1.0-M2.jar"/>
-	<classpathentry kind="lib" path="/usr/src/pkg/hibernate-spatial/postgis-jdbc-jts-1.1.6.jar"/>
 	<classpathentry kind="lib" path="/home/will/workspace/WorldDiseaseMapper/war/WEB-INF/lib/postgresql-8.3-605.jdbc3.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate-spatial-1.0-M2.jar"/>
+	<classpathentry kind="lib" path="lib/hibernate-spatial-postgis-1.0-M2.jar"/>
+	<classpathentry kind="lib" path="lib/jts-1.8.jar"/>
+	<classpathentry kind="lib" path="lib/postgis-jdbc-jts-1.1.6.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
