@@ -38,10 +38,10 @@ public class CairoTest {
 		
 		MapCanvas mc= new MapCanvas(pdf, env);
 		
-		System.out.println(env.getMinX());
-		System.out.println(env.getMinY());
-		System.out.println(env.getMaxX());
-		System.out.println(env.getMaxX());
+		//System.out.println(env.getMinX());
+		//System.out.println(env.getMinY());
+		//System.out.println(env.getMaxX());
+		//System.out.println(env.getMaxX());
         
         for (Admin0 admin0 : a) {
         	mc.drawMultiPolygon((MultiPolygon) admin0.getGeometry());
