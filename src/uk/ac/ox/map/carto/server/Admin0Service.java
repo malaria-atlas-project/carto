@@ -14,9 +14,10 @@ public class Admin0Service {
 	public ArrayList<Admin0> getAdminUnit(){
 		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
         session.beginTransaction();
-        ArrayList<Admin0> a0 = (ArrayList<Admin0>) session.createQuery("from Admin0 where countryId = 'UZB'").setMaxResults(2).list();
+        ArrayList<Admin0> a0 = (ArrayList<Admin0>) session.createQuery("from Admin0 where countryId = 'BRA'").setMaxResults(2).list();
 		return a0;
 	}
+	
 	public Envelope getCountryExtent(){
 		Session session;
         try {

@@ -25,7 +25,7 @@ public class CairoTest {
         for (Admin0 admin0 : a) {
         	System.out.println(admin0.getName());
         	/*
-        	 * Why doesn't this return an envelope? This envelope getting shouldn't be necessary
+        	 * Why doesn't this return an envelope? This envelope creation shouldn't be necessary
         	 */
         	Polygon boundingGeom = (Polygon) admin0.getGeometry().getEnvelope();
         	for (Coordinate c: boundingGeom.getCoordinates()) {
