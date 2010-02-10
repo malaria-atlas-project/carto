@@ -33,8 +33,8 @@ public class CairoTest {
 			}
         }
         
-		PdfSurface pdf = new PdfSurface("/tmp/javacairo.pdf", 500, 707);
-		MapCanvas mc= new MapCanvas(pdf, 500, 707, env);
+		PdfSurface pdf = new PdfSurface("/tmp/javacairo.pdf", 700, 500);
+		MapCanvas mc= new MapCanvas(pdf, 700, 500, env);
 		
 		//System.out.println(env.getMinX());
 		//System.out.println(env.getMinY());

@@ -1,0 +1,12 @@
+*.png
+*.gif
+*.jpg
+*.jpeg
+*.class
+*.rpc
+*.cache.html
+*.nocache.js
+*.cache.js
+*.metadata
+*.cache.html
+*.nocache.html

@@ -27,57 +27,61 @@ public class MapCanvas {
     private final double scale;
 	private final AffineTransform transform = new AffineTransform();
 	
-	public MapCanvas(PdfSurface pdf, int width, int height, Envelope env) throws FileNotFoundException {
+	public MapCanvas(PdfSurface pdf, int width, int height, Envelope dEnv) throws FileNotFoundException {
 		Gtk.init(null);
 		Pixbuf pb = new Pixbuf("/home/will/map1_public/maps/map_overlay3.png");
 		
 		this.width = width;
 		this.height = height;
 		
-    	Double dX = env.getWidth();
-    	Double dY = env.getHeight();
+    	Double dX = dEnv.getWidth();
+    	Double dY = dEnv.getHeight();
 		
-		debugTransform(env);
+		debugTransform(dEnv);
 		
     	double arEnv = dX/dY;
     	double arCanvas = width/height;
     	
+    	/*
+    	 * Fix the scale
+    	 */
+    	dX = dEnv.getWidth();
+    	dY = dEnv.getHeight();
+		Double xScale = width / dX;
+		Double yScale = height / dY;
+		this.scale = (xScale < yScale) ? xScale: yScale;
+	    this.env = dEnv;
+	    
 		/*
 		 * Expand env to fit whole canvas
 		 * 
 		 */
     	Envelope cEnv = new Envelope();
 		if (arCanvas > arEnv) {
-			//canvas is fatter- expand env in x direction
+			//canvas is fatter than data- expand env in x direction
 			//ll
-			cEnv.expandToInclude(new Coordinate(env.getMinX() - (dX/2), env.getMinY()));
+			double dW = (width/scale) - dX;
+			cEnv.expandToInclude(new Coordinate(dEnv.getMinX() - (dW/2), dEnv.getMinY()));
 			//ur
-			cEnv.expandToInclude(new Coordinate(env.getMaxX() + (dX/2), env.getMaxY()));
+			cEnv.expandToInclude(new Coordinate(dEnv.getMaxX() + (dW/2), dEnv.getMaxY()));
 		} else if (arCanvas < arEnv) {
-			//canvas is thinner - expand env in y direction
+			double dH = (height/scale) - dY;
+			//canvas is thinner than data- expand env in y direction
 			//ll
-			cEnv.expandToInclude(new Coordinate(env.getMinX(), env.getMinY() - (dY/2)));
+			cEnv.expandToInclude(new Coordinate(dEnv.getMinX(), dEnv.getMinY() - (dH/2)));
 			//ur
-			cEnv.expandToInclude(new Coordinate(env.getMaxX(), env.getMaxY() + (dY/2)));
+			cEnv.expandToInclude(new Coordinate(dEnv.getMaxX(), dEnv.getMaxY() + (dH/2)));
+		} else {
+			//aspect ratios are the same
+			cEnv = dEnv;
 		}
 		
 		/*
 		 * Set transform
 		 */
-    	dX = env.getWidth();
-    	dY = env.getHeight();
-    	
-    	
-    	System.out.println("centre:");
-    	System.out.println(env.centre());
-	
-		Double xScale = width / dX;
-		Double yScale = height / dY;
-		this.scale = (xScale < yScale) ? xScale: yScale;
-	    this.env = env;
 		transform.scale(this.scale, -this.scale);
-		transform.translate(-env.getMinX(), -env.getMinY());
-		debugTransform(env);
+		transform.translate(-cEnv.getMinX(), -cEnv.getMinY());
+		debugTransform(cEnv);
 	    
 	   /*
 	    * Get context 
@@ -88,7 +92,6 @@ public class MapCanvas {
 	    //cr.setSource(pb, 10, 10);
 	    //cr.paint();
 	    cr.scale(5,5);
-	    
 	    cr.setSource(1.0, 0.1, 0.0, 1.0);
 	}
 	
