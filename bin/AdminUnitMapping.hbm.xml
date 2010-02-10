@@ -3,13 +3,23 @@
 "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="uk.ac.ox.map.carto.server">
-    <class name="Admin0" table="admin0">
+    <class name="AdminUnit" table="admin">
         <id column="gaul_code" name="id"></id>
-		<property name="geometry" type="org.hibernatespatial.GeometryUserType">
+		<property name="geom" type="org.hibernatespatial.GeometryUserType">
 				<column name="geom" />
 		</property>
 		<property name="countryId">
 				<column name="country_id" />
+		</property>
+		<property name="adminLevel">
+				<column name="admin_level" />
+		</property>
+        <property name="name" column="name"></property>
+    </class>
+    <class name="Country" table="country_extents">
+        <id column="id" name="id"></id>
+		<property name="geom" type="org.hibernatespatial.GeometryUserType">
+				<column name="geom" />
 		</property>
         <property name="name" column="name"></property>
     </class>

@@ -2,6 +2,8 @@ package uk.ac.ox.map.carto.server;
 
 import org.hibernate.SessionFactory;
 import org.hibernate.cfg.Configuration;
+import org.hibernate.classic.Session;
+
 
 public class HibernateUtil {
 
@@ -21,6 +23,17 @@ public class HibernateUtil {
 
     public static SessionFactory getSessionFactory() {
         return sessionFactory;
+    }
+    
+    public static Session getCurrentSession() {
+        try {
+	        return sessionFactory.getCurrentSession();
+        }
+        catch (Throwable ex) {
+            System.err.println("Initialization failed." + ex);
+            throw new ExceptionInInitializerError(ex);
+        }
+		
     }
 
 }
