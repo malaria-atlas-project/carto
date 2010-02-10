@@ -7,6 +7,7 @@ import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
 
+import uk.ac.ox.map.carto.canvas.style.LineStyle;
 import uk.ac.ox.map.carto.server.AdminUnit;
 import uk.ac.ox.map.carto.server.AdminUnitService;
 import uk.ac.ox.map.carto.server.Country;
@@ -32,7 +33,7 @@ public class CairoTest {
 		/*
 		 * Get country of interest
 		 */
-		Country country  = adminUnitService.getCountry("TUR");
+		Country country  = adminUnitService.getCountry("BRA");
 		Polygon poly = (Polygon) country.getGeom();
 		Envelope env = EnvelopeFactory.envelopeFromPolygon(poly);
 		
@@ -41,10 +42,14 @@ public class CairoTest {
 		 * Get admin units overlapping data frame and draw them
 		 */
         ArrayList<AdminUnit> adminUnits = adminUnitService.getAdminUnit(poly);
+        LineStyle ls = new LineStyle();
+        ls.setLineColour("#9999CC", (float) .2);
+        ls.setLineWidth(0.4);
        
-        int h,w; w=400; h = 450; 
+        int h, w; w=400; h = 450; 
 		PdfSurface dfSurface = new PdfSurface("/tmp/tmp_dataframe.pdf", w, h);
 		DataFrame df= new DataFrame(dfSurface, w, h, env);
+		df.setLineStyle(ls);
 		
         for (AdminUnit admin0 : adminUnits) {
         	df.drawMultiPolygon((MultiPolygon) admin0.getGeom());
@@ -53,10 +58,16 @@ public class CairoTest {
         /*
          * Draw the rest of the canvas
          */
-		PdfSurface mapSurface = new PdfSurface("/tmp/tmp_mapsurface.pdf", 700, 500);
-		MapCanvas mapCanvas = new MapCanvas(mapSurface);
-        
+        w=500; h = 707; 
+		PdfSurface mapSurface = new PdfSurface("/tmp/tmp_mapsurface.pdf", w, h);
+		MapCanvas mapCanvas = new MapCanvas(mapSurface, w, h);
+		mapCanvas.drawDataFrame(df, 10, 10);
+		
+		/*
+		 * Understand this better! Does data frame require finishing? Does the data frame even need a pdf surface?
+		 */
         dfSurface.finish();
+		mapSurface.finish();
 	}
 
 }
