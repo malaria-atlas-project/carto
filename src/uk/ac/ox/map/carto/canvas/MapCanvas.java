@@ -5,10 +5,6 @@ import org.freedesktop.cairo.PdfSurface;
 import org.gnome.gdk.Pixbuf;
 import org.gnome.pango.FontDescription;
 import org.gnome.pango.Layout;
-import org.gnome.pango.Style;
-import org.gnome.pango.StyleAttribute;
-
-import uk.ac.ox.map.carto.canvas.ScaleBar.SegmentType;
 
 public class MapCanvas extends BaseCanvas {
 	
@@ -17,16 +13,21 @@ public class MapCanvas extends BaseCanvas {
 		super(pdf, width, height);
 
 	}
-	public void addTitle(String title) {
+	
+	private MapCanvas outer(){
+		return this;
+	}
+	
+	public void annotateMap(String text, int x, int y, AnchorX ax, AnchorY ay) {
 		
 		Layout layout = new Layout(cr);
-        FontDescription fontDesc = new FontDescription("Helvetica, 10");
+        FontDescription fontDesc = new FontDescription("Helvetica, 8");
         layout.setFontDescription(fontDesc);
-		layout.setMarkup("<span foreground='blue' size='x-large'>Lorem ipsum sit </span><i>suas denique persequeris et,</i> eam no wisi velit tamquam. Vis ne decore scripserit comprehensam, eros veritus comprehensam vix no. Homero debitis intellegebat sed ex, vim te reque putant pertinax. Et has accusamus prodesset, te clita mentitum prodesset quo, dolorum tibique vis ne. Vidit prodesset consectetuer has in, eam et alii choro fuisset, dicam lucilius necessitatibus cu eos. Quo ne novum fabellas torquatos, sea simul nusquam blandit ea.");
-        layout.setWidth(width);
-        layout.setJustify(true);
+		layout.setMarkup(text);
+		layout.getPixelWidth();
+		
         cr.setSource(0.0, 0.0, 0.0);
-        cr.moveTo(20, 500);
+        cr.moveTo(ax.eval(layout.getPixelWidth(), x), ay.eval(layout.getPixelHeight(), y));
         cr.showLayout(layout);
 		
 	}
@@ -46,28 +47,47 @@ public class MapCanvas extends BaseCanvas {
 	}
 
 	public void setScaleBar(Frame frame, double scale){
-		ScaleBar sb = new ScaleBar(cr, frame, scale);
+		ScaleBar sb = new ScaleBar(frame, scale);
 	}
 	
 	public enum SegmentType {HOLLOW, FILLED}
 	
+	public enum AnchorX {
+		L, C, R; 
+		int eval(int w, int x){
+	        switch(this) {
+	            case L: return x;
+	            case C: return x-(w/2);
+	            case R: return x-w;
+			}
+            throw new AssertionError("Unknown op: " + this);
+		}
+	}
+		
+	public enum AnchorY {
+		T, C, B;
+		int eval(int h, int y){
+	        switch(this) {
+	            case T: return y;
+	            case C: return y-(h/2);
+	            case B: return y-h;
+			}
+            throw new AssertionError("Unknown op: " + this);
+		}
+	}
+	
 	public class ScaleBar {
 		private static final double KM_PER_DEGREE = 111.320;
 		private final int barHeight;
-		private final double scale;
 		private int offset;
 		private Context cr;
 		private Frame frame;
 
-
-		public ScaleBar(Context cr, Frame frame, double scale) {
-			MapCanvas outer = MapCanvas.this;
-			this.cr = outer.cr;
+		public ScaleBar(Frame frame, double scale) {
+			this.cr = outer().cr;
 			//TODO: hard code
 			this.barHeight = 5;
 			this.frame = frame;
-			
-			this.scale = scale;
 			this.offset = frame.x;
 			
 			cr.setLineWidth(0.2);
@@ -80,7 +100,7 @@ public class MapCanvas extends BaseCanvas {
 	        
 	        double divisionWidth = 0;
 	        double nIntervals = 0;
-	        int interval;
+	        int interval = 0;
 	        for (int i = 0; i < intervals.length; i++) {
 				interval = intervals[i];
 	            nIntervals = maxDist / interval;
@@ -89,7 +109,6 @@ public class MapCanvas extends BaseCanvas {
 	                break;
 	            }
 			}
-	        
 
 	        if (!(nIntervals >= 2)) {
 	        	System.err.println("not enough intervals");
@@ -103,22 +122,18 @@ public class MapCanvas extends BaseCanvas {
 	        	else
 		            st = SegmentType.FILLED;       		
 	        	
-	        	drawSegment((int) divisionWidth, st);
+	        	drawSegment((int) divisionWidth, st, ""+(interval * (i+1)));
 			}
-
-
 		}
 		
-	    private void drawSegment(int width, SegmentType st){
+	    private void drawSegment(int width, SegmentType st, String text){
 	        cr.rectangle(offset, frame.y, width, barHeight);
 	        if (st == SegmentType.FILLED) {
 		        cr.fillPreserve();
 	        }
 	        cr.stroke();
 	        offset += width;
+        	outer().annotateMap(text, offset, frame.y, AnchorX.C, AnchorY.B);
 	    }
-
-
 	}
-	
 }
