@@ -1,6 +1,6 @@
 package uk.ac.ox.map.carto.canvas.style;
 
-public class PolygonStyle extends LineStyle {
+public class FillStyle  {
 	
 	private Colour fillColour;
 

@@ -9,10 +9,12 @@ import org.freedesktop.cairo.Surface;
 import org.gnome.gdk.Pixbuf;
 import org.gnome.gtk.Gtk;
 
+import uk.ac.ox.map.carto.canvas.style.FillStyle;
 import uk.ac.ox.map.carto.canvas.style.LineStyle;
 import uk.ac.ox.map.carto.server.AdminUnit;
 import uk.ac.ox.map.carto.server.AdminUnitService;
 import uk.ac.ox.map.carto.server.Country;
+import uk.ac.ox.map.carto.server.PfAdminUnit;
 import uk.ac.ox.map.carto.util.EnvelopeFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -35,28 +37,31 @@ public class CairoTest {
 		/*
 		 * Get country of interest
 		 */
-		Country country  = adminUnitService.getCountry("ZAF");
+		String countryId = "ZAF";
+		Country country  = adminUnitService.getCountry(countryId);
 		Polygon poly = (Polygon) country.getGeom();
-		Envelope env = EnvelopeFactory.envelopeFromPolygon(poly);
-		
+		Envelope env = EnvelopeFactory.envelopeFromPolygon(poly, 1.05);
 		
 		/*
 		 * Get admin units overlapping data frame and draw them
 		 */
         ArrayList<AdminUnit> adminUnits = adminUnitService.getAdminUnit(poly);
-        LineStyle ls = new LineStyle();
-        ls.setLineColour("#9999CC", (float) .8);
-        ls.setLineWidth(0.4);
        
         int h, w; w=460; h = 450; 
 		PdfSurface dfSurface = new PdfSurface("/tmp/tmp_dataframe.pdf", w, h);
 		DataFrame df= new DataFrame(dfSurface, w, h, env);
-		df.setLineStyle(ls);
+        df.setLineColour("#000000", (float) 1);
+        df.setLineWidth(0.1);
+        df.setFillColour("#cccccc", (float) 0.8);
 		
         for (AdminUnit admin0 : adminUnits) {
         	df.drawMultiPolygon((MultiPolygon) admin0.getGeom());
 		}
+        
 		
+        ArrayList<PfAdminUnit> pfUnits = adminUnitService.getPfAdminUnits(countryId);
+        
+        
         /*
          * Draw the rest of the canvas
          */

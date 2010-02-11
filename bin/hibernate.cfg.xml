@@ -6,7 +6,7 @@
     <session-factory>
         <property name="hibernate.connection.driver_class">org.postgresql.Driver</property>
         <property name="hibernate.connection.password"></property>
-        <property name="hibernate.connection.url">jdbc:postgresql://localhost:2345/wdm1_test</property>
+        <property name="hibernate.connection.url">jdbc:postgresql://localhost:2345/map_a_test</property>
         <property name="hibernate.connection.username">will</property>
 		<property name="hibernate.dialect">org.hibernatespatial.postgis.PostgisDialect</property>
         <!-- Enable Hibernate's automatic session context management -->

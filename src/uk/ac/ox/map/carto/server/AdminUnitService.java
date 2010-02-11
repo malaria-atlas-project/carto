@@ -28,6 +28,7 @@ public class AdminUnitService {
         Criteria testCriteria = session.createCriteria(AdminUnit.class);
         testCriteria.add(new SpatialFilter("geom", env));
         testCriteria.add(Restrictions.eq("adminLevel", "0"));
+//        testCriteria.add(Restrictions.eq("countryId", "ZAF"));
         
 //        ArrayList<AdminUnit> a0 = (ArrayList<AdminUnit>) session.createQuery("from Admin0").set.list();
         ArrayList<AdminUnit> a0 = (ArrayList<AdminUnit>) testCriteria.list();
@@ -40,6 +41,15 @@ public class AdminUnitService {
         session.beginTransaction();
         return (Country) session.createQuery("from Country where id = :country_id")
         .setParameter("country_id", countryId).uniqueResult();
+	}
+	
+	public ArrayList<PfAdminUnit> getPfAdminUnits(String countryId) {
+		Session session = HibernateUtil.getCurrentSession();
+        session.beginTransaction();
+        Criteria testCriteria = session.createCriteria(PfAdminUnit.class);
+        testCriteria.add(Restrictions.eq("countryId", countryId));
+        ArrayList<PfAdminUnit> pf = (ArrayList<PfAdminUnit>) testCriteria.list();
+		return pf;
 		
 	}
 

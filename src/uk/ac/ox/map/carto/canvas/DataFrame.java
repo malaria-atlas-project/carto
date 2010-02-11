@@ -10,6 +10,7 @@ import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiLineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
@@ -111,10 +112,23 @@ public class DataFrame extends BaseCanvas {
 			}
 	}
 	
-	public void drawPolygon(Polygon p){
-        	Geometry ls =  p.getBoundary();
-        	Coordinate[] coordinates = ls.getCoordinates();
+	private void drawPolygon(Polygon p){
+        	LineString exteriorRing =  p.getExteriorRing();
+        	drawLineString(exteriorRing);
         	
+        	for (int i = 0; i < p.getNumInteriorRing(); i++) {
+	        	drawLineString(p.getInteriorRingN(i));
+			}
+//	        cr.stroke();
+        	setFillColour();
+	        cr.fillPreserve();
+	        setLineColour();
+    		cr.stroke();
+	}
+	
+	private void drawLineString(LineString ls) {
+		
+        	Coordinate[] coordinates = ls.getCoordinates();
         	for (int i = 0; i < coordinates.length; i++) {
 				Coordinate c = coordinates[i];
         		if (i==0){
@@ -123,8 +137,7 @@ public class DataFrame extends BaseCanvas {
 	        		lineTo(c.x, c.y);
         		} 
 			}
-//	        cr.stroke();
-	        cr.fill();
+		
 	}
 	
 	private void lineTo(double x, double y){

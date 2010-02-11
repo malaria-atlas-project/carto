@@ -14,7 +14,19 @@
 		<property name="adminLevel">
 				<column name="admin_level" />
 		</property>
-        <property name="name" column="name"></property>
+        <property name="name">
+				<column name="name" />
+        </property>
+        <joined-subclass name="PfAdminUnit" table="pf_risk">
+	        <key column="gaul_code"/>
+	        <property name="risk" column="pf_risk"/>
+	        <property name="afi" column="afi"/>
+	    </joined-subclass>
+        <joined-subclass name="PvAdminUnit" table="pv_risk">
+	        <key column="gaul_code"/>
+	        <property name="risk" column="pv_risk"/>
+	        <property name="avi" column="avi"/>
+	    </joined-subclass>
     </class>
     <class name="Country" table="country_extents">
         <id column="id" name="id"></id>

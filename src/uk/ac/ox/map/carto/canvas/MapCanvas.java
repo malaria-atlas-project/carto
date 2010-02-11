@@ -1,9 +1,7 @@
 package uk.ac.ox.map.carto.canvas;
 
-import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.PdfSurface;
 import org.gnome.gdk.Pixbuf;
-import org.gnome.pango.Alignment;
 import org.gnome.pango.FontDescription;
 import org.gnome.pango.Layout;
 import org.gnome.pango.Style;
@@ -19,7 +17,7 @@ public class MapCanvas extends BaseCanvas {
         final FontDescription desc;
         desc = new FontDescription("Helvetica, 12");
         layout.setFontDescription(desc);
-		layout.setMarkup("<span foreground='blue' size='x-large'>Lorem ipsum sit </span><i>suas denique persequeris et,</i>  eam no wisi velit tamquam. Vis ne decore scripserit comprehensam, eros veritus comprehensam vix no. Homero debitis intellegebat sed ex, vim te reque putant pertinax. Et has accusamus prodesset, te clita mentitum prodesset quo, dolorum tibique vis ne. Vidit prodesset consectetuer has in, eam et alii choro fuisset, dicam lucilius necessitatibus cu eos. Quo ne novum fabellas torquatos, sea simul nusquam blandit ea.");
+		layout.setMarkup("<span foreground='blue' size='x-large'>Lorem ipsum sit </span><i>suas denique persequeris et,</i> eam no wisi velit tamquam. Vis ne decore scripserit comprehensam, eros veritus comprehensam vix no. Homero debitis intellegebat sed ex, vim te reque putant pertinax. Et has accusamus prodesset, te clita mentitum prodesset quo, dolorum tibique vis ne. Vidit prodesset consectetuer has in, eam et alii choro fuisset, dicam lucilius necessitatibus cu eos. Quo ne novum fabellas torquatos, sea simul nusquam blandit ea.");
         layout.setWidth(400);
         layout.setJustify(true);
         cr.setSource(0.0, 0.0, 0.0);
