@@ -1,6 +1,6 @@
 package uk.ac.ox.map.carto.server;
 
-public class PfAdminUnit extends AdminUnit {
+public class PfAdminUnit extends AdminUnit implements RiskMap{
 	private Integer risk;
 	private Double afi;
 

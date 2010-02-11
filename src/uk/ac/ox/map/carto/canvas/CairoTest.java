@@ -2,6 +2,7 @@ package uk.ac.ox.map.carto.canvas;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 
 import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.PdfSurface;
@@ -9,12 +10,14 @@ import org.freedesktop.cairo.Surface;
 import org.gnome.gdk.Pixbuf;
 import org.gnome.gtk.Gtk;
 
+import uk.ac.ox.map.carto.canvas.style.Colour;
 import uk.ac.ox.map.carto.canvas.style.FillStyle;
 import uk.ac.ox.map.carto.canvas.style.LineStyle;
 import uk.ac.ox.map.carto.server.AdminUnit;
 import uk.ac.ox.map.carto.server.AdminUnitService;
 import uk.ac.ox.map.carto.server.Country;
 import uk.ac.ox.map.carto.server.PfAdminUnit;
+import uk.ac.ox.map.carto.server.PolygonCursor;
 import uk.ac.ox.map.carto.util.EnvelopeFactory;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -37,7 +40,7 @@ public class CairoTest {
 		/*
 		 * Get country of interest
 		 */
-		String countryId = "ZAF";
+		String countryId = "PER";
 		Country country  = adminUnitService.getCountry(countryId);
 		Polygon poly = (Polygon) country.getGeom();
 		Envelope env = EnvelopeFactory.envelopeFromPolygon(poly, 1.05);
@@ -58,9 +61,17 @@ public class CairoTest {
         	df.drawMultiPolygon((MultiPolygon) admin0.getGeom());
 		}
         
+        /*
+         * Draw the risk units
+         */
 		
         ArrayList<PfAdminUnit> pfUnits = adminUnitService.getPfAdminUnits(countryId);
-        
+        HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
+        colours.put(0, new Colour("#ffffff", 1));
+        colours.put(1, new Colour("#ffbebe", 1));
+        colours.put(2, new Colour("#cd6666", 1));
+		PolygonCursor<PfAdminUnit> pfFeats = new PolygonCursor<PfAdminUnit>(pfUnits, colours);
+		df.drawPolygonCursor(pfFeats);
         
         /*
          * Draw the rest of the canvas

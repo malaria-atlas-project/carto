@@ -13,7 +13,6 @@ public class MapCanvas extends BaseCanvas {
 		super(pdf);
 		Layout layout = new Layout(cr);
 		
-		StyleAttribute attr = new StyleAttribute(Style.ITALIC);
         final FontDescription desc;
         desc = new FontDescription("Helvetica, 12");
         layout.setFontDescription(desc);
@@ -29,6 +28,8 @@ public class MapCanvas extends BaseCanvas {
 	public void drawDataFrame(DataFrame df, int x, int y){
 		cr.setSource(df.getSurface(), x, y);
 		cr.paint();
+//		cr.rectangle(x, y, df.getWidth(), df.getHeight());
+//		cr.stroke();
 	}
 	
 	public void setLogo(Pixbuf pb, int x, int y){

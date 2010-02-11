@@ -3,9 +3,11 @@ package uk.ac.ox.map.carto.canvas;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 import java.io.FileNotFoundException;
+import java.util.Iterator;
 
 import javax.print.attribute.standard.PDLOverrideSupported;
 
+import com.google.gwt.rpc.client.ast.SetCommand;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
@@ -18,6 +20,10 @@ import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.PdfSurface;
 import org.gnome.gdk.Pixbuf;
 import org.gnome.gtk.Gtk;
+
+import uk.ac.ox.map.carto.server.Feature;
+import uk.ac.ox.map.carto.server.PolygonCursor;
+import uk.ac.ox.map.carto.server.RiskMap;
 
 public class DataFrame extends BaseCanvas {
 	
@@ -41,7 +47,7 @@ public class DataFrame extends BaseCanvas {
 	    cr.setLineWidth(0.2);
 	    cr.setSource(0.0, 1.0, 0.0, 1.0);
 	}
-
+	
 	private void setEnvelope(int width, int height, Envelope dataEnv) {
 		Double dX = dataEnv.getWidth();
     	Double dY = dataEnv.getHeight();
@@ -105,6 +111,14 @@ public class DataFrame extends BaseCanvas {
     	System.out.println(urPt);
 	}
 	
+	public void drawPolygonCursor(PolygonCursor<? extends RiskMap> pc) {
+		for (int i = 0; i < pc.size(); i++) {
+			Feature f  = pc.getFeature(i);
+			setFillColour(f.c);
+			drawMultiPolygon(f.mp);
+		}
+		
+	}
     
 	public void drawMultiPolygon(MultiPolygon mp){
         	for (int i = 0; i < mp.getNumGeometries(); i++) {
@@ -156,5 +170,12 @@ public class DataFrame extends BaseCanvas {
 		return pdf;
 	}
 	
+	public int getWidth(){
+		return width;
+	}
+	public int getHeight(){
+		return height;
+	}
+
 
 }

@@ -22,21 +22,16 @@ public class AdminUnitService {
 	
 	
 	public ArrayList<AdminUnit> getAdminUnit(Geometry env){
-//		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		Session session = HibernateUtil.getCurrentSession();
         session.beginTransaction();
         Criteria testCriteria = session.createCriteria(AdminUnit.class);
         testCriteria.add(new SpatialFilter("geom", env));
         testCriteria.add(Restrictions.eq("adminLevel", "0"));
-//        testCriteria.add(Restrictions.eq("countryId", "ZAF"));
-        
-//        ArrayList<AdminUnit> a0 = (ArrayList<AdminUnit>) session.createQuery("from Admin0").set.list();
         ArrayList<AdminUnit> a0 = (ArrayList<AdminUnit>) testCriteria.list();
 		return a0;
 	}
 	
 	public Country getCountry(String countryId){
-//		Session session = HibernateUtil.getSessionFactory().getCurrentSession();
 		Session session = HibernateUtil.getCurrentSession();
         session.beginTransaction();
         return (Country) session.createQuery("from Country where id = :country_id")
