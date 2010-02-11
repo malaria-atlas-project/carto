@@ -4,16 +4,17 @@ import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.PdfSurface;
 
 import uk.ac.ox.map.carto.canvas.style.Colour;
-import uk.ac.ox.map.carto.canvas.style.FillStyle;
-import uk.ac.ox.map.carto.canvas.style.LineStyle;
 
 public abstract class BaseCanvas {
 	protected final Context cr;
+	protected final PdfSurface pdf;
 	private Colour fillColour;
 	private Colour lineColour;
 	private double lineWidth;
-	
+    protected final int width;
+    protected final int height;
 
+	
 	
 	protected void setLineColour(String hex, float a) {
 		lineColour = new Colour(hex, a);
@@ -32,8 +33,7 @@ public abstract class BaseCanvas {
 		cr.setSource(fillColour.getRed(), fillColour.getGreen(), fillColour.getBlue(), fillColour.getAlpha());
 	}
 	
-	
-	public BaseCanvas(PdfSurface pdf) {
+	public BaseCanvas(PdfSurface pdf, int width, int height) {
 	   /*
 	    * Get context 
 	    */
@@ -44,7 +44,9 @@ public abstract class BaseCanvas {
 		setLineColour("#000000", 1);
 		setLineWidth(0.2);
 		setFillColour("#CCCCCC", (float) 0.8);
-		
+		this.width = width;
+		this.height = height;
+		this.pdf = pdf;
 	}
 
 	public void setFillColour(Colour fillColour) {

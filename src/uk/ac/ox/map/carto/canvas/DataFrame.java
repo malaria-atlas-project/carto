@@ -27,20 +27,14 @@ import uk.ac.ox.map.carto.server.RiskMap;
 
 public class DataFrame extends BaseCanvas {
 	
-	private final PdfSurface pdf;
 	private final Envelope env;
-    private final int width;
-    private final int height;
     private double scale;
 	private final AffineTransform transform = new AffineTransform();
 	
 	public DataFrame(PdfSurface pdf, int width, int height, Envelope dataEnv) {
 		
-		super(pdf);
+		super(pdf, width, height);
 		
-		this.pdf = pdf;
-		this.width = width;
-		this.height = height;
 		this.env = dataEnv;
     	setEnvelope(width, height, dataEnv);
 	    
@@ -175,6 +169,10 @@ public class DataFrame extends BaseCanvas {
 	}
 	public int getHeight(){
 		return height;
+	}
+
+	public double getScale() {
+		return scale;
 	}
 
 

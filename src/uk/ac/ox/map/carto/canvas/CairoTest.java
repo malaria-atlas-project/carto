@@ -29,6 +29,11 @@ import com.vividsolutions.jts.geom.Polygon;
 public class CairoTest {
 	
 	public static void main(String[] args) throws IOException {
+		String countryId = "PER";
+		drawMap(countryId);
+		
+	}
+	public static void drawMap(String countryId) throws IOException {
 		
 		/*
 		 * Get country then use extent to: 
@@ -40,7 +45,6 @@ public class CairoTest {
 		/*
 		 * Get country of interest
 		 */
-		String countryId = "PER";
 		Country country  = adminUnitService.getCountry(countryId);
 		Polygon poly = (Polygon) country.getGeom();
 		Envelope env = EnvelopeFactory.envelopeFromPolygon(poly, 1.05);
@@ -70,8 +74,8 @@ public class CairoTest {
         colours.put(0, new Colour("#ffffff", 1));
         colours.put(1, new Colour("#ffbebe", 1));
         colours.put(2, new Colour("#cd6666", 1));
-		PolygonCursor<PfAdminUnit> pfFeats = new PolygonCursor<PfAdminUnit>(pfUnits, colours);
-		df.drawPolygonCursor(pfFeats);
+//		PolygonCursor<PfAdminUnit> pfFeats = new PolygonCursor<PfAdminUnit>(pfUnits, colours);
+//		df.drawPolygonCursor(pfFeats);
         
         /*
          * Draw the rest of the canvas
@@ -84,6 +88,9 @@ public class CairoTest {
 		Gtk.init(null);
 		Pixbuf pb = new Pixbuf("/home/will/map1_public/maps/map_overlay3.png");
 		mapCanvas.setLogo(pb, 20, 20);
+		
+		Frame frame = new Frame(70,530,400,20);
+		mapCanvas.setScaleBar(frame, df.getScale());
 		
 		/*
 		 * Understand this better! Does data frame require finishing? Does the data frame even need a pdf surface?
