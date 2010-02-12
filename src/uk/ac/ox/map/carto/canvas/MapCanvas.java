@@ -11,6 +11,7 @@ import java.util.List;
 import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.PdfSurface;
 import org.gnome.gdk.Pixbuf;
+import org.gnome.pango.Alignment;
 import org.gnome.pango.FontDescription;
 import org.gnome.pango.Layout;
 
@@ -31,13 +32,55 @@ public class MapCanvas extends BaseCanvas {
 		return this;
 	}
 	
-	public void annotateMap(List<String> text, int x, int y, AnchorX ax, AnchorY ay, Integer fontSize) {
+	public void setTextFrame(String text, Frame frame, Integer fontSize){
+		/*
+		 * TODO look at Reportlab api to think of good ways of abstracting
+		 */
+		Layout layout = new Layout(cr);
+        FontDescription fontDesc = new FontDescription();
+        fontDesc.setFamily("Helvetica");
+        fontDesc.setSize(fontSize);
+        layout.setFontDescription(fontDesc);
+        layout.setWidth(frame.width);
+        layout.setAlignment(Alignment.CENTER);
+		layout.setMarkup(text);
+		
+		//Always default to black. Good idea?
+        cr.setSource(0.0, 0.0, 0.0);
+        cr.moveTo(frame.x, frame.y);
+        cr.showLayout(layout);
+	}
+	
+	public void setTextFrame(List<String> text, Frame frame, Integer fontSize){
+		Layout layout = new Layout(cr);
+        FontDescription fontDesc = new FontDescription();
+        fontDesc.setFamily("Helvetica");
+        fontDesc.setSize(fontSize);
+        layout.setFontDescription(fontDesc);
+        layout.setWidth(frame.width);
+        layout.setJustify(true);
+        
+        cr.setSource(0.0, 0.0, 0.0);
+        
+        int y = frame.y; 
+        
 		for (String string : text) {
-			annotateMap(text, x, y, ax, ay, fontSize);
+	        cr.moveTo(frame.x, y);
+			layout.setMarkup(string);
+	        cr.showLayout(layout);
+	        y += layout.getPixelHeight() + 10;
+		}
+		
+		//Always default to black. Good idea?
+	}
+	
+	public void annotateMap(List<String> anno, int x, int y, AnchorX ax, AnchorY ay, double fontSize) {
+		for (String string : anno) {
+			annotateMap(string, x, y, ax, ay, fontSize);
 		}
 	} 
 	
-	public void annotateMap(String text, int x, int y, AnchorX ax, AnchorY ay, Integer fontSize) {
+	public void annotateMap(String text, int x, int y, AnchorX ax, AnchorY ay, double fontSize) {
 		
 		Layout layout = new Layout(cr);
         FontDescription fontDesc = new FontDescription();
@@ -45,13 +88,11 @@ public class MapCanvas extends BaseCanvas {
         fontDesc.setSize(fontSize);
         layout.setFontDescription(fontDesc);
 		layout.setMarkup(text);
-		layout.getPixelWidth();
 		
 		//Always default to black. Good idea?
         cr.setSource(0.0, 0.0, 0.0);
         cr.moveTo(ax.eval(layout.getPixelWidth(), x), ay.eval(layout.getPixelHeight(), y));
         cr.showLayout(layout);
-		
 	}
 	
 	public void drawDataFrame(DataFrame df, int x, int y){
@@ -67,7 +108,7 @@ public class MapCanvas extends BaseCanvas {
 		}
 	}
 	
-	public void drawMapGrids(int fontSize) {
+	public void drawMapGrids(double fontSize) {
 		/*
 		 * TODO fix hacking - hardcoding, over complexity; 
 		 */
@@ -76,8 +117,6 @@ public class MapCanvas extends BaseCanvas {
 		for (DataFrame df : dataFrames.keySet()) {
 			Envelope env = df.getEnvelope();
 			Point offset = dataFrames.get(df);
-	        double dX = env.getWidth();
-	        double dY = env.getHeight();
 	
 	        int chosen_interval = 0;
 	        HashMap<Integer, Integer> possible_intervals = new HashMap<Integer, Integer>();
