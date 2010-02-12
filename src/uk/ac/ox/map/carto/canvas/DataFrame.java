@@ -27,7 +27,7 @@ import uk.ac.ox.map.carto.server.RiskMap;
 
 public class DataFrame extends BaseCanvas {
 	
-	private final Envelope env;
+	private Envelope env;
     private double scale;
 	private final AffineTransform transform = new AffineTransform();
 	
@@ -35,7 +35,6 @@ public class DataFrame extends BaseCanvas {
 		
 		super(pdf, width, height);
 		
-		this.env = dataEnv;
     	setEnvelope(width, height, dataEnv);
 	    
 	    cr.setLineWidth(0.2);
@@ -85,8 +84,12 @@ public class DataFrame extends BaseCanvas {
 		/*
 		 * Set transform
 		 */
+		this.env = canvasEnv;
 		transform.scale(this.scale, -this.scale);
 		transform.translate(-canvasEnv.getMinX(), -canvasEnv.getMinY()-(height/scale));
+	}
+	public Envelope getEnvelope() {
+		return this.env;
 	}
 	
 	private void debugTransform(Envelope env){
@@ -158,6 +161,12 @@ public class DataFrame extends BaseCanvas {
 		    Point2D.Double pt = new Point2D.Double(x,y);
 			transform.transform(pt, pt);
     		cr.moveTo(pt.getX(), pt.getY());
+	}
+	
+	public Point2D.Double transform(double x, double y) {
+		    Point2D.Double pt = new Point2D.Double(x,y);
+			transform.transform(pt, pt);
+			return pt;
 	}
 
 	public PdfSurface getSurface() {

@@ -15,6 +15,16 @@ public abstract class BaseCanvas {
     protected final int height;
 
 	
+    public void setBackgroundColour(String hex, float a){
+    	setColour(hex, a);
+		cr.rectangle(0, 0, width, height);
+		cr.fill();
+    }
+    
+    protected void setColour(String hex, float a) {
+    	Colour c = new Colour(hex, a);
+		cr.setSource(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
+	}
 	
 	protected void setLineColour(String hex, float a) {
 		lineColour = new Colour(hex, a);

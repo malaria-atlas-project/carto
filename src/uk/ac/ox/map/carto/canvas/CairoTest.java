@@ -4,15 +4,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 
-import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.PdfSurface;
-import org.freedesktop.cairo.Surface;
 import org.gnome.gdk.Pixbuf;
 import org.gnome.gtk.Gtk;
 
 import uk.ac.ox.map.carto.canvas.style.Colour;
-import uk.ac.ox.map.carto.canvas.style.FillStyle;
-import uk.ac.ox.map.carto.canvas.style.LineStyle;
 import uk.ac.ox.map.carto.server.AdminUnit;
 import uk.ac.ox.map.carto.server.AdminUnitService;
 import uk.ac.ox.map.carto.server.Country;
@@ -20,19 +16,18 @@ import uk.ac.ox.map.carto.server.PfAdminUnit;
 import uk.ac.ox.map.carto.server.PolygonCursor;
 import uk.ac.ox.map.carto.util.EnvelopeFactory;
 
-import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
         
 public class CairoTest {
 	
+	
 	public static void main(String[] args) throws IOException {
-		String countryId = "PER";
+		String countryId = "TUR";
 		drawMap(countryId);
-		
 	}
+		
 	public static void drawMap(String countryId) throws IOException {
 		
 		/*
@@ -57,10 +52,11 @@ public class CairoTest {
         int h, w; w=460; h = 450; 
 		PdfSurface dfSurface = new PdfSurface("/tmp/tmp_dataframe.pdf", w, h);
 		DataFrame df= new DataFrame(dfSurface, w, h, env);
+		df.setBackgroundColour("#bee8ff", 1);
         df.setLineColour("#000000", (float) 1);
         df.setLineWidth(0.1);
         df.setFillColour("#cccccc", (float) 0.8);
-		
+        
         for (AdminUnit admin0 : adminUnits) {
         	df.drawMultiPolygon((MultiPolygon) admin0.getGeom());
 		}
@@ -90,7 +86,9 @@ public class CairoTest {
 		mapCanvas.setLogo(pb, 20, 20);
 		
 		Frame frame = new Frame(70,530,400,20);
-		mapCanvas.setScaleBar(frame, df.getScale());
+		mapCanvas.setScaleBar(frame, df.getScale(), 9);
+		mapCanvas.drawMapBorders();
+		mapCanvas.drawMapGrids(7);
 		
 		/*
 		 * Understand this better! Does data frame require finishing? Does the data frame even need a pdf surface?
