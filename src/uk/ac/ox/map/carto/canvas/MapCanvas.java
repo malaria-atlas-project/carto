@@ -2,8 +2,11 @@ package uk.ac.ox.map.carto.canvas;
 
 import java.awt.Point;
 import java.awt.geom.Point2D;
+import java.text.DecimalFormat;
+import java.text.NumberFormat;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.List;
 
 import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.PdfSurface;
@@ -12,6 +15,7 @@ import org.gnome.pango.FontDescription;
 import org.gnome.pango.Layout;
 
 import uk.ac.ox.map.carto.util.AnnotationFactory;
+
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -26,6 +30,12 @@ public class MapCanvas extends BaseCanvas {
 	private MapCanvas outer(){
 		return this;
 	}
+	
+	public void annotateMap(List<String> text, int x, int y, AnchorX ax, AnchorY ay, Integer fontSize) {
+		for (String string : text) {
+			annotateMap(text, x, y, ax, ay, fontSize);
+		}
+	} 
 	
 	public void annotateMap(String text, int x, int y, AnchorX ax, AnchorY ay, Integer fontSize) {
 		
@@ -185,6 +195,7 @@ public class MapCanvas extends BaseCanvas {
 		private Context cr;
 		private Frame frame;
 		private final int fontSize;
+	    private NumberFormat formatter = new DecimalFormat("###,###,###");
 
 		public ScaleBar(Frame frame, double scale, int fontSize) {
 			this.cr = outer().cr;
@@ -229,7 +240,7 @@ public class MapCanvas extends BaseCanvas {
 	        	else
 		            st = SegmentType.FILLED;       		
 	        	
-	        	drawSegment((int) divisionWidth, st, ""+(interval * (i+1)));
+	        	drawSegment((int) divisionWidth, st, formatter.format(interval * (i+1)));
 			}
 	        
         	outer().annotateMap("Kilometres", offset+10, frame.y, AnchorX.L, AnchorY.T, fontSize);

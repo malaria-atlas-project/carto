@@ -8,6 +8,8 @@ import org.freedesktop.cairo.PdfSurface;
 import org.gnome.gdk.Pixbuf;
 import org.gnome.gtk.Gtk;
 
+import uk.ac.ox.map.carto.canvas.MapCanvas.AnchorX;
+import uk.ac.ox.map.carto.canvas.MapCanvas.AnchorY;
 import uk.ac.ox.map.carto.canvas.style.Colour;
 import uk.ac.ox.map.carto.server.AdminUnit;
 import uk.ac.ox.map.carto.server.AdminUnitService;
@@ -89,6 +91,7 @@ public class CairoTest {
 		mapCanvas.setScaleBar(frame, df.getScale(), 9);
 		mapCanvas.drawMapBorders();
 		mapCanvas.drawMapGrids(7);
+		mapCanvas.annotateMap("Title", 10, 10, AnchorX.L, AnchorY.T, 12);
 		
 		/*
 		 * Understand this better! Does data frame require finishing? Does the data frame even need a pdf surface?
