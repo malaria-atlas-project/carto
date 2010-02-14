@@ -27,7 +27,7 @@ import com.vividsolutions.jts.geom.Polygon;
 public class CairoTest {
 	
 	public static void main(String[] args) throws IOException {
-		String countryId = "VNM";
+		String countryId = "LAO";
 		drawMap(countryId);
 	}
 		
@@ -101,10 +101,12 @@ public class CairoTest {
 			11);
 		
 		List<String> mapTextItems = new ArrayList<String>();
-		System.out.println(StringUtil.getReadableList(country.getYears()));
-		System.out.println(country.getZeroed());
-		mapTextItems.add(String.format((String) mtr.getObject("apiText"), "Admin2", "2004"));
-		mapTextItems.add(String.format((String) mtr.getObject("ithgText"), "2004"));
+		
+		String yearsText = StringUtil.getReadableList(country.getYears());
+		mapTextItems.add(String.format((String) mtr.getObject("apiText"), "Admin2", yearsText));
+		
+		String zeroedText = StringUtil.getReadableList(country.getZeroed());
+		mapTextItems.add(String.format((String) mtr.getObject("ithgText"), zeroedText));
 		
 		Frame mapTextFrame = new Frame(70, 550, 300, 0);
 		mapCanvas.setTextFrame(mapTextItems, mapTextFrame, 8);

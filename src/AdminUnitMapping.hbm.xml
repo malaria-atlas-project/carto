@@ -34,8 +34,10 @@
 				<column name="geom" />
 		</property>
         <property name="name" column="name"></property>
-        <joined-subclass name="PfCountry" table="country">
-        	<key column="id"></key>
+        <joined-subclass name="PfCountry" table="api_pf_map_summary">
+        	<key column="country_id"></key>
+        	<property name="adminLevel" column="admin_level"></property>
+        	<property name="count" column="count"></property>
 	        <set name="zeroed" order-by="name" table="api_pv_zeroed_au">
 	        	<key column="country_id"></key>
 	        	<element column="name" type="string"></element>
@@ -45,8 +47,10 @@
 	        	<element column="year" type="integer"></element>
 	        </set>
         </joined-subclass>
-        <joined-subclass name="PvCountry" table="country">
-        	<key column="id"></key>
+        <joined-subclass name="PvCountry" table="api_pv_map_summary">
+        	<key column="country_id"></key>
+        	<property name="adminLevel" column="admin_level"></property>
+        	<property name="count" column="count"></property>
 	        <set name="zeroed" order-by="name" table="api_pv_zeroed_au">
 	        	<key column="country_id"></key>
 	        	<element column="name" type="string"></element>

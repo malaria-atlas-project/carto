@@ -4,15 +4,15 @@ import java.util.Iterator;
 import java.util.Set;
 
 public class StringUtil {
-	public static String getReadableList(Set<?> s){
+	public static <T> String getReadableList(Set<T> s){
 		StringBuilder sb = new StringBuilder();
 		String delim = "";
 		
-		for (Iterator<?> iterator = s.iterator(); iterator.hasNext();) {
-			Integer integer = (Integer) iterator.next();
+		for (Iterator<T> iterator = s.iterator(); iterator.hasNext();) {
+			T obj = iterator.next();
 			if (!iterator.hasNext())
 				delim = " and ";
-			sb.append(delim).append(integer);
+			sb.append(delim).append(obj);
 			delim =", ";
 		}
 		
