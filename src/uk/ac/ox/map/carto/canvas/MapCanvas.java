@@ -142,7 +142,7 @@ public class MapCanvas extends BaseCanvas {
             
 	        int x, x1, x2; 
 	        int y, y1, y2; 
-	        int tic_length = 5;
+	        int tic_length = 3;
 	        String anno;
             for (int i = -180; i <= 180; i+=chosen_interval) {
             	// Dual purpose: does a meridian and parallel
@@ -184,11 +184,14 @@ public class MapCanvas extends BaseCanvas {
         
 	}
 	
-	public void setLogo(Pixbuf pb, int x, int y){
-		cr.scale(0.2, 0.2);
-		cr.setSource(pb, x, y);
+	public void setLogo(Pixbuf pb, Frame frame){
+		System.out.println("W:" + pb.getWidth());
+		System.out.println("H:" + pb.getHeight());
+		double scale = pb.getWidth() / frame.width;
+		System.out.println("Scale:" + scale);
+		cr.scale(scale, scale);
+		cr.setSource(pb, frame.x * scale, frame.y * scale);
 		cr.paint();
-		cr.scale(5, 5);
 	}
 
 	public void setScaleBar(Frame frame, double scale, int fontSize){

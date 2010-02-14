@@ -30,5 +30,6 @@
 	<classpathentry kind="lib" path="lib/hibernate-spatial-postgis-1.0-M2.jar"/>
 	<classpathentry kind="lib" path="lib/jts-1.8.jar"/>
 	<classpathentry kind="lib" path="lib/postgis-jdbc-jts-1.1.6.jar"/>
+	<classpathentry kind="lib" path="/home/will/workspace/Carto/lib/oscache-2.4.1.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

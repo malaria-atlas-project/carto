@@ -34,5 +34,27 @@
 				<column name="geom" />
 		</property>
         <property name="name" column="name"></property>
+        <joined-subclass name="PfCountry" table="country">
+        	<key column="id"></key>
+	        <set name="zeroed" order-by="name" table="api_pv_zeroed_au">
+	        	<key column="country_id"></key>
+	        	<element column="name" type="string"></element>
+	        </set>
+	        <set name="years" order-by="year" table="api_pf_years">
+	        	<key column="country_id"></key>
+	        	<element column="year" type="integer"></element>
+	        </set>
+        </joined-subclass>
+        <joined-subclass name="PvCountry" table="country">
+        	<key column="id"></key>
+	        <set name="zeroed" order-by="name" table="api_pv_zeroed_au">
+	        	<key column="country_id"></key>
+	        	<element column="name" type="string"></element>
+	        </set>
+	        <set name="years" order-by="year" table="api_pv_years">
+	        	<key column="country_id"></key>
+	        	<element column="year" type="integer"></element>
+	        </set>
+        </joined-subclass>
     </class>
 </hibernate-mapping>

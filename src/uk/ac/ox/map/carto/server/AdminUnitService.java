@@ -31,10 +31,10 @@ public class AdminUnitService {
 		return a0;
 	}
 	
-	public Country getCountry(String countryId){
+	public PfCountry getCountry(String countryId){
 		Session session = HibernateUtil.getCurrentSession();
         session.beginTransaction();
-        return (Country) session.createQuery("from Country where id = :country_id")
+        return (PfCountry) session.createQuery("from PfCountry where id = :country_id")
         .setParameter("country_id", countryId).uniqueResult();
 	}
 	
@@ -45,7 +45,6 @@ public class AdminUnitService {
         testCriteria.add(Restrictions.eq("countryId", countryId));
         ArrayList<PfAdminUnit> pf = (ArrayList<PfAdminUnit>) testCriteria.list();
 		return pf;
-		
 	}
 
 }

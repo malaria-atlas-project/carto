@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.freedesktop.cairo.PdfSurface;
+import org.gnome.gdk.Pixbuf;
 import org.gnome.gtk.Gtk;
 
 import uk.ac.ox.map.carto.canvas.style.Colour;
@@ -13,8 +14,11 @@ import uk.ac.ox.map.carto.server.AdminUnit;
 import uk.ac.ox.map.carto.server.AdminUnitService;
 import uk.ac.ox.map.carto.server.Country;
 import uk.ac.ox.map.carto.server.PfAdminUnit;
+import uk.ac.ox.map.carto.server.PfCountry;
+import uk.ac.ox.map.carto.server.PolygonCursor;
 import uk.ac.ox.map.carto.text.MapTextResource;
 import uk.ac.ox.map.carto.util.EnvelopeFactory;
+import uk.ac.ox.map.carto.util.StringUtil;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.MultiPolygon;
@@ -22,9 +26,8 @@ import com.vividsolutions.jts.geom.Polygon;
         
 public class CairoTest {
 	
-	
 	public static void main(String[] args) throws IOException {
-		String countryId = "TUR";
+		String countryId = "VNM";
 		drawMap(countryId);
 	}
 		
@@ -40,7 +43,7 @@ public class CairoTest {
 		/*
 		 * Get country of interest
 		 */
-		Country country  = adminUnitService.getCountry(countryId);
+		PfCountry country  = adminUnitService.getCountry(countryId);
 		Polygon poly = (Polygon) country.getGeom();
 		Envelope env = EnvelopeFactory.envelopeFromPolygon(poly, 1.05);
 		
@@ -63,15 +66,15 @@ public class CairoTest {
         
         /*
          * Draw the risk units
-         */
-		
         ArrayList<PfAdminUnit> pfUnits = adminUnitService.getPfAdminUnits(countryId);
         HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
         colours.put(0, new Colour("#ffffff", 1));
         colours.put(1, new Colour("#ffbebe", 1));
         colours.put(2, new Colour("#cd6666", 1));
-//		PolygonCursor<PfAdminUnit> pfFeats = new PolygonCursor<PfAdminUnit>(pfUnits, colours);
-//		df.drawPolygonCursor(pfFeats);
+		PolygonCursor<PfAdminUnit> pfFeats = new PolygonCursor<PfAdminUnit>(pfUnits, colours);
+		df.drawPolygonCursor(pfFeats);
+        
+         */
         
         /*
          * Draw the rest of the canvas
@@ -81,12 +84,9 @@ public class CairoTest {
 		MapCanvas mapCanvas = new MapCanvas(mapSurface, w, h);
 		mapCanvas.drawDataFrame(df, 20, 40);
         dfSurface.finish();
-		Gtk.init(null);
-//		Pixbuf pb = new Pixbuf("/home/will/map1_public/maps/map_overlay3.png");
-//		mapCanvas.setLogo(pb, 20, 20);
 		
-		Frame frame = new Frame(70,530,400,20);
-		mapCanvas.setScaleBar(frame, df.getScale(), 9);
+		Frame frame = new Frame(20,520,430,20);
+		mapCanvas.setScaleBar(frame, df.getScale(), 7);
 		mapCanvas.drawMapBorders();
 		mapCanvas.drawMapGrids(4.5);
 		
@@ -94,21 +94,28 @@ public class CairoTest {
 		 * Text stuff
 		 */
 		MapTextResource mtr = new MapTextResource();
-		Frame titleFrame = new Frame(10, 10, 500, 0);
+		Frame titleFrame = new Frame(0, 5, 500, 0);
 		mapCanvas.setTextFrame(
 			String.format((String) mtr.getObject("pfTitle"), country.getName()),
 			titleFrame,
-			12);
-		
-		mtr.getObject("copyright");
-		System.out.println( );
+			11);
 		
 		List<String> mapTextItems = new ArrayList<String>();
+		System.out.println(StringUtil.getReadableList(country.getYears()));
+		System.out.println(country.getZeroed());
 		mapTextItems.add(String.format((String) mtr.getObject("apiText"), "Admin2", "2004"));
 		mapTextItems.add(String.format((String) mtr.getObject("ithgText"), "2004"));
 		
-		Frame mapTextFrame = new Frame(10, 600, 300, 0);
-		mapCanvas.setTextFrame(mapTextItems, mapTextFrame, 10);
+		Frame mapTextFrame = new Frame(70, 550, 300, 0);
+		mapCanvas.setTextFrame(mapTextItems, mapTextFrame, 8);
+		
+		/*
+		 * Finally put on the logo
+		 */
+		Gtk.init(null);
+		Pixbuf pb = new Pixbuf("/home/will/map1_public/maps/map_overlay3.png");
+		Frame logoFrame = new Frame(300, 400, 250, 0);
+		mapCanvas.setLogo(pb, logoFrame);
 		
 		/*
 		 * Understand this better! Does data frame require finishing? Does the data frame even need a pdf surface?
