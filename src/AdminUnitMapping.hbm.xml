@@ -36,7 +36,15 @@
 		<property name="geom" type="org.hibernatespatial.GeometryUserType">
 				<column name="geom" />
 		</property>
-        <property name="name" column="name"></property>
+        <property name="name">
+				<column name="name" />
+        </property>
+        <property name="hasPf">
+				<column name="has_pf" />
+        </property>
+        <property name="hasPv">
+				<column name="has_pv" />
+        </property>
     </class>
     <sql-query name="api.years"><![CDATA[
 		select year

@@ -1,7 +1,6 @@
 package uk.ac.ox.map.carto.server;
 
 import org.hibernate.SessionFactory;
-import org.hibernate.StatelessSession;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.classic.Session;
 

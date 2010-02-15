@@ -51,7 +51,7 @@ public class MapCanvas extends BaseCanvas {
         cr.showLayout(layout);
 	}
 	
-	public void setTextFrame(List<String> text, Frame frame, Integer fontSize){
+	public void setTextFrame(List<String> text, Frame frame, float fontSize){
 		Layout layout = new Layout(cr);
         FontDescription fontDesc = new FontDescription();
         fontDesc.setFamily("Helvetica");
@@ -136,7 +136,12 @@ public class MapCanvas extends BaseCanvas {
 	            }
 			}
 	        // This unreadable stuff gets the value with the minimum key
-            chosen_interval = possible_intervals.get(Collections.min(possible_intervals.keySet()));
+	        try {
+	            chosen_interval = possible_intervals.get(Collections.min(possible_intervals.keySet()));
+			} catch (Exception e) {
+				System.err.println(e.getMessage());
+				chosen_interval = 1;
+			}
             
 	        int x, x1, x2; 
 	        int y, y1, y2; 

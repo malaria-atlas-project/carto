@@ -28,16 +28,18 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
+		/*
 		String countryId = "BGD";
 		Country country  = adminUnitService.getCountry(countryId);
 		drawMap(adminUnitService, country, "pf");
-		/*
-		ArrayList<Country> pfCountries = adminUnitService.getCountries();
-		for (Country pfCountry : pfCountries) {
-	        System.out.println("Processing:" + pfCountry.getId());
-			drawMap(adminUnitService, pfCountry.getId());
-		}
 		*/
+		
+		String parasite = "pv";
+		ArrayList<Country> pfCountries = adminUnitService.getCountries(parasite);
+		for (Country country : pfCountries) {
+	        System.out.println("Processing:" + country.getId());
+			drawMap(adminUnitService, country, parasite);
+		}
 	}
 		
 	public static void drawMap(AdminUnitService adminUnitService, Country country, String parasite) throws IOException, InterruptedException {
@@ -49,14 +51,12 @@ public class CairoTest {
 		 */
 		
 		/*
-		 * Get country of interest
+		 * Get country envelope
+		 * Get admin units (level 0) overlapping data frame and draw them
 		 */
 		Polygon poly = (Polygon) country.getGeom();
 		Envelope env = EnvelopeFactory.envelopeFromPolygon(poly, 1.05);
 		
-		/*
-		 * Get admin units (level 0) overlapping data frame and draw them
-		 */
         ArrayList<AdminUnit> adminUnits = adminUnitService.getAdminUnits(poly);
        
         int h, w; w=460; h = 460; 
@@ -99,11 +99,19 @@ public class CairoTest {
 		
 		/*
 		 * Text stuff
+		 * TODO: factor all this string building out?
 		 */
 		MapTextResource mtr = new MapTextResource();
 		Frame titleFrame = new Frame(0, 5, 500, 0);
+		
+		String mapTitle = null;
+		if (parasite.compareTo("pf")==0)
+			mapTitle = String.format((String) mtr.getObject("pfTitle"), country.getName());
+		else if (parasite.compareTo("pv")==0)
+			mapTitle = String.format((String) mtr.getObject("pvTitle"), country.getName());
+		
 		mapCanvas.setTextFrame(
-			String.format((String) mtr.getObject("pfTitle"), country.getName()),
+			mapTitle,
 			titleFrame,
 			11);
 		
@@ -127,7 +135,7 @@ public class CairoTest {
 		}
 		
 		Frame mapTextFrame = new Frame(70, 555, 300, 0);
-		mapCanvas.setTextFrame(mapTextItems, mapTextFrame, 8);
+		mapCanvas.setTextFrame(mapTextItems, mapTextFrame, 6);
 		
 		/*
 		 * Finally put on the logo
@@ -140,8 +148,8 @@ public class CairoTest {
 		 * Understand this better! Does data frame require finishing? Does the data frame even need a pdf surface?
 		 */
 		mapSurface.finish();
-		SystemUtil.addBranding(country.getId()+"_pf");
-		SystemUtil.convertToPng(country.getId()+"_pf");
+		SystemUtil.addBranding(country.getId(), parasite);
+//		SystemUtil.convertToPng(country.getId()+"_pf");
 
 	}
 

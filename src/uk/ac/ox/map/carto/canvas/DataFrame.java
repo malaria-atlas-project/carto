@@ -2,28 +2,18 @@ package uk.ac.ox.map.carto.canvas;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.io.FileNotFoundException;
-import java.util.Iterator;
 
-import javax.print.attribute.standard.PDLOverrideSupported;
-
-import com.google.gwt.rpc.client.ast.SetCommand;
-import com.vividsolutions.jts.geom.Coordinate;
-import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
-import com.vividsolutions.jts.geom.LineString;
-import com.vividsolutions.jts.geom.MultiLineString;
-import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
-
-import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.PdfSurface;
-import org.gnome.gdk.Pixbuf;
-import org.gnome.gtk.Gtk;
 
 import uk.ac.ox.map.carto.server.Feature;
 import uk.ac.ox.map.carto.server.PolygonCursor;
 import uk.ac.ox.map.carto.server.RiskMap;
+
+import com.vividsolutions.jts.geom.Coordinate;
+import com.vividsolutions.jts.geom.Envelope;
+import com.vividsolutions.jts.geom.LineString;
+import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
 
 public class DataFrame extends BaseCanvas {
 	
@@ -92,6 +82,7 @@ public class DataFrame extends BaseCanvas {
 		return this.env;
 	}
 	
+	/*
 	private void debugTransform(Envelope env){
 		System.out.println("X Scale: "+transform.getTranslateX());
 		System.out.println("Y Scale: "+transform.getTranslateY());
@@ -107,6 +98,7 @@ public class DataFrame extends BaseCanvas {
     	System.out.println(llPt);
     	System.out.println(urPt);
 	}
+	*/
 	
 	public void drawPolygonCursor(PolygonCursor<? extends RiskMap> pc) {
 		for (int i = 0; i < pc.size(); i++) {

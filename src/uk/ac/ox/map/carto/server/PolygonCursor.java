@@ -2,8 +2,6 @@ package uk.ac.ox.map.carto.server;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.Iterator;
-
 import com.vividsolutions.jts.geom.MultiPolygon;
 
 import uk.ac.ox.map.carto.canvas.style.Colour;

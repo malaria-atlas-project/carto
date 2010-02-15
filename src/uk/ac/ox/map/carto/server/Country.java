@@ -6,6 +6,8 @@ public class Country {
 	private String id;
 	private String name;
 	private Geometry geom;
+	private Boolean hasPf;
+	private Boolean hasPv;
 
 	public void setGeom(Geometry geometry) {
 		this.geom = geometry;
@@ -29,6 +31,22 @@ public class Country {
 
 	public String getName() {
 		return name;
+	}
+
+	public void setHasPf(Boolean hasPf) {
+		this.hasPf = hasPf;
+	}
+
+	public Boolean getHasPf() {
+		return hasPf;
+	}
+
+	public void setHasPv(Boolean hasPv) {
+		this.hasPv = hasPv;
+	}
+
+	public Boolean getHasPv() {
+		return hasPv;
 	}
 
 }

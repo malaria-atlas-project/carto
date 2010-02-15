@@ -37,9 +37,14 @@ public class AdminUnitService {
 		return a0;
 	}
 
-	public ArrayList<Country> getCountries(){
-        return (ArrayList<Country>) session.createQuery("from Country")
-        .list();
+	public ArrayList<Country> getCountries(String parasite){
+		
+        Criteria testCriteria = session.createCriteria(Country.class);
+        if (parasite.compareTo("pf") == 0)
+	        testCriteria.add(Restrictions.eq("hasPf", true));
+        else if (parasite.compareTo("pv") == 0)
+	        testCriteria.add(Restrictions.eq("hasPv", true));
+        return (ArrayList<Country>) testCriteria.list();
 	}
 	
 	public ArrayList<AdminUnitRisk> getRiskAdminUnits(Country country, String parasite) {
