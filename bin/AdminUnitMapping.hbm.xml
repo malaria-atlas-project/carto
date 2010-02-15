@@ -38,11 +38,11 @@
         	<key column="country_id"></key>
         	<property name="adminLevel" column="admin_level"></property>
         	<property name="count" column="count"></property>
-	        <set name="zeroed" order-by="name" table="api_pv_zeroed_au">
+	        <set name="zeroed" order-by="name" table="api_pv_zeroed_au" lazy="false">
 	        	<key column="country_id"></key>
 	        	<element column="name" type="string"></element>
 	        </set>
-	        <set name="years" order-by="year" table="api_pf_years">
+	        <set name="years" order-by="year" table="api_pf_years" lazy="false">
 	        	<key column="country_id"></key>
 	        	<element column="year" type="integer"></element>
 	        </set>
@@ -51,11 +51,11 @@
         	<key column="country_id"></key>
         	<property name="adminLevel" column="admin_level"></property>
         	<property name="count" column="count"></property>
-	        <set name="zeroed" order-by="name" table="api_pv_zeroed_au">
+	        <set name="zeroed" order-by="name" table="api_pv_zeroed_au" lazy="false">
 	        	<key column="country_id"></key>
 	        	<element column="name" type="string"></element>
 	        </set>
-	        <set name="years" order-by="year" table="api_pv_years">
+	        <set name="years" order-by="year" table="api_pv_years" lazy="false">
 	        	<key column="country_id"></key>
 	        	<element column="year" type="integer"></element>
 	        </set>

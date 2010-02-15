@@ -20,6 +20,8 @@ public class PolygonCursor<T extends RiskMap> {
 		Feature feat = new Feature();
 		T au = features.get(i);
 		feat.c = colours.get(au.getRisk());
+		if (feat.c == null)
+			feat.c = new Colour("#000000",1);
 		feat.mp = (MultiPolygon) au.getGeom();
 		return feat;
 	}

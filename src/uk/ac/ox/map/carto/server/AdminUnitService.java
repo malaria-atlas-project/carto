@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
+import org.hibernate.StatelessSession;
 import org.hibernate.criterion.CriteriaQuery;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
@@ -20,10 +21,14 @@ import com.vividsolutions.jts.geom.Geometry;
 
 public class AdminUnitService {
 	
+	private final org.hibernate.classic.Session session = HibernateUtil.getCurrentSession();
+	public AdminUnitService() {
+        session.beginTransaction();
+	}
+	
+	
 	
 	public ArrayList<AdminUnit> getAdminUnit(Geometry env){
-		Session session = HibernateUtil.getCurrentSession();
-        session.beginTransaction();
         Criteria testCriteria = session.createCriteria(AdminUnit.class);
         testCriteria.add(new SpatialFilter("geom", env));
         testCriteria.add(Restrictions.eq("adminLevel", "0"));
@@ -32,15 +37,17 @@ public class AdminUnitService {
 	}
 	
 	public PfCountry getCountry(String countryId){
-		Session session = HibernateUtil.getCurrentSession();
-        session.beginTransaction();
         return (PfCountry) session.createQuery("from PfCountry where id = :country_id")
         .setParameter("country_id", countryId).uniqueResult();
 	}
+
+	public ArrayList<PfCountry> getCountries(){
+        return (ArrayList<PfCountry>) session.createQuery("from PfCountry")
+        .list();
+	}
 	
 	public ArrayList<PfAdminUnit> getPfAdminUnits(String countryId) {
-		Session session = HibernateUtil.getCurrentSession();
-        session.beginTransaction();
+		session.clear();
         Criteria testCriteria = session.createCriteria(PfAdminUnit.class);
         testCriteria.add(Restrictions.eq("countryId", countryId));
         ArrayList<PfAdminUnit> pf = (ArrayList<PfAdminUnit>) testCriteria.list();

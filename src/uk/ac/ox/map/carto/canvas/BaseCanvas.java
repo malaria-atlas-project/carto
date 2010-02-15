@@ -8,8 +8,8 @@ import uk.ac.ox.map.carto.canvas.style.Colour;
 public abstract class BaseCanvas {
 	protected final Context cr;
 	protected final PdfSurface pdf;
-	private Colour fillColour;
-	private Colour lineColour;
+	private final Colour fillColour;
+	private final Colour lineColour;
 	private double lineWidth;
     protected final int width;
     protected final int height;
@@ -26,16 +26,16 @@ public abstract class BaseCanvas {
 		cr.setSource(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
 	}
 	
-	protected void setLineColour(String hex, float a) {
-		lineColour = new Colour(hex, a);
+	protected void setLineColour(String hexColour, float a) {
+		lineColour.setColour(hexColour, a);
 		setLineColour();
 	}
 	protected void setLineColour() {
 		cr.setSource(lineColour.getRed(), lineColour.getGreen(), lineColour.getBlue(), lineColour.getAlpha());
 	}
 	
-	protected void setFillColour(String hex, float a) {
-		fillColour = new Colour(hex, a);
+	protected void setFillColour(String hexColour, float a) {
+		fillColour.setColour(hexColour, a);
 		setFillColour();
 	}
 	
@@ -51,16 +51,16 @@ public abstract class BaseCanvas {
 		/*
 		 * Initialise styles
 		 */
-		setLineColour("#000000", 1);
+		this.lineColour = new Colour("#000000", 1);
+		this.fillColour = new Colour("#CCCCCC", 1);
 		setLineWidth(0.2);
-		setFillColour("#CCCCCC", (float) 0.8);
 		this.width = width;
 		this.height = height;
 		this.pdf = pdf;
 	}
 
 	public void setFillColour(Colour fillColour) {
-		this.fillColour = fillColour;
+		this.fillColour.setColour(fillColour);
 	}
 
 	public Colour getFillColour() {
@@ -68,7 +68,7 @@ public abstract class BaseCanvas {
 	}
 
 	public void setLineColour(Colour lineColour) {
-		this.lineColour = lineColour;
+		this.lineColour.setColour(lineColour);
 	}
 
 	public Colour getLineColour() {

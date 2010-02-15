@@ -89,8 +89,6 @@ public class MapCanvas extends BaseCanvas {
         layout.setFontDescription(fontDesc);
 		layout.setMarkup(text);
 		
-		//Always default to black. Good idea?
-        cr.setSource(0.0, 0.0, 0.0);
         cr.moveTo(ax.eval(layout.getPixelWidth(), x), ay.eval(layout.getPixelHeight(), y));
         cr.showLayout(layout);
 	}
