@@ -1,10 +1,13 @@
 package uk.ac.ox.map.carto.server;
 
 import java.util.ArrayList;
+import java.util.List;
+import java.util.SortedSet;
 
 
 import org.hibernate.Criteria;
 import org.hibernate.HibernateException;
+import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.StatelessSession;
 import org.hibernate.criterion.CriteriaQuery;
@@ -26,32 +29,58 @@ public class AdminUnitService {
         session.beginTransaction();
 	}
 	
-	
-	
-	public ArrayList<AdminUnit> getAdminUnit(Geometry env){
+	public ArrayList<AdminUnit> getAdminUnits(Geometry env){
         Criteria testCriteria = session.createCriteria(AdminUnit.class);
         testCriteria.add(new SpatialFilter("geom", env));
         testCriteria.add(Restrictions.eq("adminLevel", "0"));
         ArrayList<AdminUnit> a0 = (ArrayList<AdminUnit>) testCriteria.list();
 		return a0;
 	}
-	
-	public PfCountry getCountry(String countryId){
-        return (PfCountry) session.createQuery("from PfCountry where id = :country_id")
-        .setParameter("country_id", countryId).uniqueResult();
-	}
 
-	public ArrayList<PfCountry> getCountries(){
-        return (ArrayList<PfCountry>) session.createQuery("from PfCountry")
+	public ArrayList<Country> getCountries(){
+        return (ArrayList<Country>) session.createQuery("from Country")
         .list();
 	}
 	
-	public ArrayList<PfAdminUnit> getPfAdminUnits(String countryId) {
+	public ArrayList<AdminUnitRisk> getRiskAdminUnits(Country country, String parasite) {
 		session.clear();
-        Criteria testCriteria = session.createCriteria(PfAdminUnit.class);
-        testCriteria.add(Restrictions.eq("countryId", countryId));
-        ArrayList<PfAdminUnit> pf = (ArrayList<PfAdminUnit>) testCriteria.list();
+        Criteria testCriteria = session.createCriteria(AdminUnitRisk.class);
+        testCriteria.add(Restrictions.eq("countryId", country.getId()));
+        testCriteria.add(Restrictions.eq("parasite", parasite));
+        ArrayList<AdminUnitRisk> pf = (ArrayList<AdminUnitRisk>) testCriteria.list();
 		return pf;
 	}
+	
+	public Country getCountry(String countryId){
+        return (Country) session.createQuery("from Country where id = :country_id")
+        .setParameter("country_id", countryId).uniqueResult();
+	}
 
+	public List<Integer> getYears(Country country, String parasite) {
+		Query query = session.getNamedQuery("api.years");
+		query.setParameter("country_id", country.getId());
+		query.setParameter("parasite", parasite);
+		return (List<Integer>) query.list();
+	}
+	
+	public List<String> getZeroed(Country country, String parasite) {
+		Query query = session.getNamedQuery("api.medintelZeroed");
+		query.setParameter("country_id", country.getId());
+		query.setParameter("parasite", parasite);
+		return (List<String>) query.list();
+	}
+	
+	public String getAdminLevel(Country country, String parasite) {
+		Query query = session.getNamedQuery("api.admin_level");
+		query.setParameter("country_id", country.getId());
+		query.setParameter("parasite", parasite);
+		return (String) query.uniqueResult();
+	}
+	
+	public Integer getAdminUnitCount(Country country, String parasite) {
+		Query query = session.getNamedQuery("api.counts");
+		query.setParameter("country_id", country.getId());
+		query.setParameter("parasite", parasite);
+		return (Integer) query.uniqueResult();
+	}
 }

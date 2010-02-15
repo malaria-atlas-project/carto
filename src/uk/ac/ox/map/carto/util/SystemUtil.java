@@ -8,11 +8,10 @@ public class SystemUtil {
 		execCommand(String.format(command, fileName));
 	}
 	public static void convertToPng(String fileName) throws IOException, InterruptedException {
-		String command = "pdftoppm -r 300 /home/will/maps/%s.pdf /tmp/map_pnm";
-		execCommand(String.format(command, fileName));
-		command =  "pnmtopng /tmp/map_pnm-1.ppm > /home/will/maps/png/%s.png";
-		execCommand(String.format(command, fileName));
-		
+		String command = "pdftoppm -r 300 /home/will/maps/pdf/%s.pdf | pnmtopng  > /home/will/maps/png/%s.png";
+		//Why does this work here and not in execCommand?
+		final Process process;
+		process = Runtime.getRuntime().exec(command);
 	}
 	
 	public static void execCommand(String command) throws IOException, InterruptedException {
@@ -21,7 +20,6 @@ public class SystemUtil {
 		int returnCode = process.waitFor();
 		System.out.println(command);
 		System.out.println("Return code = " + returnCode);
-		
 	}
 
 }

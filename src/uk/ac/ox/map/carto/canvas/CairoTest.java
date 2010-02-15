@@ -4,17 +4,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-
 import org.freedesktop.cairo.PdfSurface;
-import org.gnome.gdk.Pixbuf;
 import org.gnome.gtk.Gtk;
 
 import uk.ac.ox.map.carto.canvas.style.Colour;
 import uk.ac.ox.map.carto.server.AdminUnit;
+import uk.ac.ox.map.carto.server.AdminUnitRisk;
 import uk.ac.ox.map.carto.server.AdminUnitService;
 import uk.ac.ox.map.carto.server.Country;
-import uk.ac.ox.map.carto.server.PfAdminUnit;
-import uk.ac.ox.map.carto.server.PfCountry;
 import uk.ac.ox.map.carto.server.PolygonCursor;
 import uk.ac.ox.map.carto.text.MapTextResource;
 import uk.ac.ox.map.carto.util.EnvelopeFactory;
@@ -29,22 +26,21 @@ public class CairoTest {
 	
 	public static void main(String[] args) throws IOException, InterruptedException {
 		Gtk.init(null);
-//		String countryId = "LKA";
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
+		String countryId = "BGD";
+		Country country  = adminUnitService.getCountry(countryId);
+		drawMap(adminUnitService, country, "pf");
 		/*
-		drawMap(adminUnitService, countryId);
-		*/
-		ArrayList<PfCountry> pfCountries = adminUnitService.getCountries();
-		for (PfCountry pfCountry : pfCountries) {
-//			if (pfCountry.getId().compareTo(countryId) <=0)
-//				continue;
+		ArrayList<Country> pfCountries = adminUnitService.getCountries();
+		for (Country pfCountry : pfCountries) {
 	        System.out.println("Processing:" + pfCountry.getId());
 			drawMap(adminUnitService, pfCountry.getId());
 		}
+		*/
 	}
 		
-	public static void drawMap(AdminUnitService adminUnitService, String countryId) throws IOException, InterruptedException {
+	public static void drawMap(AdminUnitService adminUnitService, Country country, String parasite) throws IOException, InterruptedException {
 		
 		/*
 		 * Get country then use extent to: 
@@ -55,14 +51,13 @@ public class CairoTest {
 		/*
 		 * Get country of interest
 		 */
-		PfCountry country  = adminUnitService.getCountry(countryId);
 		Polygon poly = (Polygon) country.getGeom();
 		Envelope env = EnvelopeFactory.envelopeFromPolygon(poly, 1.05);
 		
 		/*
-		 * Get admin units overlapping data frame and draw them
+		 * Get admin units (level 0) overlapping data frame and draw them
 		 */
-        ArrayList<AdminUnit> adminUnits = adminUnitService.getAdminUnit(poly);
+        ArrayList<AdminUnit> adminUnits = adminUnitService.getAdminUnits(poly);
        
         int h, w; w=460; h = 460; 
 		PdfSurface dfSurface = new PdfSurface("/tmp/tmp_dataframe.pdf", w, h);
@@ -79,14 +74,13 @@ public class CairoTest {
         /*
          * Draw the risk units
          */
-        ArrayList<PfAdminUnit> pfUnits = adminUnitService.getPfAdminUnits(countryId);
+        ArrayList<AdminUnitRisk> pfUnits = adminUnitService.getRiskAdminUnits(country, parasite);
         HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
         colours.put(0, new Colour("#ffffff", 1));
         colours.put(1, new Colour("#ffbebe", 1));
         colours.put(2, new Colour("#cd6666", 1));
-		PolygonCursor<PfAdminUnit> pfFeats = new PolygonCursor<PfAdminUnit>(pfUnits, colours);
+		PolygonCursor<AdminUnitRisk> pfFeats = new PolygonCursor<AdminUnitRisk>(pfUnits, colours);
 		df.drawPolygonCursor(pfFeats);
-        
         
         /*
          * Draw the rest of the canvas
@@ -115,20 +109,24 @@ public class CairoTest {
 		
 		List<String> mapTextItems = new ArrayList<String>();
 		
-		String yearsText = StringUtil.getReadableList(country.getYears());
+		List<Integer> years = adminUnitService.getYears(country, parasite);
+		System.out.println(years);
+		String yearsText = StringUtil.getReadableList(years);
 		mapTextItems.add(String.format(
 				(String) mtr.getObject("apiText"), 
-				country.getCount(),
-				country.getAdminLevel(),
-				yearsText
+				adminUnitService.getAdminUnitCount(country, parasite),
+				adminUnitService.getAdminLevel(country, parasite),
+				yearsText 
 		));
 		
-		if (country.getZeroed().size() > 0) {
-			String zeroedText = StringUtil.getReadableList(country.getZeroed());
+		List<String> zeroed = adminUnitService.getZeroed(country, parasite);
+		
+		if (zeroed.size() > 0) {
+			String zeroedText = StringUtil.getReadableList(zeroed);
 			mapTextItems.add(String.format((String) mtr.getObject("ithgText"), zeroedText));
 		}
 		
-		Frame mapTextFrame = new Frame(70, 550, 300, 0);
+		Frame mapTextFrame = new Frame(70, 555, 300, 0);
 		mapCanvas.setTextFrame(mapTextItems, mapTextFrame, 8);
 		
 		/*
@@ -142,8 +140,8 @@ public class CairoTest {
 		 * Understand this better! Does data frame require finishing? Does the data frame even need a pdf surface?
 		 */
 		mapSurface.finish();
-		SystemUtil.addBranding(countryId+"_pf");
-		SystemUtil.convertToPng(countryId+"_pf");
+		SystemUtil.addBranding(country.getId()+"_pf");
+		SystemUtil.convertToPng(country.getId()+"_pf");
 
 	}
 
