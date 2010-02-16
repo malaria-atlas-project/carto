@@ -28,18 +28,24 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
+		/*
 		String countryId = "CHN";
 		Country country  = adminUnitService.getCountry(countryId);
 		drawMap(adminUnitService, country, "pf");
 		
-		/*
-		String parasite = "pv";
+		*/
+		drawMap(adminUnitService, "pf");
+		drawMap(adminUnitService, "pv");
+	}
+
+	private static void 
+	drawMap(AdminUnitService adminUnitService, String parasite) 
+	throws IOException, InterruptedException {
 		ArrayList<Country> pfCountries = adminUnitService.getCountries(parasite);
 		for (Country country : pfCountries) {
 	        System.out.println("Processing:" + country.getId());
 			drawMap(adminUnitService, country, parasite);
 		}
-		*/
 	}
 		
 	public static void drawMap(AdminUnitService adminUnitService, Country country, String parasite) throws IOException, InterruptedException {
@@ -149,7 +155,9 @@ public class CairoTest {
 			mapTextItems.add(String.format((String) mtr.getObject("ithgText"), zeroedText));
 		}
 		
-		Rectangle mapTextFrame = new Rectangle(40, 555, 330, 0);
+		mapTextItems.add((String) mtr.getObject("copyright"));
+		
+		Rectangle mapTextFrame = new Rectangle(50, 555, 320, 0);
 		mapCanvas.drawTextFrame(mapTextItems, mapTextFrame, 6);
 		
 		/*
