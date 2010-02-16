@@ -11,12 +11,6 @@ public class Colour {
 		this.b = Integer.parseInt(hexColour.substring(5, 7), 16)/ f;
 		this.a = a;
 	}
-	public void setColour(Colour colour){
-		this.r = colour.r;
-		this.g = colour.g;
-		this.b = colour.b;
-		this.a = colour.a;
-	}
 	public float getRed() {
 		return r;
 	}

@@ -28,18 +28,18 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		/*
-		String countryId = "BGD";
+		String countryId = "VEN";
 		Country country  = adminUnitService.getCountry(countryId);
-		drawMap(adminUnitService, country, "pf");
-		*/
+		drawMap(adminUnitService, country, "pv");
 		
+		/*
 		String parasite = "pv";
 		ArrayList<Country> pfCountries = adminUnitService.getCountries(parasite);
 		for (Country country : pfCountries) {
 	        System.out.println("Processing:" + country.getId());
 			drawMap(adminUnitService, country, parasite);
 		}
+		*/
 	}
 		
 	public static void drawMap(AdminUnitService adminUnitService, Country country, String parasite) throws IOException, InterruptedException {
@@ -79,9 +79,10 @@ public class CairoTest {
         colours.put(0, new Colour("#ffffff", 1));
         colours.put(1, new Colour("#ffbebe", 1));
         colours.put(2, new Colour("#cd6666", 1));
+        colours.put(9, new Colour("#ffff00", 1));
 		PolygonCursor<AdminUnitRisk> pfFeats = new PolygonCursor<AdminUnitRisk>(pfUnits, colours);
 		df.drawPolygonCursor(pfFeats);
-        
+
         /*
          * Draw the rest of the canvas
          */
@@ -91,18 +92,32 @@ public class CairoTest {
 		mapCanvas.drawDataFrame(df, 20, 40);
         dfSurface.finish();
 		
-		Frame frame = new Frame(20,530,430,20);
+		Rectangle frame = new Rectangle(20,530,430,20);
 		mapCanvas.setScaleBar(frame, df.getScale(), 7);
 		mapCanvas.drawMapBorders();
 		mapCanvas.setColour("#0066CC", 1);
 		mapCanvas.drawMapGrids(4.5);
 		
 		/*
+		 * Draw the legend
+		 * TODO: combine this and the styling in a layer
+		 */
+		
+		List<LegendItem> legend = new ArrayList<LegendItem>();
+		legend.add(new LegendItem("Malaria free", colours.get(0)));
+		legend.add(new LegendItem("<i>Pf</i>API &lt; 0.1‰", colours.get(1)));
+		legend.add(new LegendItem("<i>Pf</i>API &gt;= 0.1‰", colours.get(2)));
+		legend.add(new LegendItem("No data", colours.get(9)));
+		Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
+		mapCanvas.drawLegend(legendFrame, legend);
+		
+		
+		/*
 		 * Text stuff
 		 * TODO: factor all this string building out?
 		 */
 		MapTextResource mtr = new MapTextResource();
-		Frame titleFrame = new Frame(0, 5, 500, 0);
+		Rectangle titleFrame = new Rectangle(0, 5, 500, 0);
 		
 		String mapTitle = null;
 		if (parasite.compareTo("pf")==0)
@@ -134,8 +149,8 @@ public class CairoTest {
 			mapTextItems.add(String.format((String) mtr.getObject("ithgText"), zeroedText));
 		}
 		
-		Frame mapTextFrame = new Frame(70, 555, 300, 0);
-		mapCanvas.setTextFrame(mapTextItems, mapTextFrame, 6);
+		Rectangle mapTextFrame = new Rectangle(70, 555, 300, 0);
+		mapCanvas.drawTextFrame(mapTextItems, mapTextFrame, 6);
 		
 		/*
 		 * Finally put on the logo

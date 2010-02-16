@@ -53,6 +53,7 @@
 		and year is not null
 		and parasite = :parasite
 		group by year
+		order by year
     ]]></sql-query>
     <sql-query name="api.medintelZeroed"><![CDATA[
 		select name
@@ -61,6 +62,7 @@
 		and medintel_zeroed = true
 		and parasite = :parasite
 		group by name
+		order by name
     ]]></sql-query>
     <sql-query name="api.counts"><![CDATA[
 		select cast(count(distinct(gaul_code)) as integer)

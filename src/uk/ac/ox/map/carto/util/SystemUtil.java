@@ -9,7 +9,6 @@ public class SystemUtil {
 		String command = "pdftk /home/will/map1_public/temp/branding.pdf background /tmp/tmp_mapsurface.pdf output /home/will/maps/%s/pdf/%s_%s.pdf";
 		command = String.format(command, parasite, fileName, parasite);
 		System.out.println(command);
-		System.out.println(command);
 		process = Runtime.getRuntime().exec(command);
 		int returnCode = process.waitFor();
 		System.out.println("Return code = " + returnCode);

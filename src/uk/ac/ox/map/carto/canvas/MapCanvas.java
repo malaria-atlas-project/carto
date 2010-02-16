@@ -23,16 +23,20 @@ import com.vividsolutions.jts.geom.Envelope;
 public class MapCanvas extends BaseCanvas {
 	
 	private final HashMap<DataFrame, Point> dataFrames = new HashMap<DataFrame, Point>();
+	private final FontDescription fontDesc;
 	
 	public MapCanvas(PdfSurface pdf, int width, int height) {
 		super(pdf, width, height);
+        fontDesc = new FontDescription();
+        fontDesc.setFamily("Helvetica");
+        fontDesc.setSize(12);
 	}
 	
 	private MapCanvas outer(){
 		return this;
 	}
 	
-	public void setTextFrame(String text, Frame frame, Integer fontSize){
+	public void setTextFrame(String text, Rectangle frame, Integer fontSize){
 		/*
 		 * TODO look at Reportlab api to think of good ways of abstracting
 		 */
@@ -51,7 +55,7 @@ public class MapCanvas extends BaseCanvas {
         cr.showLayout(layout);
 	}
 	
-	public void setTextFrame(List<String> text, Frame frame, float fontSize){
+	public void drawTextFrame(List<String> text, Rectangle frame, float fontSize){
 		Layout layout = new Layout(cr);
         FontDescription fontDesc = new FontDescription();
         fontDesc.setFamily("Helvetica");
@@ -62,7 +66,7 @@ public class MapCanvas extends BaseCanvas {
         
         cr.setSource(0.0, 0.0, 0.0);
         
-        int y = frame.y; 
+        double y = frame.y; 
         
 		for (String string : text) {
 	        cr.moveTo(frame.x, y);
@@ -71,21 +75,17 @@ public class MapCanvas extends BaseCanvas {
 	        y += layout.getPixelHeight() + 10;
 		}
 		
-		//Always default to black. Good idea?
 	}
 	
-	public void annotateMap(List<String> anno, int x, int y, AnchorX ax, AnchorY ay, double fontSize) {
+	public void annotateMap(List<String> anno, double x, double y, AnchorX ax, AnchorY ay) {
 		for (String string : anno) {
-			annotateMap(string, x, y, ax, ay, fontSize);
+			annotateMap(string, x, y, ax, ay);
 		}
 	} 
 	
-	public void annotateMap(String text, int x, int y, AnchorX ax, AnchorY ay, double fontSize) {
+	public void annotateMap(String text, double x, double y, AnchorX ax, AnchorY ay) {
 		
 		Layout layout = new Layout(cr);
-        FontDescription fontDesc = new FontDescription();
-        fontDesc.setFamily("Helvetica");
-        fontDesc.setSize(fontSize);
         layout.setFontDescription(fontDesc);
 		layout.setMarkup(text);
 		
@@ -98,6 +98,7 @@ public class MapCanvas extends BaseCanvas {
 		cr.paint();
 		dataFrames.put(df, new Point(x, y));
 	}
+	
 	public void drawMapBorders() {
 		for (DataFrame df : dataFrames.keySet()) {
 			Point offset = dataFrames.get(df);
@@ -105,12 +106,40 @@ public class MapCanvas extends BaseCanvas {
 			cr.stroke();
 		}
 	}
+	public void drawLegend(Rectangle rect, List<LegendItem> legend){
+		double y = rect.y;
+		double x = rect.x;
+		Point2D.Double pt = rect.getUpperLeft();
+		
+		/*
+		 * Could be configuration options?
+		 */
+		double patchWidth = 30;
+		double patchHeight = 15;
+		double spacing = 25;
+		double textMargin = 40;
+		
+		fontDesc.setSize(6);
+		for (LegendItem li : legend) {
+			setFillColour(li.colour);
+			cr.rectangle(x, y, patchWidth, patchHeight);
+			cr.fillPreserve();
+			setLineColour();
+			cr.stroke();
+			
+			annotateMap(li.description, x+textMargin, y + (patchHeight/2), AnchorX.L, AnchorY.C);
+			y += spacing;
+		}
+	}
+	
 	
 	public void drawMapGrids(double fontSize) {
 		/*
 		 * TODO fix hacking - hardcoding, over complexity; 
+		 * Pass in interval?? More of a callers job really.
 		 */
         int intervals[] = {40, 20, 10, 5, 2, 1};
+        fontDesc.setSize(fontSize);
         
 		for (DataFrame df : dataFrames.keySet()) {
 			Envelope env = df.getEnvelope();
@@ -163,8 +192,8 @@ public class MapCanvas extends BaseCanvas {
 	            	cr.lineTo(x, y2);
 	            	cr.stroke();
 	            	anno = AnnotationFactory.gridText(i, "EW");
-	            	annotateMap(anno, x, y1, AnchorX.C, AnchorY.B, fontSize);
-	            	annotateMap(anno, x, y2, AnchorX.C, AnchorY.T, fontSize);
+	            	annotateMap(anno, x, y1, AnchorX.C, AnchorY.B);
+	            	annotateMap(anno, x, y2, AnchorX.C, AnchorY.T);
             	}
             	
             	if (i > env.getMinY() && i < env.getMaxY()) {
@@ -177,8 +206,8 @@ public class MapCanvas extends BaseCanvas {
 	            	cr.lineTo(x2, y);
 	            	cr.stroke();
 	            	anno = AnnotationFactory.gridText(i, "SN");
-	            	annotateMap(anno, x1, y, AnchorX.R, AnchorY.C, fontSize);
-	            	annotateMap(anno, x2, y, AnchorX.L, AnchorY.C, fontSize);
+	            	annotateMap(anno, x1, y, AnchorX.R, AnchorY.C);
+	            	annotateMap(anno, x2, y, AnchorX.L, AnchorY.C);
             	}
             	
 			}
@@ -187,7 +216,7 @@ public class MapCanvas extends BaseCanvas {
         
 	}
 	
-	public void setLogo(Pixbuf pb, Frame frame){
+	public void setLogo(Pixbuf pb, Rectangle frame){
 		System.out.println("W:" + pb.getWidth());
 		System.out.println("H:" + pb.getHeight());
 		double scale = pb.getWidth() / frame.width;
@@ -197,7 +226,7 @@ public class MapCanvas extends BaseCanvas {
 		cr.paint();
 	}
 
-	public void setScaleBar(Frame frame, double scale, int fontSize){
+	public void setScaleBar(Rectangle frame, double scale, int fontSize){
 		ScaleBar sb = new ScaleBar(frame, scale, fontSize);
 	}
 	
@@ -208,7 +237,7 @@ public class MapCanvas extends BaseCanvas {
 	 */
 	public enum AnchorX {
 		L, C, R; 
-		int eval(int w, int x){
+		double eval(int w, double x){
 	        switch(this) {
 	            case L: return x;
 	            case C: return x-(w/2);
@@ -220,7 +249,7 @@ public class MapCanvas extends BaseCanvas {
 		
 	public enum AnchorY {
 		T, C, B;
-		int eval(int h, int y){
+		double eval(int h, double y){
 	        switch(this) {
 	            case T: return y;
 	            case C: return y-(h/2);
@@ -229,27 +258,47 @@ public class MapCanvas extends BaseCanvas {
             throw new AssertionError("Unknown op: " + this);
 		}
 	}
+	public enum Anchor {
+		/*
+		LT, CT, RT,
+		LC,	CC, RC,
+		LB, CB, RB;
+		*/
+		LT	{public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x,rect.y);}},
+		CT	{public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x - (rect.width/2), rect.y);}},
+		RT  {public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x - rect.width, rect.y);}},
+		LC	{public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x, rect.y - (rect.height/2));}},
+		CC	{public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x - (rect.width/2), rect.y - (rect.height/2));}},
+		RC  {public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x - rect.width, rect.y - rect.height);}},
+		LB	{public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x, rect.y - rect.height);}},
+		CB	{public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x - (rect.width/2), rect.y);}},
+		RB  {public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x - rect.width, rect.y);}};
+		
+		public abstract Point2D.Double apply(Rectangle rect);
+	}
 	
 	/*
 	 * TODO: should this be an inner class?
+	 * TODO: should it be a class at all?? No state is required
 	 */
 	public class ScaleBar {
 		private static final double KM_PER_DEGREE = 111.320;
 		private final int barHeight;
-		private int offset;
+		private double offset;
 		private Context cr;
-		private Frame frame;
-		private final int fontSize;
+		private Rectangle frame;
 	    private NumberFormat formatter = new DecimalFormat("###,###,###");
 
-		public ScaleBar(Frame frame, double scale, int fontSize) {
+		public ScaleBar(Rectangle frame, double scale, int fontSize) {
 			this.cr = outer().cr;
-			this.fontSize = fontSize;
+			
 			//TODO: hard code
 			this.barHeight = 5;
 			this.frame = frame;
 			this.offset = frame.x;
 			
+			//Set the font size
+			outer().fontDesc.setSize(fontSize);
 			cr.setLineWidth(0.2);
 	        cr.setSource(0, 0, 0, 1);
 			/*
@@ -277,7 +326,7 @@ public class MapCanvas extends BaseCanvas {
 	        int n = (int) nIntervals;
 	        SegmentType st;
 	        
-        	outer().annotateMap("0", offset, frame.y, AnchorX.C, AnchorY.B, fontSize);
+        	outer().annotateMap("0", offset, frame.y, AnchorX.C, AnchorY.B);
         	
 	        for (int i = 0; i < n; i++) {
 	        	if((i%2) == 0)
@@ -288,7 +337,7 @@ public class MapCanvas extends BaseCanvas {
 	        	drawSegment((int) divisionWidth, st, formatter.format(interval * (i+1)));
 			}
 	        
-        	outer().annotateMap("Kilometres", offset+10, frame.y, AnchorX.L, AnchorY.T, fontSize);
+        	outer().annotateMap("Kilometres", offset+10, frame.y, AnchorX.L, AnchorY.T);
 		}
 		
 	    private void drawSegment(int width, SegmentType st, String text){
@@ -298,7 +347,7 @@ public class MapCanvas extends BaseCanvas {
 	        }
 	        cr.stroke();
 	        offset += width;
-        	outer().annotateMap(text, offset, frame.y, AnchorX.C, AnchorY.B, fontSize);
+        	outer().annotateMap(text, offset, frame.y, AnchorX.C, AnchorY.B);
 	    }
 	}
 }

@@ -8,8 +8,8 @@ import uk.ac.ox.map.carto.canvas.style.Colour;
 public abstract class BaseCanvas {
 	protected final Context cr;
 	protected final PdfSurface pdf;
-	private final Colour fillColour;
-	private final Colour lineColour;
+	private Colour fillColour;
+	private Colour lineColour;
 	private double lineWidth;
     protected final int width;
     protected final int height;
@@ -60,7 +60,8 @@ public abstract class BaseCanvas {
 	}
 
 	public void setFillColour(Colour fillColour) {
-		this.fillColour.setColour(fillColour);
+		this.fillColour = fillColour;
+		setFillColour();
 	}
 
 	public Colour getFillColour() {
@@ -68,7 +69,8 @@ public abstract class BaseCanvas {
 	}
 
 	public void setLineColour(Colour lineColour) {
-		this.lineColour.setColour(lineColour);
+		this.lineColour = lineColour;
+		setLineColour();
 	}
 
 	public Colour getLineColour() {
