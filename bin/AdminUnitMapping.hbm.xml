@@ -31,10 +31,10 @@
 	        </property>
 	    </joined-subclass>
     </class>
-    <class name="Country" table="country_extents">
+    <class name="Country" table="api_country">
         <id column="id" name="id"></id>
-		<property name="geom" type="org.hibernatespatial.GeometryUserType">
-				<column name="geom" />
+		<property name="envelope" type="org.hibernatespatial.GeometryUserType">
+				<column name="envelope" />
 		</property>
         <property name="name">
 				<column name="name" />
@@ -48,7 +48,7 @@
     </class>
     <sql-query name="api.years"><![CDATA[
 		select year
-		from api_country
+		from api_by_country
 		where country_id = :country_id
 		and year is not null
 		and parasite = :parasite
@@ -57,7 +57,7 @@
     ]]></sql-query>
     <sql-query name="api.medintelZeroed"><![CDATA[
 		select name
-		from api_country
+		from api_by_country
 		where country_id = :country_id
 		and medintel_zeroed = true
 		and parasite = :parasite
@@ -66,13 +66,13 @@
     ]]></sql-query>
     <sql-query name="api.counts"><![CDATA[
 		select cast(count(distinct(gaul_code)) as integer)
-		from api_country
+		from api_by_country
 		where country_id = :country_id
 		and parasite = :parasite
     ]]></sql-query>
     <sql-query name="api.admin_level"><![CDATA[
 		select 'Admin' || max(admin_level)
-		from api_country
+		from api_by_country
 		where country_id = :country_id
 		and parasite = :parasite
     ]]></sql-query>

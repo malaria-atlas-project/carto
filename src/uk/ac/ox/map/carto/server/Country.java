@@ -5,17 +5,10 @@ import com.vividsolutions.jts.geom.Geometry;
 public class Country {
 	private String id;
 	private String name;
-	private Geometry geom;
+	private Geometry envelope;
 	private Boolean hasPf;
 	private Boolean hasPv;
 
-	public void setGeom(Geometry geometry) {
-		this.geom = geometry;
-	}
-
-	public Geometry getGeom() {
-		return geom;
-	}
 
 	public void setId(String id) {
 		this.id = id;
@@ -47,6 +40,14 @@ public class Country {
 
 	public Boolean getHasPv() {
 		return hasPv;
+	}
+
+	public void setEnvelope(Geometry envelope) {
+		this.envelope = envelope;
+	}
+
+	public Geometry getEnvelope() {
+		return envelope;
 	}
 
 }

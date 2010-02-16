@@ -54,7 +54,7 @@ public class CairoTest {
 		 * Get country envelope
 		 * Get admin units (level 0) overlapping data frame and draw them
 		 */
-		Polygon poly = (Polygon) country.getGeom();
+		Polygon poly = (Polygon) country.getEnvelope();
 		Envelope env = EnvelopeFactory.envelopeFromPolygon(poly, 1.05);
 		
         ArrayList<AdminUnit> adminUnits = adminUnitService.getAdminUnits(poly);
