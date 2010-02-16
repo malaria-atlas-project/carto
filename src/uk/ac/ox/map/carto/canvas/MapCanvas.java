@@ -114,9 +114,9 @@ public class MapCanvas extends BaseCanvas {
 		/*
 		 * Could be configuration options?
 		 */
-		double patchWidth = 30;
-		double patchHeight = 15;
-		double spacing = 25;
+		double patchWidth = 25;
+		double patchHeight = 12.5;
+		double spacing = 22;
 		double textMargin = 40;
 		
 		fontDesc.setSize(6);

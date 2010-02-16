@@ -28,9 +28,9 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		String countryId = "VEN";
+		String countryId = "CHN";
 		Country country  = adminUnitService.getCountry(countryId);
-		drawMap(adminUnitService, country, "pv");
+		drawMap(adminUnitService, country, "pf");
 		
 		/*
 		String parasite = "pv";
@@ -149,7 +149,7 @@ public class CairoTest {
 			mapTextItems.add(String.format((String) mtr.getObject("ithgText"), zeroedText));
 		}
 		
-		Rectangle mapTextFrame = new Rectangle(70, 555, 300, 0);
+		Rectangle mapTextFrame = new Rectangle(40, 555, 330, 0);
 		mapCanvas.drawTextFrame(mapTextItems, mapTextFrame, 6);
 		
 		/*
