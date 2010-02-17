@@ -2,11 +2,12 @@ package uk.ac.ox.map.carto.canvas;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.util.List;
 
 import org.freedesktop.cairo.PdfSurface;
 
-import uk.ac.ox.map.carto.server.Feature;
-import uk.ac.ox.map.carto.server.PolygonCursor;
+import uk.ac.ox.map.carto.feature.Feature;
+import uk.ac.ox.map.carto.server.FeatureLayer;
 import uk.ac.ox.map.carto.server.RiskMap;
 
 import com.vividsolutions.jts.geom.Coordinate;
@@ -99,14 +100,11 @@ public class DataFrame extends BaseCanvas {
     	System.out.println(urPt);
 	}
 	*/
-	
-	public void drawPolygonCursor(PolygonCursor<? extends RiskMap> pc) {
-		for (int i = 0; i < pc.size(); i++) {
-			Feature f  = pc.getFeature(i);
-			setFillColour(f.c);
-			drawMultiPolygon(f.mp);
+	public void drawFeatures(FeatureLayer<MultiPolygon> features) {
+		for (Feature<MultiPolygon> feature : features) {
+			setFillColour(feature.getColour());
+			drawMultiPolygon(feature.getGeometry());
 		}
-		
 	}
     
 	public void drawMultiPolygon(MultiPolygon mp){
@@ -122,7 +120,6 @@ public class DataFrame extends BaseCanvas {
         	for (int i = 0; i < p.getNumInteriorRing(); i++) {
 	        	drawLineString(p.getInteriorRingN(i));
 			}
-//	        cr.stroke();
         	setFillColour();
 	        cr.fillPreserve();
 	        setLineColour();

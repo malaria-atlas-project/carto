@@ -36,13 +36,11 @@ public class MapCanvas extends BaseCanvas {
 		return this;
 	}
 	
-	public void setTextFrame(String text, Rectangle frame, Integer fontSize){
+	public void setTitle(String text, Rectangle frame, Integer fontSize){
 		/*
 		 * TODO look at Reportlab api to think of good ways of abstracting
 		 */
 		Layout layout = new Layout(cr);
-        FontDescription fontDesc = new FontDescription();
-        fontDesc.setFamily("Helvetica");
         fontDesc.setSize(fontSize);
         layout.setFontDescription(fontDesc);
         layout.setWidth(frame.width);
@@ -57,8 +55,6 @@ public class MapCanvas extends BaseCanvas {
 	
 	public void drawTextFrame(List<String> text, Rectangle frame, float fontSize){
 		Layout layout = new Layout(cr);
-        FontDescription fontDesc = new FontDescription();
-        fontDesc.setFamily("Helvetica");
         fontDesc.setSize(fontSize);
         layout.setFontDescription(fontDesc);
         layout.setWidth(frame.width);

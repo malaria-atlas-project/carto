@@ -8,11 +8,12 @@ import org.freedesktop.cairo.PdfSurface;
 import org.gnome.gtk.Gtk;
 
 import uk.ac.ox.map.carto.canvas.style.Colour;
+import uk.ac.ox.map.carto.feature.Feature;
 import uk.ac.ox.map.carto.server.AdminUnit;
 import uk.ac.ox.map.carto.server.AdminUnitRisk;
 import uk.ac.ox.map.carto.server.AdminUnitService;
 import uk.ac.ox.map.carto.server.Country;
-import uk.ac.ox.map.carto.server.PolygonCursor;
+import uk.ac.ox.map.carto.server.FeatureLayer;
 import uk.ac.ox.map.carto.text.MapTextResource;
 import uk.ac.ox.map.carto.util.EnvelopeFactory;
 import uk.ac.ox.map.carto.util.StringUtil;
@@ -28,14 +29,15 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		/*
-		String countryId = "CHN";
+		String countryId = "PAK";
 		Country country  = adminUnitService.getCountry(countryId);
+		drawMap(adminUnitService, country, "pv");
 		drawMap(adminUnitService, country, "pf");
 		
-		*/
+		/*
 		drawMap(adminUnitService, "pf");
 		drawMap(adminUnitService, "pv");
+		*/
 	}
 
 	private static void 
@@ -80,14 +82,18 @@ public class CairoTest {
         /*
          * Draw the risk units
          */
-        ArrayList<AdminUnitRisk> pfUnits = adminUnitService.getRiskAdminUnits(country, parasite);
         HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
         colours.put(0, new Colour("#ffffff", 1));
         colours.put(1, new Colour("#ffbebe", 1));
         colours.put(2, new Colour("#cd6666", 1));
         colours.put(9, new Colour("#ffff00", 1));
-		PolygonCursor<AdminUnitRisk> pfFeats = new PolygonCursor<AdminUnitRisk>(pfUnits, colours);
-		df.drawPolygonCursor(pfFeats);
+        
+		FeatureLayer<MultiPolygon> pfFeats = new FeatureLayer<MultiPolygon>();
+        ArrayList<AdminUnitRisk> pfUnits = adminUnitService.getRiskAdminUnits(country, parasite);
+        for (AdminUnitRisk adminUnitRisk : pfUnits) {
+        	pfFeats.addFeature((MultiPolygon) adminUnitRisk.getGeom(), colours.get(adminUnitRisk.getRisk()));
+		}
+        df.drawFeatures(pfFeats);
 
         /*
          * Draw the rest of the canvas
@@ -112,7 +118,7 @@ public class CairoTest {
 		List<LegendItem> legend = new ArrayList<LegendItem>();
 		legend.add(new LegendItem("Malaria free", colours.get(0)));
 		legend.add(new LegendItem("<i>Pf</i>API &lt; 0.1‰", colours.get(1)));
-		legend.add(new LegendItem("<i>Pf</i>API &gt;= 0.1‰", colours.get(2)));
+		legend.add(new LegendItem("<i>Pf</i>API ≥ 0.1‰", colours.get(2)));
 		legend.add(new LegendItem("No data", colours.get(9)));
 		Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
 		mapCanvas.drawLegend(legendFrame, legend);
@@ -131,7 +137,7 @@ public class CairoTest {
 		else if (parasite.compareTo("pv")==0)
 			mapTitle = String.format((String) mtr.getObject("pvTitle"), country.getName());
 		
-		mapCanvas.setTextFrame(
+		mapCanvas.setTitle(
 			mapTitle,
 			titleFrame,
 			11);
