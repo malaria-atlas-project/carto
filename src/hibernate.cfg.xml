@@ -10,6 +10,7 @@
         <property name="hibernate.connection.url">jdbc:postgresql://localhost:2345/map_b_test</property>
         <property name="hibernate.connection.username">will</property>
         <!--  
+        <property name="hibernate.connection.password">lf84tbv09</property>
         <property name="hibernate.connection.password">@&amp;tolm00</property>
         -->
 		<property name="hibernate.dialect">org.hibernatespatial.postgis.PostgisDialect</property>

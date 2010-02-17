@@ -29,15 +29,15 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
+		/*
 		String countryId = "PAK";
 		Country country  = adminUnitService.getCountry(countryId);
 		drawMap(adminUnitService, country, "pv");
 		drawMap(adminUnitService, country, "pf");
+		*/
 		
-		/*
 		drawMap(adminUnitService, "pf");
 		drawMap(adminUnitService, "pv");
-		*/
 	}
 
 	private static void 
@@ -117,8 +117,18 @@ public class CairoTest {
 		
 		List<LegendItem> legend = new ArrayList<LegendItem>();
 		legend.add(new LegendItem("Malaria free", colours.get(0)));
-		legend.add(new LegendItem("<i>Pf</i>API &lt; 0.1‰", colours.get(1)));
-		legend.add(new LegendItem("<i>Pf</i>API ≥ 0.1‰", colours.get(2)));
+		
+		//TODO - hacks!
+		if (parasite.compareTo("pf")==0)
+			legend.add(new LegendItem("<i>Pf</i>API &lt; 0.1‰", colours.get(1)));
+		else
+			legend.add(new LegendItem("<i>Pv</i>API &lt; 0.1‰", colours.get(1)));
+			
+		if (parasite.compareTo("pf")==0)
+			legend.add(new LegendItem("<i>Pf</i>API ≥ 0.1‰", colours.get(2)));
+		else
+			legend.add(new LegendItem("<i>Pv</i>API ≥ 0.1‰", colours.get(2)));
+		
 		legend.add(new LegendItem("No data", colours.get(9)));
 		Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
 		mapCanvas.drawLegend(legendFrame, legend);

@@ -105,7 +105,6 @@ public class MapCanvas extends BaseCanvas {
 	public void drawLegend(Rectangle rect, List<LegendItem> legend){
 		double y = rect.y;
 		double x = rect.x;
-		Point2D.Double pt = rect.getUpperLeft();
 		
 		/*
 		 * Could be configuration options?

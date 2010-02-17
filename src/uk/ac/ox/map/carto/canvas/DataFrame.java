@@ -2,13 +2,11 @@ package uk.ac.ox.map.carto.canvas;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.util.List;
 
 import org.freedesktop.cairo.PdfSurface;
 
 import uk.ac.ox.map.carto.feature.Feature;
 import uk.ac.ox.map.carto.server.FeatureLayer;
-import uk.ac.ox.map.carto.server.RiskMap;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;

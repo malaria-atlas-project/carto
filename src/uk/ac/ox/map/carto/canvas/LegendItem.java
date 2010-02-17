@@ -1,12 +1,10 @@
 package uk.ac.ox.map.carto.canvas;
 
 
-import java.util.List;
-
 import uk.ac.ox.map.carto.canvas.style.Colour;
 
 /*
- * The legend is responsible for drawing
+ * 
  *
  */
     
