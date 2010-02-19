@@ -1,10 +1,18 @@
 package uk.ac.ox.map.carto.canvas;
 
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+
+import javax.imageio.ImageIO;
+
+import org.freedesktop.bindings.FIXME;
 import org.freedesktop.cairo.PdfSurface;
+import org.gnome.gdk.Pixbuf;
 import org.gnome.gtk.Gtk;
 
 import uk.ac.ox.map.carto.canvas.style.Colour;
@@ -13,6 +21,7 @@ import uk.ac.ox.map.carto.server.AdminUnit;
 import uk.ac.ox.map.carto.server.AdminUnitRisk;
 import uk.ac.ox.map.carto.server.AdminUnitService;
 import uk.ac.ox.map.carto.server.Country;
+import uk.ac.ox.map.carto.server.Exclusion;
 import uk.ac.ox.map.carto.server.FeatureLayer;
 import uk.ac.ox.map.carto.text.MapTextResource;
 import uk.ac.ox.map.carto.util.EnvelopeFactory;
@@ -22,6 +31,12 @@ import uk.ac.ox.map.carto.util.SystemUtil;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
+
+import org.gdal.gdal.Band;
+import org.gdal.gdal.Dataset;
+import org.gdal.gdal.gdal;
+import org.gdal.gdalconst.gdalconst;
+import org.gdal.gdalconst.gdalconstConstants;
         
 public class CairoTest {
 	
@@ -29,15 +44,15 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		/*
-		String countryId = "PAK";
+		String countryId = "IDN";
 		Country country  = adminUnitService.getCountry(countryId);
 		drawMap(adminUnitService, country, "pv");
 		drawMap(adminUnitService, country, "pf");
-		*/
 		
+		/*
 		drawMap(adminUnitService, "pf");
 		drawMap(adminUnitService, "pv");
+		*/
 	}
 
 	private static void 
@@ -88,13 +103,33 @@ public class CairoTest {
         colours.put(2, new Colour("#cd6666", 1));
         colours.put(9, new Colour("#ffff00", 1));
         
+        /*
+         * TODO: possible to obtain a nice feature class, colours included, direct from the hibernate service?
+         */
+        
+        /*
+         * Get risk admin units
+         */
 		FeatureLayer<MultiPolygon> pfFeats = new FeatureLayer<MultiPolygon>();
-        ArrayList<AdminUnitRisk> pfUnits = adminUnitService.getRiskAdminUnits(country, parasite);
+        List<AdminUnitRisk> pfUnits = adminUnitService.getRiskAdminUnits(country, parasite);
         for (AdminUnitRisk adminUnitRisk : pfUnits) {
         	pfFeats.addFeature((MultiPolygon) adminUnitRisk.getGeom(), colours.get(adminUnitRisk.getRisk()));
 		}
         df.drawFeatures(pfFeats);
 
+        /*
+         * Get excluded cities
+         */
+		FeatureLayer<MultiPolygon> excl = new FeatureLayer<MultiPolygon>();
+        List<Exclusion> ithgExcl = adminUnitService.getExclusions(country);
+        Colour exclColour = new Colour("#000000", 1);
+        List<String> exclCities = new ArrayList<String>();
+        for (Exclusion exclusion : ithgExcl) {
+        	excl.addFeature((MultiPolygon) exclusion.getGeom(), exclColour);
+        	exclCities.add(exclusion.getName());
+		}
+        df.drawFeatures(excl);
+        
         /*
          * Draw the rest of the canvas
          */
@@ -129,7 +164,9 @@ public class CairoTest {
 		else
 			legend.add(new LegendItem("<i>Pv</i>API ≥ 0.1‰", colours.get(2)));
 		
+		legend.add(new LegendItem("ITHG exclusions", exclColour));
 		legend.add(new LegendItem("No data", colours.get(9)));
+		
 		Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
 		mapCanvas.drawLegend(legendFrame, legend);
 		
@@ -166,10 +203,18 @@ public class CairoTest {
 		
 		List<String> zeroed = adminUnitService.getZeroed(country, parasite);
 		
-		if (zeroed.size() > 0) {
-			String zeroedText = StringUtil.getReadableList(zeroed);
-			mapTextItems.add(String.format((String) mtr.getObject("ithgText"), zeroedText));
+		if (zeroed.size() > 0 || exclCities.size() > 0) {
+			String ithgText = (String) mtr.getObject("ithgText");
+			List<String> txt = new ArrayList<String>();
+			if (zeroed.size() > 0) {
+				txt.add(String.format((String) mtr.getObject("adminText"), StringUtil.getReadableList(zeroed)));
+			}
+			if (exclCities.size() > 0) {
+				txt.add(String.format((String) mtr.getObject("citiesText"), StringUtil.getReadableList(exclCities)));
+			}
+			mapTextItems.add(String.format(ithgText, StringUtil.getReadableList(txt)));
 		}
+			
 		
 		mapTextItems.add((String) mtr.getObject("copyright"));
 		
@@ -178,11 +223,18 @@ public class CairoTest {
 		
 		/*
 		 * Finally put on the logo
-		Pixbuf pb = new Pixbuf("/home/will/map1_public/maps/map_overlay3.png");
-		Frame logoFrame = new Frame(300, 400, 250, 0);
-		mapCanvas.setLogo(pb, logoFrame);
 		
+
+		BufferedImage image = ImageIO.read( new File( "/home/will/map1_public/maps/map_overlay3.png" ) );
+		ByteArrayOutputStream baos = new ByteArrayOutputStream();
+		ImageIO.write(image, "png", baos);
+		baos.flush();
+		
+		Pixbuf pb = new Pixbuf(baos.toByteArray());
+		Rectangle logoFrame = new Rectangle(300, 400, 250, 0);
+		mapCanvas.setLogo(pb, logoFrame);
 		 */
+		
 		/*
 		 * Understand this better! Does data frame require finishing? Does the data frame even need a pdf surface?
 		 */

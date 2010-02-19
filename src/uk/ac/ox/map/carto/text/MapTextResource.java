@@ -12,5 +12,7 @@ public class MapTextResource extends ListResourceBundle {
 	    	 {"pfTitle","<i>Plasmodium falciparum</i> risk in %s"},
 	    	 {"pvTitle","<i>Plasmodium vivax</i> risk in %s"},
 	    	 {"ithgText", "Data from international and travel health guidelines was used to zero risk in %s."},
+	    	 {"adminText", "the following administrative units: %s"},
+	    	 {"citiesText", "the following cities: %s"},
 	     };
  }

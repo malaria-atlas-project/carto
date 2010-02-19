@@ -16,20 +16,35 @@ public class UnitTests {
 	@Test
 	public void testStringUtil(){
 		List<String> t = new ArrayList<String>();
+		String s;
 		t.add("a");
-		assertTrue(StringUtil.getReadableList(t).compareTo("a") == 0);
+		s = StringUtil.getReadableList(t);
+		System.out.println(s);
+		assertTrue(s.compareTo("a") == 0);
 		
 		t.clear();
 		t.add("a");
 		t.add("b");
-		assertTrue(StringUtil.getReadableList(t).compareTo("a and b") == 0);
+		s = StringUtil.getReadableList(t);
+		System.out.println(s);
+		assertTrue(s.compareTo("a and b") == 0);
 		
 		t.clear();
 		t.add("a");
 		t.add("b");
 		t.add("c");
-		assertTrue(StringUtil.getReadableList(t).compareTo("a, b and c") == 0);
+		s = StringUtil.getReadableList(t);
+		System.out.println(s);
+		assertTrue(s.compareTo("a, b and c") == 0);
 		
+		List<Integer> l = new ArrayList<Integer>();
+		l.add(1);
+		l.add(2);
+		l.add(3);
+		l.add(4);
+		s = StringUtil.getReadableList(l);
+		System.out.println(s);
+		assertTrue(s.compareTo("1, 2, 3 and 4") == 0);
 	}
 	@Test
 	public void testAnchorEnum(){

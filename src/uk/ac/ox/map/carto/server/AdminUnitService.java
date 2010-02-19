@@ -56,6 +56,13 @@ public class AdminUnitService {
 		return pf;
 	}
 	
+	public ArrayList<Exclusion> getExclusions(Country country) {
+        Criteria testCriteria = session.createCriteria(Exclusion.class);
+        testCriteria.add(Restrictions.eq("country", country));
+        ArrayList<Exclusion> pf = (ArrayList<Exclusion>) testCriteria.list();
+		return pf;
+	}
+	
 	public Country getCountry(String countryId){
         return (Country) session.createQuery("from Country where id = :country_id")
         .setParameter("country_id", countryId).uniqueResult();

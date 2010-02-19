@@ -46,6 +46,18 @@
 				<column name="has_pv" />
         </property>
     </class>
+    <class name="Exclusion" table="api_ithg_exclusion">
+        <id column="id" name="id"></id>
+		<property name="geom" type="org.hibernatespatial.GeometryUserType">
+				<column name="geom" />
+		</property>
+        <property name="name">
+				<column name="name" />
+        </property>
+        <many-to-one name="country" class="Country">
+        	<column name="country_id"></column>
+        </many-to-one>
+    </class>
     <sql-query name="api.years"><![CDATA[
 		select year
 		from api_by_country

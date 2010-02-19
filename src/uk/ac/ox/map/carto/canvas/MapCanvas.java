@@ -217,7 +217,7 @@ public class MapCanvas extends BaseCanvas {
 		double scale = pb.getWidth() / frame.width;
 		System.out.println("Scale:" + scale);
 		cr.scale(scale, scale);
-		cr.setSource(pb, frame.x * scale, frame.y * scale);
+		cr.setSource(pb, 0,0);
 		cr.paint();
 	}
 

@@ -14,6 +14,11 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
+/*
+ * Adds polygon drawing facilities to BaseCanvas.
+ * TODO: add raster functionality 
+ *  
+ */
 public class DataFrame extends BaseCanvas {
 	
 	private Envelope env;
