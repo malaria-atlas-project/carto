@@ -1,15 +1,19 @@
 package uk.ac.ox.map.carto.canvas;
 
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
 import javax.imageio.ImageIO;
+import javax.imageio.stream.ImageOutputStream;
 
+import org.datanucleus.plugin.EclipsePluginRegistry;
 import org.freedesktop.bindings.FIXME;
 import org.freedesktop.cairo.PdfSurface;
 import org.gnome.gdk.Pixbuf;
@@ -44,15 +48,15 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		String countryId = "IDN";
+		/*
+		String countryId = "VUT";
 		Country country  = adminUnitService.getCountry(countryId);
 		drawMap(adminUnitService, country, "pv");
 		drawMap(adminUnitService, country, "pf");
 		
-		/*
+		*/
 		drawMap(adminUnitService, "pf");
 		drawMap(adminUnitService, "pv");
-		*/
 	}
 
 	private static void 
@@ -124,9 +128,13 @@ public class CairoTest {
         List<Exclusion> ithgExcl = adminUnitService.getExclusions(country);
         Colour exclColour = new Colour("#000000", 1);
         List<String> exclCities = new ArrayList<String>();
+        List<String> exclIslands = new ArrayList<String>();
         for (Exclusion exclusion : ithgExcl) {
         	excl.addFeature((MultiPolygon) exclusion.getGeom(), exclColour);
-        	exclCities.add(exclusion.getName());
+        	if (exclusion.getExclusionType().compareTo("urban area")==0)
+	        	exclCities.add(exclusion.getName());
+        	else if (exclusion.getExclusionType().compareTo("island")==0)
+	        	exclIslands.add(exclusion.getName());
 		}
         df.drawFeatures(excl);
         
@@ -192,7 +200,6 @@ public class CairoTest {
 		List<String> mapTextItems = new ArrayList<String>();
 		
 		List<Integer> years = adminUnitService.getYears(country, parasite);
-		System.out.println(years);
 		String yearsText = StringUtil.getReadableList(years);
 		mapTextItems.add(String.format(
 				(String) mtr.getObject("apiText"), 
@@ -203,7 +210,7 @@ public class CairoTest {
 		
 		List<String> zeroed = adminUnitService.getZeroed(country, parasite);
 		
-		if (zeroed.size() > 0 || exclCities.size() > 0) {
+		if (zeroed.size() > 0 || exclCities.size() > 0 || exclIslands.size() > 0) {
 			String ithgText = (String) mtr.getObject("ithgText");
 			List<String> txt = new ArrayList<String>();
 			if (zeroed.size() > 0) {
@@ -212,9 +219,15 @@ public class CairoTest {
 			if (exclCities.size() > 0) {
 				txt.add(String.format((String) mtr.getObject("citiesText"), StringUtil.getReadableList(exclCities)));
 			}
+			if (exclIslands.size() > 0) {
+				txt.add(String.format((String) mtr.getObject("islandsText"), StringUtil.getReadableList(exclIslands)));
+			}
 			mapTextItems.add(String.format(ithgText, StringUtil.getReadableList(txt)));
 		}
 			
+		System.out.println(exclIslands);
+		System.out.println(exclCities);
+		System.out.println(zeroed);
 		
 		mapTextItems.add((String) mtr.getObject("copyright"));
 		
@@ -224,15 +237,21 @@ public class CairoTest {
 		/*
 		 * Finally put on the logo
 		
+		Dataset x = gdal.Open("/home/will/map1_public/maps/map_overlay3.png");
+		Band band = x.GetRasterBand(1);
 
-		BufferedImage image = ImageIO.read( new File( "/home/will/map1_public/maps/map_overlay3.png" ) );
-		ByteArrayOutputStream baos = new ByteArrayOutputStream();
-		ImageIO.write(image, "png", baos);
-		baos.flush();
-		
-		Pixbuf pb = new Pixbuf(baos.toByteArray());
+		int xsize = x.getRasterXSize();
+		int ysize = x.getRasterYSize();
+
+	   ByteBuffer y = band.ReadRaster_Direct(0, 0, xsize, ysize, gdalconst.GDT_Byte);
+	   byte[] bytes = new byte[y.remaining()];
+	   y.get(bytes);
+	   
+		Pixbuf pb = new Pixbuf(bytes);
 		Rectangle logoFrame = new Rectangle(300, 400, 250, 0);
 		mapCanvas.setLogo(pb, logoFrame);
+		gdal.AllRegister();
+		
 		 */
 		
 		/*

@@ -14,5 +14,6 @@ public class MapTextResource extends ListResourceBundle {
 	    	 {"ithgText", "Data from international and travel health guidelines was used to zero risk in %s."},
 	    	 {"adminText", "the following administrative units: %s"},
 	    	 {"citiesText", "the following cities: %s"},
+	    	 {"islandsText", "the following islands: %s"},
 	     };
  }

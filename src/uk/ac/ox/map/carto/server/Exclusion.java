@@ -5,6 +5,7 @@ import com.vividsolutions.jts.geom.Geometry;
 public class Exclusion {
 	private Geometry geom;
 	private String name;
+	private String exclusionType;
 	private Integer id;
 	private Country country;
 	public void setGeom(Geometry geom) {
@@ -30,6 +31,12 @@ public class Exclusion {
 	}
 	public Country getCountry() {
 		return country;
+	}
+	public void setExclusionType(String exclusionType) {
+		this.exclusionType = exclusionType;
+	}
+	public String getExclusionType() {
+		return exclusionType;
 	}
 
 }
