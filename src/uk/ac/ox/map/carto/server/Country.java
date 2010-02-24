@@ -6,8 +6,8 @@ public class Country {
 	private String id;
 	private String name;
 	private Geometry envelope;
-	private Boolean hasPf;
-	private Boolean hasPv;
+	private Boolean pfEndemic;
+	private Boolean pvEndemic;
 
 
 	public void setId(String id) {
@@ -26,28 +26,28 @@ public class Country {
 		return name;
 	}
 
-	public void setHasPf(Boolean hasPf) {
-		this.hasPf = hasPf;
-	}
-
-	public Boolean getHasPf() {
-		return hasPf;
-	}
-
-	public void setHasPv(Boolean hasPv) {
-		this.hasPv = hasPv;
-	}
-
-	public Boolean getHasPv() {
-		return hasPv;
-	}
-
 	public void setEnvelope(Geometry envelope) {
 		this.envelope = envelope;
 	}
 
 	public Geometry getEnvelope() {
 		return envelope;
+	}
+
+	public void setPfEndemic(Boolean pfEndemic) {
+		this.pfEndemic = pfEndemic;
+	}
+
+	public Boolean getPfEndemic() {
+		return pfEndemic;
+	}
+
+	public void setPvEndemic(Boolean pvEndemic) {
+		this.pvEndemic = pvEndemic;
+	}
+
+	public Boolean getPvEndemic() {
+		return pvEndemic;
 	}
 
 }

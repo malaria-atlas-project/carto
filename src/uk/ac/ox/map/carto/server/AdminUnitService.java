@@ -23,44 +23,49 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 
 public class AdminUnitService {
+	private static final int SRID = 4326;
 	
 	private final org.hibernate.classic.Session session = HibernateUtil.getCurrentSession();
 	public AdminUnitService() {
         session.beginTransaction();
 	}
 	
-	public ArrayList<AdminUnit> getAdminUnits(Geometry env){
+	public List<AdminUnit> getAdminUnits(Envelope env){
         Criteria testCriteria = session.createCriteria(AdminUnit.class);
-        testCriteria.add(new SpatialFilter("geom", env));
+        testCriteria.add(new SpatialFilter("geom", env, SRID));
         testCriteria.add(Restrictions.eq("adminLevel", "0"));
-        ArrayList<AdminUnit> a0 = (ArrayList<AdminUnit>) testCriteria.list();
-		return a0;
+        testCriteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+		return testCriteria.list();
+	}
+	
+	public List<WaterBody> getWaterBodies(Envelope env){
+        Criteria testCriteria = session.createCriteria(WaterBody.class);
+        testCriteria.add(new SpatialFilter("geom", env, SRID));
+		return testCriteria.list();
 	}
 
-	public ArrayList<Country> getCountries(String parasite){
+	public List<Country> getCountries(String parasite){
 		
         Criteria testCriteria = session.createCriteria(Country.class);
         if (parasite.compareTo("pf") == 0)
-	        testCriteria.add(Restrictions.eq("hasPf", true));
+	        testCriteria.add(Restrictions.eq("pfEndemic", true));
         else if (parasite.compareTo("pv") == 0)
-	        testCriteria.add(Restrictions.eq("hasPv", true));
-        return (ArrayList<Country>) testCriteria.list();
+	        testCriteria.add(Restrictions.eq("pvEndemic", true));
+        return testCriteria.list();
 	}
 	
-	public ArrayList<AdminUnitRisk> getRiskAdminUnits(Country country, String parasite) {
+	public List<AdminUnitRisk> getRiskAdminUnits(Country country, String parasite) {
 		session.clear();
         Criteria testCriteria = session.createCriteria(AdminUnitRisk.class);
         testCriteria.add(Restrictions.eq("countryId", country.getId()));
         testCriteria.add(Restrictions.eq("parasite", parasite));
-        ArrayList<AdminUnitRisk> pf = (ArrayList<AdminUnitRisk>) testCriteria.list();
-		return pf;
+		return testCriteria.list();
 	}
 	
-	public ArrayList<Exclusion> getExclusions(Country country) {
+	public List<Exclusion> getExclusions(Country country) {
         Criteria testCriteria = session.createCriteria(Exclusion.class);
         testCriteria.add(Restrictions.eq("country", country));
-        ArrayList<Exclusion> pf = (ArrayList<Exclusion>) testCriteria.list();
-		return pf;
+		return testCriteria.list();
 	}
 	
 	public Country getCountry(String countryId){

@@ -27,6 +27,7 @@ import uk.ac.ox.map.carto.server.AdminUnitService;
 import uk.ac.ox.map.carto.server.Country;
 import uk.ac.ox.map.carto.server.Exclusion;
 import uk.ac.ox.map.carto.server.FeatureLayer;
+import uk.ac.ox.map.carto.server.WaterBody;
 import uk.ac.ox.map.carto.text.MapTextResource;
 import uk.ac.ox.map.carto.util.EnvelopeFactory;
 import uk.ac.ox.map.carto.util.StringUtil;
@@ -48,21 +49,21 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		/*
-		String countryId = "VUT";
+		String countryId = "IND";
 		Country country  = adminUnitService.getCountry(countryId);
 		drawMap(adminUnitService, country, "pv");
 		drawMap(adminUnitService, country, "pf");
 		
-		*/
+		/*
 		drawMap(adminUnitService, "pf");
 		drawMap(adminUnitService, "pv");
+		*/
 	}
 
 	private static void 
 	drawMap(AdminUnitService adminUnitService, String parasite) 
 	throws IOException, InterruptedException {
-		ArrayList<Country> pfCountries = adminUnitService.getCountries(parasite);
+		List<Country> pfCountries = adminUnitService.getCountries(parasite);
 		for (Country country : pfCountries) {
 	        System.out.println("Processing:" + country.getId());
 			drawMap(adminUnitService, country, parasite);
@@ -77,23 +78,28 @@ public class CairoTest {
 		 * 2. Get appropriate admin units
 		 */
 		
-		/*
-		 * Get country envelope
-		 * Get admin units (level 0) overlapping data frame and draw them
-		 */
 		Polygon poly = (Polygon) country.getEnvelope();
 		Envelope env = EnvelopeFactory.envelopeFromPolygon(poly, 1.05);
 		
-        ArrayList<AdminUnit> adminUnits = adminUnitService.getAdminUnits(poly);
-       
+		/*
+		 * Create dataframe with specified envelope
+		 */
         int h, w; w=460; h = 460; 
 		PdfSurface dfSurface = new PdfSurface("/tmp/tmp_dataframe.pdf", w, h);
 		DataFrame df= new DataFrame(dfSurface, w, h, env);
-		df.setBackgroundColour("#bee8ff", 1);
+		String waterHexColour = "#bee8ff";
+		df.setBackgroundColour(waterHexColour, 1);
         df.setLineColour("#000000", (float) 0.7);
         df.setLineWidth(0.1);
         df.setFillColour("#cccccc", (float) 0.8);
         
+        
+		/*
+		 * Get envelope as resized by dataframe
+		 * Get admin units (level 0) overlapping data frame and draw them
+		 */
+        Envelope resizedEnv = df.getEnvelope();
+        List<AdminUnit> adminUnits = adminUnitService.getAdminUnits(resizedEnv);
         for (AdminUnit admin0 : adminUnits) {
         	df.drawMultiPolygon((MultiPolygon) admin0.getGeom());
 		}
@@ -137,6 +143,17 @@ public class CairoTest {
 	        	exclIslands.add(exclusion.getName());
 		}
         df.drawFeatures(excl);
+        
+        /*
+         * Draw on water bodies
+         */
+		FeatureLayer<MultiPolygon> waterBodies = new FeatureLayer<MultiPolygon>();
+        List<WaterBody> water = adminUnitService.getWaterBodies(resizedEnv);
+        Colour waterColour = new Colour(waterHexColour, 1);
+        for (WaterBody waterBody : water) {
+        	waterBodies.addFeature((MultiPolygon) waterBody.getGeom(), waterColour);
+		}
+        df.drawFeatures(waterBodies);
         
         /*
          * Draw the rest of the canvas
@@ -192,10 +209,7 @@ public class CairoTest {
 		else if (parasite.compareTo("pv")==0)
 			mapTitle = String.format((String) mtr.getObject("pvTitle"), country.getName());
 		
-		mapCanvas.setTitle(
-			mapTitle,
-			titleFrame,
-			11);
+		mapCanvas.setTitle(mapTitle, titleFrame, 11);
 		
 		List<String> mapTextItems = new ArrayList<String>();
 		

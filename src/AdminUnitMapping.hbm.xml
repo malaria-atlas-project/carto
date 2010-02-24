@@ -4,7 +4,9 @@
 "http://hibernate.sourceforge.net/hibernate-mapping-3.0.dtd">
 <hibernate-mapping package="uk.ac.ox.map.carto.server">
     <class name="AdminUnit" table="admin">
-        <id column="gaul_code" name="id"></id>
+        <id name="id">
+	        <column name="gaul_code"></column>
+        </id>
 		<property name="geom" type="org.hibernatespatial.GeometryUserType">
 				<column name="geom" />
 		</property>
@@ -31,23 +33,27 @@
 	        </property>
 	    </joined-subclass>
     </class>
-    <class name="Country" table="api_country">
-        <id column="id" name="id"></id>
+    <class name="Country" table="country">
+        <id  name="id">
+	        <column name="id"></column>
+        </id>
 		<property name="envelope" type="org.hibernatespatial.GeometryUserType">
 				<column name="envelope" />
 		</property>
         <property name="name">
 				<column name="name" />
         </property>
-        <property name="hasPf">
-				<column name="has_pf" />
+        <property name="pfEndemic">
+				<column name="pf_endemic" />
         </property>
-        <property name="hasPv">
-				<column name="has_pv" />
+        <property name="pvEndemic">
+				<column name="pv_endemic" />
         </property>
     </class>
     <class name="Exclusion" table="api_exclusion">
-        <id column="id" name="id"></id>
+        <id name="id">
+	        <column name="id"></column>
+        </id>
 		<property name="geom" type="org.hibernatespatial.GeometryUserType">
 				<column name="geom" />
 		</property>
@@ -60,6 +66,17 @@
         <many-to-one name="country" class="Country">
         	<column name="country_id"></column>
         </many-to-one>
+    </class>
+    <class name="WaterBody" table="glwd1">
+        <id name="id">
+	        <column name="gid"></column>
+        </id>
+		<property name="geom" type="org.hibernatespatial.GeometryUserType">
+				<column name="geom" />
+		</property>
+		<property name="area">
+				<column name="area_skm"></column>
+		</property>
     </class>
     <sql-query name="api.years"><![CDATA[
 		select year
