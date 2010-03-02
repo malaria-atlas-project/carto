@@ -1,26 +1,14 @@
 package uk.ac.ox.map.carto.server;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.SortedSet;
-
 
 import org.hibernate.Criteria;
-import org.hibernate.HibernateException;
 import org.hibernate.Query;
-import org.hibernate.Session;
-import org.hibernate.StatelessSession;
-import org.hibernate.criterion.CriteriaQuery;
-import org.hibernate.criterion.Criterion;
+import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
-import org.hibernate.engine.TypedValue;
-import org.hibernatespatial.SpatialRelation;
 import org.hibernatespatial.criterion.SpatialFilter;
-import org.hibernatespatial.criterion.SpatialRestrictions;
-
 
 import com.vividsolutions.jts.geom.Envelope;
-import com.vividsolutions.jts.geom.Geometry;
 
 public class AdminUnitService {
 	private static final int SRID = 4326;
@@ -51,6 +39,7 @@ public class AdminUnitService {
 	        testCriteria.add(Restrictions.eq("pfEndemic", true));
         else if (parasite.compareTo("pv") == 0)
 	        testCriteria.add(Restrictions.eq("pvEndemic", true));
+        testCriteria.addOrder(Order.asc("id"));
         return testCriteria.list();
 	}
 	

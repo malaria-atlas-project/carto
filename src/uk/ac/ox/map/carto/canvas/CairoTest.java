@@ -49,15 +49,15 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		String countryId = "CHN";
+		/*
+		String countryId = "AZE";
 		Country country  = adminUnitService.getCountry(countryId);
 		drawMap(adminUnitService, country, "pv");
 		drawMap(adminUnitService, country, "pf");
-		
-		/*
-		drawMap(adminUnitService, "pf");
-		drawMap(adminUnitService, "pv");
 		*/
+		
+//		drawMap(adminUnitService, "pf");
+		drawMap(adminUnitService, "pv");
 	}
 
 	private static void 
@@ -135,12 +135,15 @@ public class CairoTest {
         Colour exclColour = new Colour("#ffffff", 1);
         List<String> exclCities = new ArrayList<String>();
         List<String> exclIslands = new ArrayList<String>();
+        List<String> exclAdminUnits = new ArrayList<String>();
         for (Exclusion exclusion : ithgExcl) {
         	excl.addFeature((MultiPolygon) exclusion.getGeom(), exclColour);
         	if (exclusion.getExclusionType().compareTo("urban area")==0)
 	        	exclCities.add(exclusion.getName());
         	else if (exclusion.getExclusionType().compareTo("island")==0)
 	        	exclIslands.add(exclusion.getName());
+        	else if (exclusion.getExclusionType().compareTo("admin unit")==0)
+	        	exclAdminUnits.add(exclusion.getName());
 		}
         df.drawFeatures2(excl);
         
@@ -225,12 +228,22 @@ public class CairoTest {
 				yearsText 
 		));
 		
+		/*
+		 * Medical intelligence
+		 */
 		List<String> zeroed = adminUnitService.getZeroed(country, parasite);
+		if (zeroed.size() > 0) {
+			String medintelText = (String) mtr.getObject("medintelText");
+			mapTextItems.add(String.format(medintelText, StringUtil.getReadableList(zeroed)));
+		}
 		
-		if (zeroed.size() > 0 || exclCities.size() > 0 || exclIslands.size() > 0) {
+		/*
+		 * ITHG
+		 */
+		if (exclAdminUnits.size() > 0 || exclCities.size() > 0 || exclIslands.size() > 0) {
 			String ithgText = (String) mtr.getObject("ithgText");
 			List<String> txt = new ArrayList<String>();
-			if (zeroed.size() > 0) {
+			if (exclAdminUnits.size() > 0) {
 				txt.add(String.format((String) mtr.getObject("adminText"), StringUtil.getReadableList(zeroed)));
 			}
 			if (exclCities.size() > 0) {
@@ -241,10 +254,6 @@ public class CairoTest {
 			}
 			mapTextItems.add(String.format(ithgText, StringUtil.getReadableList(txt)));
 		}
-			
-		System.out.println(exclIslands);
-		System.out.println(exclCities);
-		System.out.println(zeroed);
 		
 		mapTextItems.add((String) mtr.getObject("copyright"));
 		

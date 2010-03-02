@@ -94,7 +94,7 @@ public abstract class BaseCanvas {
 		int spacing = 3;
 		int offset = (height > width) ? height : width;
 		int x1 = -offset, y1=0;
-		for (int i = 0; i < offset; i+=spacing) {
+		for (int i = 0; i < (offset *2); i+=spacing) {
 			cr.moveTo(x1, y1);
 			cr.lineTo(x1+offset, y1+offset);
 			cr.stroke();

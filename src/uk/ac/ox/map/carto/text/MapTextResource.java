@@ -11,6 +11,7 @@ public class MapTextResource extends ListResourceBundle {
 	    	 {"apiText","The health management information system data used to inform the stable, unstable and malaria free categories were available for %s administrative units at level %s for the following years: %s."},
 	    	 {"pfTitle","<i>Plasmodium falciparum</i> risk in %s"},
 	    	 {"pvTitle","<i>Plasmodium vivax</i> risk in %s"},
+	    	 {"medintelText", "Medical intelligence was used to zero risk in %s."},
 	    	 {"ithgText", "Data from international and travel health guidelines was used to zero risk in %s."},
 	    	 {"adminText", "the following administrative units: %s"},
 	    	 {"citiesText", "the following cities: %s"},
