@@ -49,7 +49,7 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		String countryId = "IND";
+		String countryId = "CHN";
 		Country country  = adminUnitService.getCountry(countryId);
 		drawMap(adminUnitService, country, "pv");
 		drawMap(adminUnitService, country, "pf");
@@ -132,7 +132,7 @@ public class CairoTest {
          */
 		FeatureLayer<MultiPolygon> excl = new FeatureLayer<MultiPolygon>();
         List<Exclusion> ithgExcl = adminUnitService.getExclusions(country);
-        Colour exclColour = new Colour("#000000", 1);
+        Colour exclColour = new Colour("#ffffff", 1);
         List<String> exclCities = new ArrayList<String>();
         List<String> exclIslands = new ArrayList<String>();
         for (Exclusion exclusion : ithgExcl) {
@@ -142,7 +142,7 @@ public class CairoTest {
         	else if (exclusion.getExclusionType().compareTo("island")==0)
 	        	exclIslands.add(exclusion.getName());
 		}
-        df.drawFeatures(excl);
+        df.drawFeatures2(excl);
         
         /*
          * Draw on water bodies
@@ -176,6 +176,7 @@ public class CairoTest {
 		 */
 		
 		List<LegendItem> legend = new ArrayList<LegendItem>();
+		legend.add(new LegendItem("Water", waterColour));
 		legend.add(new LegendItem("Malaria free", colours.get(0)));
 		
 		//TODO - hacks!
@@ -188,8 +189,10 @@ public class CairoTest {
 			legend.add(new LegendItem("<i>Pf</i>API ≥ 0.1‰", colours.get(2)));
 		else
 			legend.add(new LegendItem("<i>Pv</i>API ≥ 0.1‰", colours.get(2)));
-		
-		legend.add(new LegendItem("ITHG exclusions", exclColour));
+	
+		LegendItem ithgLi = new LegendItem("ITHG exclusions", exclColour);
+		ithgLi.hatched = true;
+		legend.add(ithgLi);
 		legend.add(new LegendItem("No data", colours.get(9)));
 		
 		Rectangle legendFrame = new Rectangle(390, 555, 150, 200);

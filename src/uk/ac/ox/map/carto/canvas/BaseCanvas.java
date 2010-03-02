@@ -84,5 +84,22 @@ public abstract class BaseCanvas {
 	public double getLineWidth() {
 		return lineWidth;
 	}
+	
+	void paintCrossHatch(){
+		/*
+		 * Very simple and unoptimised.
+		 * Just draws a parallelogram of hatchings.
+		 * The size is determined by the largest dimension of the map canvas to always be inclusive.
+		 */
+		int spacing = 3;
+		int offset = (height > width) ? height : width;
+		int x1 = -offset, y1=0;
+		for (int i = 0; i < offset; i+=spacing) {
+			cr.moveTo(x1, y1);
+			cr.lineTo(x1+offset, y1+offset);
+			cr.stroke();
+			x1 += spacing;
+		}
+	}
 
 }

@@ -120,6 +120,14 @@ public class MapCanvas extends BaseCanvas {
 			cr.rectangle(x, y, patchWidth, patchHeight);
 			cr.fillPreserve();
 			setLineColour();
+			if (li.hatched) {
+				//don't clip preserve
+				cr.save();
+		        cr.clipPreserve();
+		        paintCrossHatch();
+		        cr.restore();
+			}
+			setLineColour();
 			cr.stroke();
 			
 			annotateMap(li.description, x+textMargin, y + (patchHeight/2), AnchorX.L, AnchorY.C);

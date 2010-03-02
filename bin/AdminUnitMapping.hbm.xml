@@ -50,7 +50,7 @@
 				<column name="pv_endemic" />
         </property>
     </class>
-    <class name="Exclusion" table="api_exclusion">
+    <class name="Exclusion" table="api_exclusion_view">
         <id name="id">
 	        <column name="id"></column>
         </id>

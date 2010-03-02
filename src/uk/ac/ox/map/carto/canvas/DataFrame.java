@@ -8,6 +8,7 @@ import org.freedesktop.cairo.PdfSurface;
 import uk.ac.ox.map.carto.feature.Feature;
 import uk.ac.ox.map.carto.server.FeatureLayer;
 
+import com.google.gwt.junit.client.WithProperties;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.LineString;
@@ -142,6 +143,37 @@ public class DataFrame extends BaseCanvas {
 			}
 		
 	}
+	
+	public void drawFeatures2(FeatureLayer<MultiPolygon> features) {
+		for (Feature<MultiPolygon> feature : features) {
+			setFillColour(feature.getColour());
+			drawMultiPolygon2(feature.getGeometry());
+		}
+	}
+	
+	public void drawMultiPolygon2(MultiPolygon mp){
+        	for (int i = 0; i < mp.getNumGeometries(); i++) {
+        		drawPolygon2((Polygon) mp.getGeometryN(i));
+			}
+	}
+	
+	private void drawPolygon2(Polygon p){
+        	LineString exteriorRing =  p.getExteriorRing();
+        	drawLineString(exteriorRing);
+        	
+        	for (int i = 0; i < p.getNumInteriorRing(); i++) {
+	        	drawLineString(p.getInteriorRingN(i));
+			}
+        	setFillColour();
+	        cr.fillPreserve();
+	        cr.save();
+		        cr.clipPreserve();
+		        setLineColour();
+		        paintCrossHatch();
+	        cr.restore();
+    		cr.stroke();
+	}
+	
 	
 	private void lineTo(double x, double y){
 		    Point2D.Double pt = new Point2D.Double(x,y);
