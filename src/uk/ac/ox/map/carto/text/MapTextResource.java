@@ -9,6 +9,8 @@ public class MapTextResource extends ListResourceBundle {
 	     static final Object[][] contents = {
 	    	 {"copyright", "<b>Copyright:</b> Licensed to the Malaria Atlas Project (MAP; www.map.ox.ac.uk) under a Creative Commons Attribution 3.0 License (http://creativecommons.org/)."},
 	    	 {"apiText","The health management information system data used to inform the stable, unstable and malaria free categories were available for %s administrative units at level %s for the following years: %s."},
+	    	 {"apiTextNoInfo","No health management information system data could be accessed. Stable risk is assumed to exist throughout the country."},
+	    	 {"apiTextNationalMedIntel","Medical intelligence allowed the definition of risk within the national territory as shown above."},
 	    	 {"pfTitle","<i>Plasmodium falciparum</i> risk in %s"},
 	    	 {"pvTitle","<i>Plasmodium vivax</i> risk in %s"},
 	    	 {"medintelText", "Medical intelligence was used to zero risk in %s."},

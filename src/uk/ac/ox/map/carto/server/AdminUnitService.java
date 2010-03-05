@@ -22,7 +22,7 @@ public class AdminUnitService {
         Criteria testCriteria = session.createCriteria(AdminUnit.class);
         testCriteria.add(new SpatialFilter("geom", env, SRID));
         testCriteria.add(Restrictions.eq("adminLevel", "0"));
-        testCriteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
+//        testCriteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		return testCriteria.list();
 	}
 	
@@ -80,7 +80,10 @@ public class AdminUnitService {
 		Query query = session.getNamedQuery("api.admin_level");
 		query.setParameter("country_id", country.getId());
 		query.setParameter("parasite", parasite);
-		return (String) query.uniqueResult();
+		String adminLevel = (String) query.uniqueResult();
+		if (adminLevel == null)
+			adminLevel = "";
+		return adminLevel;
 	}
 	
 	public Integer getAdminUnitCount(Country country, String parasite) {

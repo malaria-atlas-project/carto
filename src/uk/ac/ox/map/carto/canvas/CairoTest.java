@@ -7,6 +7,7 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 
@@ -49,14 +50,13 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		/*
-		String countryId = "AZE";
-		Country country  = adminUnitService.getCountry(countryId);
-		drawMap(adminUnitService, country, "pv");
-		drawMap(adminUnitService, country, "pf");
-		*/
 		
-//		drawMap(adminUnitService, "pf");
+//		String countryId = "CHN";
+//		Country country  = adminUnitService.getCountry(countryId);
+//		drawMap(adminUnitService, country, "pv");
+//		drawMap(adminUnitService, country, "pf");
+		
+		drawMap(adminUnitService, "pf");
 		drawMap(adminUnitService, "pv");
 	}
 
@@ -66,6 +66,9 @@ public class CairoTest {
 		List<Country> pfCountries = adminUnitService.getCountries(parasite);
 		for (Country country : pfCountries) {
 	        System.out.println("Processing:" + country.getId());
+//	        if (country.getId().compareTo("CHN")==0)
+//	        	continue;
+	        System.out.println(country.getName());
 			drawMap(adminUnitService, country, parasite);
 		}
 	}
@@ -102,6 +105,7 @@ public class CairoTest {
         List<AdminUnit> adminUnits = adminUnitService.getAdminUnits(resizedEnv);
         for (AdminUnit admin0 : adminUnits) {
         	df.drawMultiPolygon((MultiPolygon) admin0.getGeom());
+        	System.out.println(admin0.getName());
 		}
         
         /*
@@ -119,11 +123,15 @@ public class CairoTest {
         
         /*
          * Get risk admin units
+         * Check if we have no data
          */
+    	boolean noDataPresent = false;
 		FeatureLayer<MultiPolygon> pfFeats = new FeatureLayer<MultiPolygon>();
         List<AdminUnitRisk> pfUnits = adminUnitService.getRiskAdminUnits(country, parasite);
         for (AdminUnitRisk adminUnitRisk : pfUnits) {
         	pfFeats.addFeature((MultiPolygon) adminUnitRisk.getGeom(), colours.get(adminUnitRisk.getRisk()));
+			if(adminUnitRisk.getRisk()==9)
+        		noDataPresent = true;
 		}
         df.drawFeatures(pfFeats);
 
@@ -177,7 +185,6 @@ public class CairoTest {
 		 * Draw the legend
 		 * TODO: combine this and the styling in a layer
 		 */
-		
 		List<LegendItem> legend = new ArrayList<LegendItem>();
 		legend.add(new LegendItem("Water", waterColour));
 		legend.add(new LegendItem("Malaria free", colours.get(0)));
@@ -194,9 +201,12 @@ public class CairoTest {
 			legend.add(new LegendItem("<i>Pv</i>API ≥ 0.1‰", colours.get(2)));
 	
 		LegendItem ithgLi = new LegendItem("ITHG exclusions", exclColour);
+		//TODO: hatch hack
 		ithgLi.hatched = true;
-		legend.add(ithgLi);
-		legend.add(new LegendItem("No data", colours.get(9)));
+		if (ithgExcl.size() > 0 )
+			legend.add(ithgLi);
+		if (noDataPresent)
+			legend.add(new LegendItem("No data", colours.get(9)));
 		
 		Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
 		mapCanvas.drawLegend(legendFrame, legend);
@@ -204,7 +214,7 @@ public class CairoTest {
 		
 		/*
 		 * Text stuff
-		 * TODO: factor all this string building out?
+		 * TODO: factor all this string building out
 		 */
 		MapTextResource mtr = new MapTextResource();
 		Rectangle titleFrame = new Rectangle(0, 5, 500, 0);
@@ -221,12 +231,21 @@ public class CairoTest {
 		
 		List<Integer> years = adminUnitService.getYears(country, parasite);
 		String yearsText = StringUtil.getReadableList(years);
-		mapTextItems.add(String.format(
+		String apiAdminLevel = adminUnitService.getAdminLevel(country, parasite);
+		
+	    List<String> intelCountries = Arrays.asList(new String[] {"BWA",  "MRT", "SWZ", "DJI"});
+	    if (intelCountries.contains(country.getId())) {
+			mapTextItems.add((String) mtr.getObject("apiTextNationalMedIntel"));
+	    } else if (apiAdminLevel.compareTo("Admin0")==0) {
+			mapTextItems.add((String) mtr.getObject("apiTextNoInfo"));
+		} else {
+			mapTextItems.add(String.format(
 				(String) mtr.getObject("apiText"), 
 				adminUnitService.getAdminUnitCount(country, parasite),
-				adminUnitService.getAdminLevel(country, parasite),
+				apiAdminLevel,
 				yearsText 
-		));
+			));
+		}
 		
 		/*
 		 * Medical intelligence

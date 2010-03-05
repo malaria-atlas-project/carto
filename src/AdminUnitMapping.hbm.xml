@@ -16,22 +16,32 @@
         <property name="name">
 				<column name="name" />
         </property>
-        
-	    <joined-subclass name="AdminUnitRisk" table="px_risk">
-	    	<key column="gaul_code"></key>
-			<property name="countryId">
-					<column name="country_id" />
-			</property>
-	        <property name="risk">
-					<column name="risk" />
-	        </property>
-	        <property name="api">
-					<column name="api" />
-	        </property>
-	        <property name="parasite">
-					<column name="parasite" />
-	        </property>
-	    </joined-subclass>
+    </class>
+    <class name="AdminUnitRisk" table="px_risk">
+        <id name="id">
+	        <column name="gaul_code"></column>
+        </id>
+		<property name="geom" type="org.hibernatespatial.GeometryUserType">
+				<column name="geom" />
+		</property>
+		<property name="adminLevel">
+				<column name="admin_level" />
+		</property>
+        <property name="name">
+				<column name="name" />
+        </property>
+		<property name="countryId">
+				<column name="country_id" />
+		</property>
+        <property name="risk">
+				<column name="risk" />
+        </property>
+        <property name="api">
+				<column name="api" />
+        </property>
+        <property name="parasite">
+				<column name="parasite" />
+        </property>
     </class>
     <class name="Country" table="country">
         <id  name="id">
@@ -50,7 +60,7 @@
 				<column name="pv_endemic" />
         </property>
     </class>
-    <class name="Exclusion" table="api_exclusion_view">
+    <class name="Exclusion" table="api_exclusion_generalized">
         <id name="id">
 	        <column name="id"></column>
         </id>
