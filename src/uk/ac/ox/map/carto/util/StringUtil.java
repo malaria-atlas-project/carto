@@ -18,5 +18,18 @@ public class StringUtil {
 		
 		return sb.toString();
 	}
+	
+	public static String formatPlaceName(String formatString, String areaTypeSing, String areaTypePlur, List<String> ls) {
+		String areaTypeName;
+		if (ls.size() == 1)
+			areaTypeName = areaTypeSing;
+		else if (ls.size() > 1) 
+			areaTypeName = areaTypePlur;
+		else
+			throw new IllegalArgumentException("Empty list passed to format place name.");
+		
+		return String.format(formatString, areaTypeName, getReadableList(ls));
+	
+	}
 
 }

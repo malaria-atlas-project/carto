@@ -19,4 +19,5 @@ public class MapTextResource extends ListResourceBundle {
 	    	 {"citiesText", "the following cities: %s"},
 	    	 {"islandsText", "the following islands: %s"},
 	     };
+	     
  }

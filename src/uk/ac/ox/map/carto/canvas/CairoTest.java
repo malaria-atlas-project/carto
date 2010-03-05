@@ -50,13 +50,12 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		
-//		String countryId = "CHN";
-//		Country country  = adminUnitService.getCountry(countryId);
+		String countryId = "NPL";
+		Country country  = adminUnitService.getCountry(countryId);
 //		drawMap(adminUnitService, country, "pv");
 //		drawMap(adminUnitService, country, "pf");
 		
-		drawMap(adminUnitService, "pf");
+//		drawMap(adminUnitService, "pf");
 		drawMap(adminUnitService, "pv");
 	}
 
@@ -66,8 +65,6 @@ public class CairoTest {
 		List<Country> pfCountries = adminUnitService.getCountries(parasite);
 		for (Country country : pfCountries) {
 	        System.out.println("Processing:" + country.getId());
-//	        if (country.getId().compareTo("CHN")==0)
-//	        	continue;
 	        System.out.println(country.getName());
 			drawMap(adminUnitService, country, parasite);
 		}
@@ -137,6 +134,7 @@ public class CairoTest {
 
         /*
          * Get excluded cities
+         * TODO: get enum type for exclusions- mapped in Hibernate?
          */
 		FeatureLayer<MultiPolygon> excl = new FeatureLayer<MultiPolygon>();
         List<Exclusion> ithgExcl = adminUnitService.getExclusions(country);
@@ -153,6 +151,9 @@ public class CairoTest {
         	else if (exclusion.getExclusionType().compareTo("admin unit")==0)
 	        	exclAdminUnits.add(exclusion.getName());
 		}
+        /*
+         * TODO: fix draw features code duplication
+         */
         df.drawFeatures2(excl);
         
         /*
@@ -259,23 +260,29 @@ public class CairoTest {
 		/*
 		 * ITHG
 		 */
+		String formatString = "the following %s: %s";
 		if (exclAdminUnits.size() > 0 || exclCities.size() > 0 || exclIslands.size() > 0) {
 			String ithgText = (String) mtr.getObject("ithgText");
 			List<String> txt = new ArrayList<String>();
 			if (exclAdminUnits.size() > 0) {
-				txt.add(String.format((String) mtr.getObject("adminText"), StringUtil.getReadableList(zeroed)));
+				txt.add(
+					StringUtil.formatPlaceName(formatString, "city", "cities", exclAdminUnits)
+				);
 			}
 			if (exclCities.size() > 0) {
-				txt.add(String.format((String) mtr.getObject("citiesText"), StringUtil.getReadableList(exclCities)));
+				txt.add(
+					StringUtil.formatPlaceName(formatString, "administrative unit", "administrative units", exclCities)
+				);
 			}
 			if (exclIslands.size() > 0) {
-				txt.add(String.format((String) mtr.getObject("islandsText"), StringUtil.getReadableList(exclIslands)));
+				txt.add(
+					StringUtil.formatPlaceName(formatString, "island", "islands", exclIslands)
+				);
 			}
 			mapTextItems.add(String.format(ithgText, StringUtil.getReadableList(txt)));
 		}
 		
 		mapTextItems.add((String) mtr.getObject("copyright"));
-		
 		Rectangle mapTextFrame = new Rectangle(50, 555, 320, 0);
 		mapCanvas.drawTextFrame(mapTextItems, mapTextFrame, 6);
 		
