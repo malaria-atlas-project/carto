@@ -76,14 +76,12 @@ public class AdminUnitService {
 		return (List<String>) query.list();
 	}
 	
-	public String getAdminLevel(Country country, String parasite) {
+	public List<String> getAdminLevels(Country country, String parasite) {
 		Query query = session.getNamedQuery("api.admin_level");
 		query.setParameter("country_id", country.getId());
 		query.setParameter("parasite", parasite);
-		String adminLevel = (String) query.uniqueResult();
-		if (adminLevel == null)
-			adminLevel = "";
-		return adminLevel;
+		List<String> adminLevels = query.list();
+		return adminLevels;
 	}
 	
 	public Integer getAdminUnitCount(Country country, String parasite) {
@@ -92,4 +90,5 @@ public class AdminUnitService {
 		query.setParameter("parasite", parasite);
 		return (Integer) query.uniqueResult();
 	}
+
 }

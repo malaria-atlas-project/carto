@@ -50,13 +50,13 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		String countryId = "NPL";
+		String countryId = "PHL";
 		Country country  = adminUnitService.getCountry(countryId);
-//		drawMap(adminUnitService, country, "pv");
+		drawMap(adminUnitService, country, "pv");
 //		drawMap(adminUnitService, country, "pf");
 		
 //		drawMap(adminUnitService, "pf");
-		drawMap(adminUnitService, "pv");
+//		drawMap(adminUnitService, "pv");
 	}
 
 	private static void 
@@ -124,8 +124,8 @@ public class CairoTest {
          */
     	boolean noDataPresent = false;
 		FeatureLayer<MultiPolygon> pfFeats = new FeatureLayer<MultiPolygon>();
-        List<AdminUnitRisk> pfUnits = adminUnitService.getRiskAdminUnits(country, parasite);
-        for (AdminUnitRisk adminUnitRisk : pfUnits) {
+        List<AdminUnitRisk> riskUnits = adminUnitService.getRiskAdminUnits(country, parasite);
+        for (AdminUnitRisk adminUnitRisk : riskUnits) {
         	pfFeats.addFeature((MultiPolygon) adminUnitRisk.getGeom(), colours.get(adminUnitRisk.getRisk()));
 			if(adminUnitRisk.getRisk()==9)
         		noDataPresent = true;
@@ -228,24 +228,25 @@ public class CairoTest {
 		
 		mapCanvas.setTitle(mapTitle, titleFrame, 11);
 		
+		/*
+		 * Main map text
+		 */
 		List<String> mapTextItems = new ArrayList<String>();
 		
 		List<Integer> years = adminUnitService.getYears(country, parasite);
-		String yearsText = StringUtil.getReadableList(years);
-		String apiAdminLevel = adminUnitService.getAdminLevel(country, parasite);
+		List<String> apiAdminLevels = adminUnitService.getAdminLevels(country, parasite);
 		
 	    List<String> intelCountries = Arrays.asList(new String[] {"BWA",  "MRT", "SWZ", "DJI"});
+	    Boolean isAdmin0Inferred = false;
+	    if (apiAdminLevels.size() > 0) {
+	    	String adminLevel = apiAdminLevels.get(0);
+	    }
 	    if (intelCountries.contains(country.getId())) {
 			mapTextItems.add((String) mtr.getObject("apiTextNationalMedIntel"));
-	    } else if (apiAdminLevel.compareTo("Admin0")==0) {
+	    } else if (apiAdminLevels.get(0).compareTo("Admin0")==0) {
 			mapTextItems.add((String) mtr.getObject("apiTextNoInfo"));
 		} else {
-			mapTextItems.add(String.format(
-				(String) mtr.getObject("apiText"), 
-				adminUnitService.getAdminUnitCount(country, parasite),
-				apiAdminLevel,
-				yearsText 
-			));
+			mapTextItems.add(StringUtil.formatAdminString((String) mtr.getObject("apiText"), apiAdminLevels, years, riskUnits.size()));
 		}
 		
 		/*
@@ -266,12 +267,12 @@ public class CairoTest {
 			List<String> txt = new ArrayList<String>();
 			if (exclAdminUnits.size() > 0) {
 				txt.add(
-					StringUtil.formatPlaceName(formatString, "city", "cities", exclAdminUnits)
+					StringUtil.formatPlaceName(formatString, "administrative unit", "administrative units", exclAdminUnits)
 				);
 			}
 			if (exclCities.size() > 0) {
 				txt.add(
-					StringUtil.formatPlaceName(formatString, "administrative unit", "administrative units", exclCities)
+					StringUtil.formatPlaceName(formatString, "city", "cities", exclCities)
 				);
 			}
 			if (exclIslands.size() > 0) {

@@ -60,7 +60,7 @@
 				<column name="pv_endemic" />
         </property>
     </class>
-    <class name="Exclusion" table="api_exclusion_generalized">
+    <class name="Exclusion" table="api_exclusion_view_generalized">
         <id name="id">
 	        <column name="id"></column>
         </id>
@@ -113,7 +113,7 @@
 		and parasite = :parasite
     ]]></sql-query>
     <sql-query name="api.admin_level"><![CDATA[
-		select 'Admin' || max(admin_level)
+		select distinct admin_level
 		from api_by_country
 		where country_id = :country_id
 		and parasite = :parasite

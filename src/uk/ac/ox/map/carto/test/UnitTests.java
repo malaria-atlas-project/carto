@@ -47,11 +47,7 @@ public class UnitTests {
 		assertTrue(s.compareTo("1, 2, 3 and 4") == 0);
 	}
 	@Test
-	public void testAnchorEnum(){
-		/*
-		 * 
-		 */
-		Rectangle rect = new Rectangle(10,10,50,30, AnchorX.C, AnchorY.B);
+	public void testLegend() {
 		
 	}
 	
