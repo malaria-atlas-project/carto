@@ -101,5 +101,25 @@ public abstract class BaseCanvas {
 			x1 += spacing;
 		}
 	}
+	
+    void paintStipple(){
+        /*
+         * 
+         */
 
+        int spacing = 3;
+        cr.setDash(new double[]{1,3});
+        for (int j = 0; j < height; j+=spacing) {
+            cr.moveTo(0, j);
+            cr.lineTo(width, j);
+            cr.stroke();
+        }
+        cr.setDash(new double[]{1,2});
+        spacing +=1;
+        for (int i = 0; i < height; i+=spacing) {
+            cr.moveTo(i+0.5, -0.5);
+            cr.lineTo(i+0.5, height-0.5);
+            cr.stroke();
+        }
+    }
 }
