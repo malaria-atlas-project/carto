@@ -22,12 +22,6 @@ public class StringUtil {
 	}
 	public static String formatAdminString(String formatString, List<String> adminLevels, List<Integer> years, Integer nAdminUnits) {
 		
-		/*
-		 * 
-	    	 {"apiText","The health management information system data used to inform the stable, unstable and " +
-	    	 		"malaria free categories were available for %s administrative units at %s level for the following %s: %s."},
-		 */
-		
 	    MessageFormat apiForm = new MessageFormat(formatString);
 	    
 		double[] adminLimits = {0,1,2};
@@ -57,7 +51,10 @@ public class StringUtil {
 			throw new IllegalArgumentException("Empty list passed to format place name.");
 		
 		return String.format(formatString, areaTypeName, getReadableList(ls));
+	}
 	
+	public static String formatExclusions(){
+		return null;
 	}
 
 }

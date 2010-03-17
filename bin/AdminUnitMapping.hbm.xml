@@ -113,7 +113,7 @@
 		and parasite = :parasite
     ]]></sql-query>
     <sql-query name="api.admin_level"><![CDATA[
-		select distinct admin_level
+		select distinct 'Admin'||admin_level
 		from api_by_country
 		where country_id = :country_id
 		and parasite = :parasite

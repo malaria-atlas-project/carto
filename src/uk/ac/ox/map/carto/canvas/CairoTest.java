@@ -1,27 +1,16 @@
 package uk.ac.ox.map.carto.canvas;
 
-import java.awt.image.BufferedImage;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
-import javax.imageio.ImageIO;
-import javax.imageio.stream.ImageOutputStream;
-
-import org.datanucleus.plugin.EclipsePluginRegistry;
-import org.freedesktop.bindings.FIXME;
 import org.freedesktop.cairo.PdfSurface;
-import org.gnome.gdk.Pixbuf;
 import org.gnome.gtk.Gtk;
 
 import uk.ac.ox.map.carto.canvas.style.Colour;
-import uk.ac.ox.map.carto.feature.Feature;
 import uk.ac.ox.map.carto.server.AdminUnit;
 import uk.ac.ox.map.carto.server.AdminUnitRisk;
 import uk.ac.ox.map.carto.server.AdminUnitService;
@@ -37,12 +26,6 @@ import uk.ac.ox.map.carto.util.SystemUtil;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
-
-import org.gdal.gdal.Band;
-import org.gdal.gdal.Dataset;
-import org.gdal.gdal.gdal;
-import org.gdal.gdalconst.gdalconst;
-import org.gdal.gdalconst.gdalconstConstants;
         
 public class CairoTest {
 	
@@ -50,10 +33,10 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		String countryId = "PHL";
+		String countryId = "GNQ";
 		Country country  = adminUnitService.getCountry(countryId);
 		drawMap(adminUnitService, country, "pv");
-//		drawMap(adminUnitService, country, "pf");
+		drawMap(adminUnitService, country, "pf");
 		
 //		drawMap(adminUnitService, "pf");
 //		drawMap(adminUnitService, "pv");
@@ -66,6 +49,8 @@ public class CairoTest {
 		for (Country country : pfCountries) {
 	        System.out.println("Processing:" + country.getId());
 	        System.out.println(country.getName());
+	        if (country.getId().compareTo("CHN")==0)
+	        	continue;
 			drawMap(adminUnitService, country, parasite);
 		}
 	}
@@ -134,27 +119,36 @@ public class CairoTest {
 
         /*
          * Get excluded cities
-         * TODO: get enum type for exclusions- mapped in Hibernate?
+         * TODO: get enum type for exclusions- mapped in Hibernate? This caused strange problems before.
          */
 		FeatureLayer<MultiPolygon> excl = new FeatureLayer<MultiPolygon>();
-        List<Exclusion> ithgExcl = adminUnitService.getExclusions(country);
+		FeatureLayer<MultiPolygon> excl2 = new FeatureLayer<MultiPolygon>();
+        List<Exclusion> exclusions = adminUnitService.getExclusions(country);
         Colour exclColour = new Colour("#ffffff", 1);
         List<String> exclCities = new ArrayList<String>();
         List<String> exclIslands = new ArrayList<String>();
         List<String> exclAdminUnits = new ArrayList<String>();
-        for (Exclusion exclusion : ithgExcl) {
-        	excl.addFeature((MultiPolygon) exclusion.getGeom(), exclColour);
+        List<String> exclMoh = new ArrayList<String>();
+        for (Exclusion exclusion : exclusions) {
         	if (exclusion.getExclusionType().compareTo("urban area")==0)
 	        	exclCities.add(exclusion.getName());
         	else if (exclusion.getExclusionType().compareTo("island")==0)
 	        	exclIslands.add(exclusion.getName());
-        	else if (exclusion.getExclusionType().compareTo("admin unit")==0)
+        	else if (exclusion.getExclusionType().compareTo("ithg exclusion")==0)
 	        	exclAdminUnits.add(exclusion.getName());
+        	else if (exclusion.getExclusionType().compareTo("moh exclusion")==0)
+	        	exclMoh.add(exclusion.getName());
+        	//MOH hack... damn exclusions
+        	if (exclusion.getExclusionType().compareTo("moh exclusion")==0)
+	        	excl2.addFeature((MultiPolygon) exclusion.getGeom(), exclColour);
+        	else
+	        	excl.addFeature((MultiPolygon) exclusion.getGeom(), exclColour);
 		}
         /*
          * TODO: fix draw features code duplication
          */
-        df.drawFeatures2(excl);
+        df.drawFeatures2(excl, "hatched");
+        df.drawFeatures2(excl2, "stipple");
         
         /*
          * Draw on water bodies
@@ -202,10 +196,15 @@ public class CairoTest {
 			legend.add(new LegendItem("<i>Pv</i>API ≥ 0.1‰", colours.get(2)));
 	
 		LegendItem ithgLi = new LegendItem("ITHG exclusions", exclColour);
+		LegendItem mohLi = new LegendItem("MoH exclusions", exclColour);
+		
 		//TODO: hatch hack
 		ithgLi.hatched = true;
-		if (ithgExcl.size() > 0 )
+		mohLi.stippled = true;
+		if (excl.size() > 0 )
 			legend.add(ithgLi);
+		if (excl2.size() > 0 )
+			legend.add(mohLi);
 		if (noDataPresent)
 			legend.add(new LegendItem("No data", colours.get(9)));
 		
@@ -243,7 +242,7 @@ public class CairoTest {
 	    }
 	    if (intelCountries.contains(country.getId())) {
 			mapTextItems.add((String) mtr.getObject("apiTextNationalMedIntel"));
-	    } else if (apiAdminLevels.get(0).compareTo("Admin0")==0) {
+	    } else if (apiAdminLevels.get(0).compareTo("0")==0 && apiAdminLevels.size()<2) {
 			mapTextItems.add((String) mtr.getObject("apiTextNoInfo"));
 		} else {
 			mapTextItems.add(StringUtil.formatAdminString((String) mtr.getObject("apiText"), apiAdminLevels, years, riskUnits.size()));
@@ -259,7 +258,7 @@ public class CairoTest {
 		}
 		
 		/*
-		 * ITHG
+		 * Exclusions
 		 */
 		String formatString = "the following %s: %s";
 		if (exclAdminUnits.size() > 0 || exclCities.size() > 0 || exclIslands.size() > 0) {
@@ -281,6 +280,16 @@ public class CairoTest {
 				);
 			}
 			mapTextItems.add(String.format(ithgText, StringUtil.getReadableList(txt)));
+		}
+		
+		if (exclMoh.size() > 0) {
+			String mohText = (String) mtr.getObject("mohText");
+			mapTextItems.add(
+				String.format(
+					mohText, 
+					StringUtil.formatPlaceName(formatString, "administrative unit", "administrative units", exclMoh)
+				)
+			);
 		}
 		
 		mapTextItems.add((String) mtr.getObject("copyright"));

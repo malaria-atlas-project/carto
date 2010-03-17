@@ -127,7 +127,15 @@ public class MapCanvas extends BaseCanvas {
 		        paintCrossHatch();
 		        cr.restore();
 			}
+			else if (li.stippled) {
+				//don't clip preserve
+				cr.save();
+		        cr.clipPreserve();
+		        paintStipple();
+		        cr.restore();
+			}
 			setLineColour();
+			cr.setDash(new double[] {1,0});
 			cr.stroke();
 			
 			annotateMap(li.description, x+textMargin, y + (patchHeight/2), AnchorX.L, AnchorY.C);
@@ -260,24 +268,6 @@ public class MapCanvas extends BaseCanvas {
 			}
             throw new AssertionError("Unknown op: " + this);
 		}
-	}
-	public enum Anchor {
-		/*
-		LT, CT, RT,
-		LC,	CC, RC,
-		LB, CB, RB;
-		*/
-		LT	{public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x,rect.y);}},
-		CT	{public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x - (rect.width/2), rect.y);}},
-		RT  {public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x - rect.width, rect.y);}},
-		LC	{public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x, rect.y - (rect.height/2));}},
-		CC	{public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x - (rect.width/2), rect.y - (rect.height/2));}},
-		RC  {public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x - rect.width, rect.y - rect.height);}},
-		LB	{public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x, rect.y - rect.height);}},
-		CB	{public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x - (rect.width/2), rect.y);}},
-		RB  {public Point2D.Double apply(Rectangle rect){return new Point2D.Double(rect.x - rect.width, rect.y);}};
-		
-		public abstract Point2D.Double apply(Rectangle rect);
 	}
 	
 	/*

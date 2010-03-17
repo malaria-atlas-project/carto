@@ -8,7 +8,6 @@ import org.freedesktop.cairo.PdfSurface;
 import uk.ac.ox.map.carto.feature.Feature;
 import uk.ac.ox.map.carto.server.FeatureLayer;
 
-import com.google.gwt.junit.client.WithProperties;
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.LineString;
@@ -144,20 +143,20 @@ public class DataFrame extends BaseCanvas {
 		
 	}
 	
-	public void drawFeatures2(FeatureLayer<MultiPolygon> features) {
+	public void drawFeatures2(FeatureLayer<MultiPolygon> features, String styleType) {
 		for (Feature<MultiPolygon> feature : features) {
 			setFillColour(feature.getColour());
-			drawMultiPolygon2(feature.getGeometry());
+			drawMultiPolygon2(feature.getGeometry(), styleType);
 		}
 	}
 	
-	public void drawMultiPolygon2(MultiPolygon mp){
+	public void drawMultiPolygon2(MultiPolygon mp, String styleType){
         	for (int i = 0; i < mp.getNumGeometries(); i++) {
-        		drawPolygon2((Polygon) mp.getGeometryN(i));
+        		drawPolygon2((Polygon) mp.getGeometryN(i), styleType);
 			}
 	}
 	
-	private void drawPolygon2(Polygon p){
+	private void drawPolygon2(Polygon p, String styleType){
         	LineString exteriorRing =  p.getExteriorRing();
         	drawLineString(exteriorRing);
         	
@@ -169,7 +168,10 @@ public class DataFrame extends BaseCanvas {
 	        cr.save();
 		        cr.clipPreserve();
 		        setLineColour();
-		        paintCrossHatch();
+		        if (styleType.compareTo("hatched")==0)
+			        paintCrossHatch();
+		        else if (styleType.compareTo("stipple")==0) 
+		        	paintStipple();
 	        cr.restore();
     		cr.stroke();
 	}

@@ -22,7 +22,6 @@ public class AdminUnitService {
         Criteria testCriteria = session.createCriteria(AdminUnit.class);
         testCriteria.add(new SpatialFilter("geom", env, SRID));
         testCriteria.add(Restrictions.eq("adminLevel", "0"));
-//        testCriteria.setResultTransformer(Criteria.DISTINCT_ROOT_ENTITY);
 		return testCriteria.list();
 	}
 	
