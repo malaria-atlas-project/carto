@@ -230,6 +230,10 @@ public class CairoTest {
 		/*
 		 * Main map text
 		 */
+	    
+	    /*
+	     * TODO: hack - overrides for VEN and CHN
+	     */
 		List<String> mapTextItems = new ArrayList<String>();
 		
 		List<Integer> years = adminUnitService.getYears(country, parasite);
@@ -242,11 +246,20 @@ public class CairoTest {
 	    }
 	    if (intelCountries.contains(country.getId())) {
 			mapTextItems.add((String) mtr.getObject("apiTextNationalMedIntel"));
+	    } else if (country.getId().compareTo("VEN")==0) {
+	    	mapTextItems.add(
+			    String.format("The health management information system data used to inform the stable, unstable and malaria free categories were available for 215 administrative units at Admin3 level and 29 at Admin1 level for the following years: %s.", StringUtil.getReadableList(years))
+		    );
+	    } else if (country.getId().compareTo("CHN")==0) {
+	    	mapTextItems.add(
+			    String.format("The health management information system data used to inform the stable, unstable and malaria free categories were available for 6 administrative units at Admin2 level and 21 at Admin1 level for the following years: %s.", StringUtil.getReadableList(years))
+		    );
 	    } else if (apiAdminLevels.get(0).compareTo("0")==0 && apiAdminLevels.size()<2) {
 			mapTextItems.add((String) mtr.getObject("apiTextNoInfo"));
 		} else {
 			mapTextItems.add(StringUtil.formatAdminString((String) mtr.getObject("apiText"), apiAdminLevels, years, riskUnits.size()));
 		}
+	    
 		
 		/*
 		 * Medical intelligence
