@@ -33,9 +33,9 @@ public class CairoTest {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		String countryId = "GNQ";
+		String countryId = "VNM";
 		Country country  = adminUnitService.getCountry(countryId);
-		drawMap(adminUnitService, country, "pv");
+//		drawMap(adminUnitService, country, "pv");
 		drawMap(adminUnitService, country, "pf");
 		
 //		drawMap(adminUnitService, "pf");
