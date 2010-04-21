@@ -2,12 +2,13 @@ package uk.ac.ox.map.carto.canvas;
 
 import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.PdfSurface;
+import org.freedesktop.cairo.Surface;
 
 import uk.ac.ox.map.carto.canvas.style.Colour;
 
-public abstract class BaseCanvas {
+public abstract class BaseCanvas<T extends Surface> {
 	protected final Context cr;
-	protected final PdfSurface pdf;
+	protected final T pdf;
 	private Colour fillColour;
 	private Colour lineColour;
 	private double lineWidth;
@@ -43,11 +44,11 @@ public abstract class BaseCanvas {
 		cr.setSource(fillColour.getRed(), fillColour.getGreen(), fillColour.getBlue(), fillColour.getAlpha());
 	}
 	
-	public BaseCanvas(PdfSurface pdf, int width, int height) {
+	public BaseCanvas(T pdf2, int width, int height) {
 	   /*
 	    * Get context 
 	    */
-		cr = new Context(pdf);
+		cr = new Context(pdf2);
 		/*
 		 * Initialise styles
 		 */
@@ -56,7 +57,7 @@ public abstract class BaseCanvas {
 		setLineWidth(0.2);
 		this.width = width;
 		this.height = height;
-		this.pdf = pdf;
+		this.pdf = pdf2;
 	}
 
 	public void setFillColour(Colour fillColour) {

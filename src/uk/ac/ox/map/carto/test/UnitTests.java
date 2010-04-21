@@ -7,9 +7,6 @@ import java.util.List;
 
 import org.junit.Test;
 
-import uk.ac.ox.map.carto.canvas.Rectangle;
-import uk.ac.ox.map.carto.canvas.Rectangle.AnchorX;
-import uk.ac.ox.map.carto.canvas.Rectangle.AnchorY;
 import uk.ac.ox.map.carto.util.StringUtil;
 
 public class UnitTests {

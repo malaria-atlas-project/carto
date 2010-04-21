@@ -1,7 +1,5 @@
 package uk.ac.ox.map.carto.feature;
 
-import com.vividsolutions.jts.geom.Geometry;
-
 import uk.ac.ox.map.carto.canvas.style.Colour;
 
 public class Feature<T> {

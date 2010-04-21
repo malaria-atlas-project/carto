@@ -8,6 +8,8 @@ import org.hibernate.criterion.Order;
 import org.hibernate.criterion.Restrictions;
 import org.hibernatespatial.criterion.SpatialFilter;
 
+import uk.ac.ox.map.carto.shared.HibernateUtil;
+
 import com.vividsolutions.jts.geom.Envelope;
 
 public class AdminUnitService {
@@ -18,6 +20,7 @@ public class AdminUnitService {
         session.beginTransaction();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<AdminUnit> getAdminUnits(Envelope env){
         Criteria testCriteria = session.createCriteria(AdminUnit.class);
         testCriteria.add(new SpatialFilter("geom", env, SRID));
@@ -25,12 +28,14 @@ public class AdminUnitService {
 		return testCriteria.list();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<WaterBody> getWaterBodies(Envelope env){
         Criteria testCriteria = session.createCriteria(WaterBody.class);
         testCriteria.add(new SpatialFilter("geom", env, SRID));
 		return testCriteria.list();
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Country> getCountries(String parasite){
 		
         Criteria testCriteria = session.createCriteria(Country.class);
@@ -42,6 +47,7 @@ public class AdminUnitService {
         return testCriteria.list();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<AdminUnitRisk> getRiskAdminUnits(Country country, String parasite) {
 		session.clear();
         Criteria testCriteria = session.createCriteria(AdminUnitRisk.class);
@@ -50,6 +56,7 @@ public class AdminUnitService {
 		return testCriteria.list();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<Exclusion> getExclusions(Country country) {
         Criteria testCriteria = session.createCriteria(Exclusion.class);
         testCriteria.add(Restrictions.eq("country", country));
@@ -61,6 +68,7 @@ public class AdminUnitService {
         .setParameter("country_id", countryId).uniqueResult();
 	}
 
+	@SuppressWarnings("unchecked")
 	public List<Integer> getYears(Country country, String parasite) {
 		Query query = session.getNamedQuery("api.years");
 		query.setParameter("country_id", country.getId());
@@ -68,6 +76,7 @@ public class AdminUnitService {
 		return (List<Integer>) query.list();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<String> getZeroed(Country country, String parasite) {
 		Query query = session.getNamedQuery("api.medintelZeroed");
 		query.setParameter("country_id", country.getId());
@@ -75,6 +84,7 @@ public class AdminUnitService {
 		return (List<String>) query.list();
 	}
 	
+	@SuppressWarnings("unchecked")
 	public List<String> getAdminLevels(Country country, String parasite) {
 		Query query = session.getNamedQuery("api.admin_level");
 		query.setParameter("country_id", country.getId());

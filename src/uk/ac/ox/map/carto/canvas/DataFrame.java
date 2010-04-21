@@ -4,6 +4,7 @@ import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
 
 import org.freedesktop.cairo.PdfSurface;
+import org.freedesktop.cairo.Surface;
 
 import uk.ac.ox.map.carto.feature.Feature;
 import uk.ac.ox.map.carto.server.FeatureLayer;
@@ -19,13 +20,13 @@ import com.vividsolutions.jts.geom.Polygon;
  * TODO: add raster functionality 
  *  
  */
-public class DataFrame extends BaseCanvas {
+public class DataFrame<T extends Surface> extends BaseCanvas<T> {
 	
 	private Envelope env;
     private double scale;
 	private final AffineTransform transform = new AffineTransform();
 	
-	public DataFrame(PdfSurface pdf, int width, int height, Envelope dataEnv) {
+	public DataFrame(T pdf, int width, int height, Envelope dataEnv) {
 		
 		super(pdf, width, height);
 		
@@ -35,6 +36,7 @@ public class DataFrame extends BaseCanvas {
 	    cr.setSource(0.0, 1.0, 0.0, 1.0);
 	}
 	
+
 	private void setEnvelope(int width, int height, Envelope dataEnv) {
 		Double dX = dataEnv.getWidth();
     	Double dY = dataEnv.getHeight();
@@ -195,7 +197,7 @@ public class DataFrame extends BaseCanvas {
 			return pt;
 	}
 
-	public PdfSurface getSurface() {
+	public Surface getSurface() {
 		return pdf;
 	}
 	

@@ -22,10 +22,9 @@
         
 		<dependency org="postgresql" name="postgresql" rev="8.3-603.jdbc4" />
         <dependency org="javassist" name="javassist" rev="3.8.0.GA" conf="default" />
-		<dependency org="org.hibernate" name="hibernate-core" rev="3.3.1.GA" conf='default'/>
-		<dependency org="org.slf4j" name="slf4j-api" rev="1.5.2" />
-		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.2" />
-		<dependency org="org.slf4j" name="slf4j-jdk14" rev="1.5.2" />
+		<dependency org="org.hibernate" name="hibernate-core" rev="3.3.2.GA" conf='default'/>
+		<dependency org="org.hibernate" name="hibernate-c3p0" rev="3.3.2.GA" conf='default'/>
+		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.8" />
 		<dependency org="log4j" name="log4j" rev="1.2.12" />
 		<dependency org="commons-logging" name="commons-logging"
 			rev="1.1.1" />

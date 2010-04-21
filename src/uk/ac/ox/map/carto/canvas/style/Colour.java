@@ -4,6 +4,13 @@ public class Colour {
 	public Colour(String hexColour, float a) {
 		setColour(hexColour, a);
 	}
+	
+	public Colour (float r, float g, float b, float a){
+		this.r = r;
+		this.g = g;
+		this.b = b;
+		this.a = a;
+	}
 	public void setColour(String hexColour, float a) {
 		float f = 255;
 		this.r = Integer.parseInt(hexColour.substring(1, 3), 16)/ f;
