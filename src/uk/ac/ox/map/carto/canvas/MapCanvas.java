@@ -14,19 +14,28 @@ import org.gnome.gdk.Pixbuf;
 import org.gnome.pango.Alignment;
 import org.gnome.pango.FontDescription;
 import org.gnome.pango.Layout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.ox.map.carto.util.AnnotationFactory;
 
 
 import com.vividsolutions.jts.geom.Envelope;
 
+
 public class MapCanvas extends BaseCanvas {
 	
 	private final HashMap<DataFrame, Point> dataFrames = new HashMap<DataFrame, Point>();
 	private final FontDescription fontDesc;
+	static final Logger logger = LoggerFactory.getLogger(MapCanvas.class);
+
 	
 	public MapCanvas(PdfSurface pdf, int width, int height) {
 		super(pdf, width, height);
+		
+		/*
+		 * Sensible defaults for font options.
+		 */
         fontDesc = new FontDescription();
         fontDesc.setFamily("Helvetica");
         fontDesc.setSize(12);
@@ -70,7 +79,6 @@ public class MapCanvas extends BaseCanvas {
 	        cr.showLayout(layout);
 	        y += layout.getPixelHeight() + 10;
 		}
-		
 	}
 	
 	public void annotateMap(List<String> anno, double x, double y, AnchorX ax, AnchorY ay) {
@@ -102,6 +110,7 @@ public class MapCanvas extends BaseCanvas {
 			cr.stroke();
 		}
 	}
+	
 	public void drawLegend(Rectangle rect, List<LegendItem> legend){
 		double y = rect.y;
 		double x = rect.x;
@@ -227,15 +236,6 @@ public class MapCanvas extends BaseCanvas {
         
 	}
 	
-	public void setLogo(Pixbuf pb, Rectangle frame){
-		System.out.println("W:" + pb.getWidth());
-		System.out.println("H:" + pb.getHeight());
-		double scale = pb.getWidth() / frame.width;
-		System.out.println("Scale:" + scale);
-		cr.scale(scale, scale);
-		cr.setSource(pb, 0,0);
-		cr.paint();
-	}
 
 	public void setScaleBar(Rectangle frame, double scale, int fontSize){
 		ScaleBar sb = new ScaleBar(frame, scale, fontSize);
@@ -311,6 +311,8 @@ public class MapCanvas extends BaseCanvas {
 	                break;
 	            }
 			}
+	        logger.debug("division width: {}", divisionWidth);
+	        logger.debug("intervals: {}", nIntervals);
 
 	        if (!(nIntervals >= 2)) {
 	        	System.err.println("not enough intervals");

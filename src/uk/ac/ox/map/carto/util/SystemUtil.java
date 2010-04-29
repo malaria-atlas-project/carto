@@ -6,7 +6,7 @@ public class SystemUtil {
 	public static void addBranding(String fileName, String parasite) throws IOException, InterruptedException {
 		Process process;
 		
-		String command = "pdftk /home/will/map1_public/temp/branding.pdf background /tmp/tmp_mapsurface.pdf output /home/will/maps/pdf/%s_%s.pdf";
+		String command = "pdftk /home/will/map1_public/maps/branding_master.pdf background /tmp/tmp_mapsurface.pdf output /home/will/maps/pdf/%s_%s.pdf";
 		command = String.format(command, fileName, parasite);
 		System.out.println(command);
 		process = Runtime.getRuntime().exec(command);

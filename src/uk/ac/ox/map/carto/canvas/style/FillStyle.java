@@ -1,5 +1,10 @@
 package uk.ac.ox.map.carto.canvas.style;
 
+/**
+ * @author will
+ *
+ * Incomplete
+ */
 public class FillStyle  {
 	
 	private Colour fillColour;

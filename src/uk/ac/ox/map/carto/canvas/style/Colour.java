@@ -5,35 +5,35 @@ public class Colour {
 		setColour(hexColour, a);
 	}
 	
-	public Colour (float r, float g, float b, float a){
+	public Colour (double r, double g, double b, double a){
 		this.r = r;
 		this.g = g;
 		this.b = b;
 		this.a = a;
 	}
-	public void setColour(String hexColour, float a) {
+	public void setColour(String hexColour, double a) {
 		float f = 255;
 		this.r = Integer.parseInt(hexColour.substring(1, 3), 16)/ f;
 		this.g = Integer.parseInt(hexColour.substring(3, 5), 16)/ f;
 		this.b = Integer.parseInt(hexColour.substring(5, 7), 16)/ f;
 		this.a = a;
 	}
-	public float getRed() {
+	public double getRed() {
 		return r;
 	}
-	public float getGreen() {
+	public double getGreen() {
 		return g;
 	}
-	public float getBlue() {
+	public double getBlue() {
 		return b;
 	}
-	public float getAlpha() {
+	public double getAlpha() {
 		return a;
 	}
 	
-	private float r;
-	private float g;
-	private float b;
-	private float a;
+	private double r;
+	private double g;
+	private double b;
+	private double a;
 
 }

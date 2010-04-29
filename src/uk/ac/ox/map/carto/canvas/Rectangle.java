@@ -2,10 +2,14 @@ package uk.ac.ox.map.carto.canvas;
 
 import java.awt.geom.Point2D;
 
-/*
+/**
  * Yet another rectangle class.
  * All fields are double for flexibility.
  * 
+ * @param x 
+ * @param y
+ * @param width 
+ * @param height 
  */
 public class Rectangle {
 	double x,y, width,height;
@@ -16,6 +20,9 @@ public class Rectangle {
 		this.height = height;
 	}
 	
+	/*
+	 * Was going to be used to anchor to a certain corner ...
+	 * 
 	public Rectangle (double x, double y, double width, double height, AnchorX ax, AnchorY ay){
 		
         switch(ax) {
@@ -33,9 +40,7 @@ public class Rectangle {
 		this.width = width;
 		this.height = height;
 	}
-	
-	public enum AnchorX { L, C, R; }
-	public enum AnchorY { T, C, B; }
+	*/
 	
 	public Point2D.Double getUpperLeft() {
 		return new Point2D.Double(x, y);

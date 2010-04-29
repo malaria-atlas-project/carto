@@ -1,12 +1,11 @@
-package uk.ac.ox.map.carto.server;
+package uk.ac.ox.map.carto.feature;
 
 import java.util.ArrayList;
 
 import uk.ac.ox.map.carto.canvas.style.Colour;
-import uk.ac.ox.map.carto.feature.Feature;
 import uk.ac.ox.map.carto.util.ForwardingList;
 
-/*
+/**
  * Wrapper class. Made generic for future extension to linestring. 
  */
 public class FeatureLayer<T> extends ForwardingList<Feature<T>> {
