@@ -76,7 +76,7 @@ public class PRMaps {
 		 */
         int  w=460, h = 460;
 		PdfSurface dfSurface = new PdfSurface("/tmp/tmp_dataframe.pdf", w, h);
-		DataFrame df= new DataFrame(dfSurface, w, h, env);
+		DataFrame df= new DataFrame(dfSurface, w, h, env, true);
 		
 		String waterHexColour = "#bee8ff";
 		df.setBackgroundColour(waterHexColour, 1);

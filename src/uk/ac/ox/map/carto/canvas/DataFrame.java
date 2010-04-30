@@ -25,12 +25,13 @@ import com.vividsolutions.jts.geom.Polygon;
  */
 public class DataFrame extends BaseCanvas {
 
-	private Logger logger = LoggerFactory.getLogger(DataFrame.class);
+	private final Logger logger = LoggerFactory.getLogger(DataFrame.class);
 	private Envelope env;
 	private double scale;
+	private final boolean hasGrid;
 	private final AffineTransform transform = new AffineTransform();
 
-	public DataFrame(Surface pdf, int width, int height, Envelope dataEnv) {
+	public DataFrame(Surface pdf, int width, int height, Envelope dataEnv, boolean hasGrid) {
 
 		super(pdf, width, height);
 
@@ -38,39 +39,38 @@ public class DataFrame extends BaseCanvas {
 
 		cr.setLineWidth(0.2);
 		cr.setSource(0.0, 1.0, 0.0, 1.0);
+		this.hasGrid = hasGrid;
 	}
 	
 	public void addRasterLayer(Raster ras) {
 		cr.save();
 		
 		Pixbuf pb = ras.getPixbuf();
+		Point2D.Double pt = ras.getOrigin();
+		
 		logger.debug("Pixbuf width: {}", pb.getWidth());
 		logger.debug("Pixbuf height: {}", pb.getHeight());
-		
-		
-		Point2D.Double pt = ras.getOrigin();
 		logger.debug("Orig x: {}", pt.x);
 		logger.debug("Orig y: {}", pt.y);
 		
 		transform.transform(pt, pt);
-		
 		double cellSize = ras.getCellSize();
 		
-		double newScale = 1;//0.381;
+		/*
+		 * Determine the factor by which to scale the canvas to draw the image.
+		 * TODO: Differing scales. 
+		 * cellSize is dd / pix 
+		 * scale is pix / dd 
+		 */
+		double newScale = scale * cellSize;
 		
 		cr.scale(newScale, newScale);
+		/*
+		 * The scaling will move the origin, 
+		 * therefore this needs to be corrected.
+		 */
 		cr.setSource(pb, pt.x/newScale, pt.y/newScale);
 		
-		double imgDx = ras.getDX();
-		double mapDx = env.getWidth();
-		
-		logger.debug("Scale: {}", scale);
-		logger.debug("cellSize: {}", cellSize);
-		logger.debug("imgDX: {}", imgDx);
-		logger.debug("mapDX: {}", mapDx);
-//		cr.setSource(pb, pt.x/scale, pt.y/scale);
-//		logger.debug("Orig x: {}", pt.x);
-//		logger.debug("Orig y: {}", pt.y);
 		cr.paint();
 		cr.restore();
 		
@@ -255,6 +255,10 @@ public class DataFrame extends BaseCanvas {
 
 	public double getScale() {
 		return scale;
+	}
+
+	public boolean hasGrid() {
+		return hasGrid;
 	}
 
 }

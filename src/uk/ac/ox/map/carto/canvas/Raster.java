@@ -35,8 +35,4 @@ public class Raster {
 	public double getCellSize() {
 		return cellSize;
 	}
-	
-	public double getDX(){
-		return pb.getWidth() * cellSize;
-	}
 }

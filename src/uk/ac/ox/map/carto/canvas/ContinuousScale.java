@@ -24,19 +24,28 @@ import uk.ac.ox.map.carto.canvas.MapCanvas.AnchorY;
 public class ContinuousScale implements DrawSurround {
 
 	private LinearPattern lp;
-	private final List<double[]> colourStops;
+	private final List<ColourStop> colourStops;
 	private final Rectangle rect;
 
+	private class ColourStop {
+		final String annotation;
+		final double[] colourStop;
+		public ColourStop(String annotation, double[] cs) {
+			this.colourStop = cs;
+			this.annotation = annotation;
+		}	
+	}
+	
 	public ContinuousScale(Rectangle rect) {
-		colourStops = new ArrayList<double[]>();
+		colourStops = new ArrayList<ColourStop>();
 		this.rect = rect;
 	}
 
 	/**
 	 * Adds a colour stop.
 	 */
-	public void addColorStopRGB(double d, double e, double f, double g) {
-		colourStops.add(new double[] {d, e, f, g});
+	public void addColorStopRGB(String annotation, double d, double e, double f, double g) {
+		colourStops.add(new ColourStop(annotation, new double[] {d, e, f, g}));
 	}
 	
 	/**
@@ -55,7 +64,10 @@ public class ContinuousScale implements DrawSurround {
 		}
 		
 		lp = new LinearPattern(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
-		for (double[] cs : colourStops) {
+		
+		double[] cs;
+		for (ColourStop colourStop : colourStops) {
+			cs = colourStop.colourStop;
 			lp.addColorStopRGB(cs[0], cs[1], cs[2], cs[3]);
 		}
 		
@@ -69,8 +81,16 @@ public class ContinuousScale implements DrawSurround {
 		mapCanvas.cr.setLineWidth(0.2);
 		mapCanvas.cr.stroke();
 		mapCanvas.cr.restore();
-    	mapCanvas.annotateMap("0", rect.x+rect.width+5, rect.y, AnchorX.L, AnchorY.C);
-    	mapCanvas.annotateMap("2.5", rect.x+rect.width+5, rect.y+rect.height, AnchorX.L, AnchorY.C);
-    	mapCanvas.annotateMap("Incidence (‰)", rect.x, rect.y-10, AnchorX.L, AnchorY.B);
+		
+		for (ColourStop colourStop : colourStops) {
+			
+    	mapCanvas.annotateMap(colourStop.annotation, rect.x+rect.width+5, rect.y + (rect.height * colourStop.colourStop[0]), AnchorX.L, AnchorY.C);
+    	
+//    	mapCanvas.annotateMap("2.5", rect.x+rect.width+5, rect.y+rect.height, AnchorX.L, AnchorY.C);
+		}
+		
+    	
+//    	mapCanvas.annotateMap("Incidence (‰)", rect.x, rect.y-10, AnchorX.L, AnchorY.B);
+    	mapCanvas.annotateMap("Probability", rect.x, rect.y-10, AnchorX.L, AnchorY.B);
 	}
 }

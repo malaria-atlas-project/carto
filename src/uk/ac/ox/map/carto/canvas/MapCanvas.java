@@ -162,6 +162,9 @@ public class MapCanvas extends BaseCanvas {
         fontDesc.setSize(fontSize);
         
 		for (DataFrame df : dataFrames.keySet()) {
+			
+			//only draw grids for dataframes
+			if(!df.hasGrid()) continue;
 			Envelope env = df.getEnvelope();
 			Point offset = dataFrames.get(df);
 	
