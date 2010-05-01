@@ -33,6 +33,9 @@ import com.vividsolutions.jts.geom.Polygon;
         
 public class PRMaps {
 	
+    static final int w=500; 
+    static final int h = 707; 
+    
 	public static void main(String[] args) throws IOException, InterruptedException {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
@@ -74,16 +77,11 @@ public class PRMaps {
 		/*
 		 * Create dataframe with specified envelope
 		 */
-        int  w=460, h = 460;
-		PdfSurface dfSurface = new PdfSurface("/tmp/tmp_dataframe.pdf", w, h);
-		DataFrame df= new DataFrame(dfSurface, w, h, env, true);
-		
+		DataFrame df = new DataFrame.Builder(env, new Rectangle(20, 40, 460, 460), "/tmp/tmp_dataframe1.pdf").build();
 		String waterHexColour = "#bee8ff";
 		df.setBackgroundColour(waterHexColour, 1);
         df.setLineColour("#000000", (float) 0.7);
-        df.setLineWidth(0.1);
         df.setFillColour("#cccccc", (float) 0.8);
-        
         
 		/*
 		 * Get envelope as resized by dataframe
@@ -170,17 +168,14 @@ public class PRMaps {
         /*
          * Draw the rest of the canvas
          */
-        w=500; h = 707; 
 		PdfSurface mapSurface = new PdfSurface("/tmp/tmp_mapsurface.pdf", w, h);
 		MapCanvas mapCanvas = new MapCanvas(mapSurface, w, h);
-		mapCanvas.drawDataFrame(df, 20, 40);
-        dfSurface.finish();
+		mapCanvas.addDataFrame(df);
+		mapCanvas.drawDataFrames();
+		
 		
 		Rectangle frame = new Rectangle(20,530,430,20);
 		mapCanvas.setScaleBar(frame, df.getScale(), 7);
-		mapCanvas.drawMapBorders();
-		mapCanvas.setColour("#0066CC", 1);
-		mapCanvas.drawMapGrids(4.5);
 		
 		/*
 		 * Draw the legend

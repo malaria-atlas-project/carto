@@ -17,10 +17,8 @@ public abstract class BaseCanvas {
 	protected final Surface surface;
 	private Colour fillColour;
 	private Colour lineColour;
-	private double lineWidth;
-	protected final int width;
-	protected final int height;
-	
+	protected final double width;
+	protected final double height;
 
 
 	public void setBackgroundColour(String hex, float a) {
@@ -29,15 +27,10 @@ public abstract class BaseCanvas {
 		cr.fill();
 	}
 
-	public void setPattern(LinearPattern pattern) {
-		cr.setSource(pattern);
-	}
-	
 	public void rectangle(double x, double y, double width, double height) {
 		cr.rectangle(x, y, width, height);
 		cr.fill();
 	}
-	
 	
 	public void setColour(String hex, float a) {
 		Colour c = new Colour(hex, a);
@@ -62,7 +55,7 @@ public abstract class BaseCanvas {
 		cr.setSource(fillColour.getRed(), fillColour.getGreen(), fillColour.getBlue(), fillColour.getAlpha());
 	}
 
-	public BaseCanvas(Surface surface, int width, int height) {
+	public BaseCanvas(Surface surface, double width2, double height2) {
 		/*
 		 * Get context
 		 */
@@ -72,9 +65,8 @@ public abstract class BaseCanvas {
 		 */
 		this.lineColour = new Colour("#000000", 1);
 		this.fillColour = new Colour("#CCCCCC", 1);
-		setLineWidth(0.2);
-		this.width = width;
-		this.height = height;
+		this.width = width2;
+		this.height = height2;
 		this.surface = surface;
 	}
 
@@ -96,14 +88,6 @@ public abstract class BaseCanvas {
 		return lineColour;
 	}
 
-	public void setLineWidth(double lineWidth) {
-		this.lineWidth = lineWidth;
-	}
-
-	public double getLineWidth() {
-		return lineWidth;
-	}
-
 	void paintCrossHatch() {
 		/*
 		 * Very simple and unoptimised. Just draws a parallelogram of hatchings.
@@ -111,8 +95,9 @@ public abstract class BaseCanvas {
 		 * always be inclusive.
 		 */
 		int spacing = 3;
-		int offset = (height > width) ? height : width;
-		int x1 = -offset, y1 = 0;
+		double offset = (height > width) ? height : width;
+		double x1 = -offset;
+		int y1 = 0;
 		for (int i = 0; i < (offset * 2); i += spacing) {
 			cr.moveTo(x1, y1);
 			cr.lineTo(x1 + offset, y1 + offset);

@@ -1,8 +1,12 @@
 package uk.ac.ox.map.carto.canvas;
 
+import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
+import java.io.IOException;
 
+import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
 import org.gnome.gdk.Pixbuf;
 import org.slf4j.Logger;
@@ -30,17 +34,49 @@ public class DataFrame extends BaseCanvas {
 	private double scale;
 	private final boolean hasGrid;
 	private final AffineTransform transform = new AffineTransform();
+	private final Point2D.Double origin;
 
-	public DataFrame(Surface pdf, int width, int height, Envelope dataEnv, boolean hasGrid) {
+	public static class Builder {
+		//required params
+		private Envelope env;
+		private Rectangle rect;
+		private String fileName;
+		
+		//optional params
+		private boolean hasGrid = true;
+		private String backgroundColour = "#ffffff";
 
-		super(pdf, width, height);
+		public Builder(Envelope dataEnv, Rectangle rect, String fileName) {
+			this.env = dataEnv;
+			this.rect = rect;
+			this.fileName = fileName;
+	    }	
+		public Builder hasGrid(boolean hasGrid) {
+			this.hasGrid = hasGrid;
+			return this;
+		}
+		public Builder backgroundColour(String hexColour) {
+			this.backgroundColour = hexColour;
+			return this;
+		}
+		public DataFrame build() throws IOException {
+			return new DataFrame(this);
+        }
+	}
+	
+	public DataFrame(Builder builder) throws IOException {
+		
+		super((Surface) new PdfSurface(builder.fileName, builder.rect.width, builder.rect.height), builder.rect.width, builder.rect.height);
 
-		setEnvelope(width, height, dataEnv);
+		setEnvelope(builder.rect.width, builder.rect.height, builder.env);
+		this.origin = builder.rect.getUpperLeft();
+		
+		setBackgroundColour(builder.backgroundColour, 1);
 
 		cr.setLineWidth(0.2);
 		cr.setSource(0.0, 1.0, 0.0, 1.0);
-		this.hasGrid = hasGrid;
-	}
+		this.hasGrid = builder.hasGrid;
+    }
 	
 	public void addRasterLayer(Raster ras) {
 		cr.save();
@@ -76,9 +112,9 @@ public class DataFrame extends BaseCanvas {
 		
 	}
 
-	private void setEnvelope(int width, int height, Envelope dataEnv) {
-		Double dX = dataEnv.getWidth();
-		Double dY = dataEnv.getHeight();
+	private void setEnvelope(double width, double height, Envelope dataEnv) {
+		double dX = dataEnv.getWidth();
+		double dY = dataEnv.getHeight();
 
 		double arEnv = dX / dY;
 		double arCanvas = width / height;
@@ -88,8 +124,8 @@ public class DataFrame extends BaseCanvas {
 		 */
 		dX = dataEnv.getWidth();
 		dY = dataEnv.getHeight();
-		Double xScale = width / dX;
-		Double yScale = height / dY;
+		double xScale = width / dX;
+		double yScale = height / dY;
 		this.scale = (xScale < yScale) ? xScale : yScale;
 
 		/*
@@ -245,11 +281,11 @@ public class DataFrame extends BaseCanvas {
 		return surface;
 	}
 
-	public int getWidth() {
+	public double getWidth() {
 		return width;
 	}
 
-	public int getHeight() {
+	public double getHeight() {
 		return height;
 	}
 
@@ -260,5 +296,13 @@ public class DataFrame extends BaseCanvas {
 	public boolean hasGrid() {
 		return hasGrid;
 	}
+
+	public Point2D.Double getOrigin() {
+		return origin;
+    }
+
+	public void finish() {
+	   surface.finish(); 
+    }
 
 }
