@@ -8,8 +8,7 @@ import java.text.NumberFormat;
 
 import org.freedesktop.cairo.Context;
 
-import uk.ac.ox.map.carto.canvas.MapCanvas.AnchorX;
-import uk.ac.ox.map.carto.canvas.MapCanvas.AnchorY;
+import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
 
 public class ScaleBar {
 	/**
@@ -67,7 +66,7 @@ public class ScaleBar {
 		int n = (int) nIntervals;
 		SegmentType st;
 
-		this.mapCanvas.outer().annotateMap("0", offset, frame.y, AnchorX.C, AnchorY.B);
+		this.mapCanvas.outer().annotateMap("0", offset, frame.y, Anchor.CB);
 
 		for (int i = 0; i < n; i++) {
 			if ((i % 2) == 0)
@@ -78,7 +77,7 @@ public class ScaleBar {
 			drawSegment((int) divisionWidth, st, formatter.format(interval * (i + 1)));
 		}
 
-		this.mapCanvas.outer().annotateMap("Kilometres", offset + 10, frame.y, AnchorX.L, AnchorY.T);
+		this.mapCanvas.outer().annotateMap("Kilometres", offset + 10, frame.y, Anchor.LT);
 	}
 
 	private void drawSegment(int width, SegmentType st, String text) {
@@ -88,6 +87,6 @@ public class ScaleBar {
 		}
 		cr.stroke();
 		offset += width;
-		this.mapCanvas.outer().annotateMap(text, offset, frame.y, AnchorX.C, AnchorY.B);
+		this.mapCanvas.outer().annotateMap(text, offset, frame.y, Anchor.CB);
 	}
 }

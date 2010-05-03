@@ -1,6 +1,7 @@
 package uk.ac.ox.map.carto.canvas;
 
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -13,6 +14,7 @@ import org.gnome.pango.Layout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
 import uk.ac.ox.map.carto.util.AnnotationFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -74,19 +76,16 @@ public class MapCanvas extends BaseCanvas {
 		}
 	}
 
-	public void annotateMap(List<String> anno, double x, double y, AnchorX ax, AnchorY ay) {
-		for (String string : anno) {
-			annotateMap(string, x, y, ax, ay);
-		}
-	}
-
-	public void annotateMap(String text, double x, double y, AnchorX ax, AnchorY ay) {
+	public void annotateMap(String text, double x, double y, Anchor anchor) {
 
 		Layout layout = new Layout(cr);
 		layout.setFontDescription(fontDesc);
 		layout.setMarkup(text);
+		
+		Rectangle rect = new Rectangle(x,y,layout.getSizeWidth(), layout.getSizeHeight());
+		Double pt = rect.getOrigin(anchor);
 
-		cr.moveTo(ax.eval(layout.getPixelWidth(), x), ay.eval(layout.getPixelHeight(), y));
+		cr.moveTo(pt.x, pt.y);
 		cr.showLayout(layout);
 	}
 
@@ -144,7 +143,7 @@ public class MapCanvas extends BaseCanvas {
 			cr.setDash(new double[] { 1, 0 });
 			cr.stroke();
 
-			annotateMap(li.description, x + textMargin, y + (patchHeight / 2), AnchorX.L, AnchorY.C);
+			annotateMap(li.description, x + textMargin, y + (patchHeight / 2), Anchor.LC);
 			y += spacing;
 		}
 	}
@@ -216,8 +215,8 @@ public class MapCanvas extends BaseCanvas {
 				cr.lineTo(x, y2);
 				cr.stroke();
 				anno = AnnotationFactory.gridText(i, "EW");
-				annotateMap(anno, x, y1, AnchorX.C, AnchorY.B);
-				annotateMap(anno, x, y2, AnchorX.C, AnchorY.T);
+				annotateMap(anno, x, y1, Anchor.CB);
+				annotateMap(anno, x, y2, Anchor.CT);
 			}
 
 			if (i > env.getMinY() && i < env.getMaxY()) {
@@ -230,8 +229,8 @@ public class MapCanvas extends BaseCanvas {
 				cr.lineTo(x2, y);
 				cr.stroke();
 				anno = AnnotationFactory.gridText(i, "SN");
-				annotateMap(anno, x1, y, AnchorX.R, AnchorY.C);
-				annotateMap(anno, x2, y, AnchorX.L, AnchorY.C);
+				annotateMap(anno, x1, y, Anchor.RC);
+				annotateMap(anno, x2, y, Anchor.LC);
 			}
 
 		}
@@ -245,36 +244,7 @@ public class MapCanvas extends BaseCanvas {
 	/*
 	 * TODO prettify
 	 */
-	public enum AnchorX {
-		L, C, R;
-		double eval(int w, double x) {
-			switch (this) {
-			case L:
-				return x;
-			case C:
-				return x - (w / 2);
-			case R:
-				return x - w;
-			}
-			throw new AssertionError("Unknown op: " + this);
-		}
-	}
-
-	public enum AnchorY {
-		T, C, B;
-		double eval(int h, double y) {
-			switch (this) {
-			case T:
-				return y;
-			case C:
-				return y - (h / 2);
-			case B:
-				return y - h;
-			}
-			throw new AssertionError("Unknown op: " + this);
-		}
-	}
-
+	
 	public void addDataFrame(DataFrame df) {
 		dataFrames.add(df);
 	}

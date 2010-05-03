@@ -8,8 +8,7 @@ import java.util.List;
 import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.LinearPattern;
 
-import uk.ac.ox.map.carto.canvas.MapCanvas.AnchorX;
-import uk.ac.ox.map.carto.canvas.MapCanvas.AnchorY;
+import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
 /**
  * 
  * @author will
@@ -84,13 +83,13 @@ public class ContinuousScale implements DrawSurround {
 		
 		for (ColourStop colourStop : colourStops) {
 			
-    	mapCanvas.annotateMap(colourStop.annotation, rect.x+rect.width+5, rect.y + (rect.height * colourStop.colourStop[0]), AnchorX.L, AnchorY.C);
+    	mapCanvas.annotateMap(colourStop.annotation, rect.x+rect.width+5, rect.y + (rect.height * colourStop.colourStop[0]), Anchor.LC);
     	
 //    	mapCanvas.annotateMap("2.5", rect.x+rect.width+5, rect.y+rect.height, AnchorX.L, AnchorY.C);
 		}
 		
     	
 //    	mapCanvas.annotateMap("Incidence (‰)", rect.x, rect.y-10, AnchorX.L, AnchorY.B);
-    	mapCanvas.annotateMap("Probability", rect.x, rect.y-10, AnchorX.L, AnchorY.B);
+    	mapCanvas.annotateMap("Probability", rect.x, rect.y-10, Anchor.LB);
 	}
 }
