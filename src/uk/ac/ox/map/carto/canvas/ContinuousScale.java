@@ -25,6 +25,10 @@ public class ContinuousScale implements DrawSurround {
 	private LinearPattern lp;
 	private final List<ColourStop> colourStops;
 	private final Rectangle rect;
+	
+	private final Orientation orientation;
+	
+	private enum Orientation {NS, EW};	
 
 	private class ColourStop {
 		final String annotation;
@@ -38,6 +42,7 @@ public class ContinuousScale implements DrawSurround {
 	public ContinuousScale(Rectangle rect) {
 		colourStops = new ArrayList<ColourStop>();
 		this.rect = rect;
+		orientation = (rect.height >= rect.width)? Orientation.NS: Orientation.EW;
 	}
 
 	/**
@@ -56,11 +61,11 @@ public class ContinuousScale implements DrawSurround {
 		Double endPoint; 
 		
 		startPoint = new Point2D.Double(rect.x, rect.y);
-		if (rect.height >= rect.width) { //N-S
+		
+		if (orientation.equals(Orientation.NS))
 			endPoint = new Point2D.Double(rect.x, rect.y + rect.height);
-		} else { //E-W
+		else
 			endPoint = new Point2D.Double(rect.x + rect.width, rect.y);
-		}
 		
 		lp = new LinearPattern(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
 		
@@ -74,6 +79,7 @@ public class ContinuousScale implements DrawSurround {
 		mapCanvas.cr.setSource(lp);
 		mapCanvas.cr.rectangle(rect.x, rect.y, rect.width, rect.height);
 		mapCanvas.cr.fillPreserve();
+		
 		//TODO: hardcoded source colour
 		mapCanvas.cr.setSource(0, 0, 0);
 		//TODO: hardcoded linewidth
@@ -82,10 +88,7 @@ public class ContinuousScale implements DrawSurround {
 		mapCanvas.cr.restore();
 		
 		for (ColourStop colourStop : colourStops) {
-			
-    	mapCanvas.annotateMap(colourStop.annotation, rect.x+rect.width+5, rect.y + (rect.height * colourStop.colourStop[0]), Anchor.LC);
-    	
-//    	mapCanvas.annotateMap("2.5", rect.x+rect.width+5, rect.y+rect.height, AnchorX.L, AnchorY.C);
+	    	mapCanvas.annotateMap(colourStop.annotation, rect.x+rect.width+5, rect.y + (rect.height * colourStop.colourStop[0]), Anchor.LC);
 		}
 		
     	

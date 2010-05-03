@@ -21,6 +21,7 @@ import uk.ac.ox.map.carto.canvas.LegendItem;
 import uk.ac.ox.map.carto.canvas.MapCanvas;
 import uk.ac.ox.map.carto.canvas.Rectangle;
 import uk.ac.ox.map.carto.canvas.style.Colour;
+import uk.ac.ox.map.carto.canvas.style.Palette;
 import uk.ac.ox.map.carto.feature.FeatureLayer;
 import uk.ac.ox.map.carto.text.MapTextResource;
 import uk.ac.ox.map.carto.util.EnvelopeFactory;
@@ -79,9 +80,7 @@ public class PRMaps {
 		 */
 		DataFrame df = new DataFrame.Builder(env, new Rectangle(20, 40, 460, 460), "/tmp/tmp_dataframe1.pdf").build();
 		String waterHexColour = "#bee8ff";
-		df.setBackgroundColour(waterHexColour, 1);
-        df.setLineColour("#000000", (float) 0.7);
-        df.setFillColour("#cccccc", (float) 0.8);
+		df.setBackgroundColour(Palette.WATER.get());
         
 		/*
 		 * Get envelope as resized by dataframe
@@ -98,7 +97,7 @@ public class PRMaps {
          * Draw the risk units
          */
         HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
-        colours.put(0, new Colour("#ffffff", 1));
+        colours.put(0, Palette.WHITE.get());
         colours.put(1, new Colour("#ffbebe", 1));
         colours.put(2, new Colour("#cd6666", 1));
         colours.put(9, new Colour("#ffff00", 1));
@@ -123,12 +122,12 @@ public class PRMaps {
 
         /*
          * Get excluded cities
-         * TODO: get enum type for exclusions- mapped in Hibernate? This caused strange problems before.
+         * TODO: get enum type for exclusions
          */
 		FeatureLayer<MultiPolygon> excl = new FeatureLayer<MultiPolygon>();
 		FeatureLayer<MultiPolygon> excl2 = new FeatureLayer<MultiPolygon>();
         List<Exclusion> exclusions = adminUnitService.getExclusions(country);
-        Colour exclColour = new Colour("#ffffff", 1);
+        Colour exclColour = Palette.WHITE.get();
         List<String> exclCities = new ArrayList<String>();
         List<String> exclIslands = new ArrayList<String>();
         List<String> exclAdminUnits = new ArrayList<String>();
@@ -159,7 +158,7 @@ public class PRMaps {
          */
 		FeatureLayer<MultiPolygon> waterBodies = new FeatureLayer<MultiPolygon>();
         List<WaterBody> water = adminUnitService.getWaterBodies(resizedEnv);
-        Colour waterColour = new Colour(waterHexColour, 1);
+        Colour waterColour = Palette.WATER.get();
         for (WaterBody waterBody : water) {
         	waterBodies.addFeature((MultiPolygon) waterBody.getGeom(), waterColour);
 		}

@@ -1,6 +1,7 @@
 package uk.ac.ox.map.carto.canvas.style;
 
 public class Colour {
+	
 	public Colour(String hexColour, float a) {
 		setColour(hexColour, a);
 	}
@@ -11,6 +12,7 @@ public class Colour {
 		this.b = b;
 		this.a = a;
 	}
+	
 	public void setColour(String hexColour, double a) {
 		float f = 255;
 		this.r = Integer.parseInt(hexColour.substring(1, 3), 16)/ f;

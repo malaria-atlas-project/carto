@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
+import uk.ac.ox.map.carto.canvas.style.Palette;
 import uk.ac.ox.map.carto.util.AnnotationFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -98,7 +99,7 @@ public class MapCanvas extends BaseCanvas {
 			cr.setSource(df.getSurface(), origin.x, origin.y);
 			cr.paint();
 			
-			setColour("#000000", 1);
+			setColour(Palette.BLACK.get());
 			cr.setLineWidth(0.2);
 			cr.rectangle(origin.x, origin.y, df.getWidth(), df.getHeight());
 			cr.stroke();
@@ -155,7 +156,7 @@ public class MapCanvas extends BaseCanvas {
 		 */
 		int intervals[] = { 40, 20, 10, 5, 2, 1 };
 		fontDesc.setSize(fontSize);
-		setColour("#0066CC", 1);
+		setColour(Palette.GRID.get());
 		cr.setLineWidth(0.2);
 
 		// only draw grids for dataframes

@@ -13,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.slf4j.Marker;
 
+import uk.ac.ox.map.carto.canvas.style.Colour;
+import uk.ac.ox.map.carto.canvas.style.Palette;
 import uk.ac.ox.map.carto.feature.Feature;
 import uk.ac.ox.map.carto.feature.FeatureLayer;
 
@@ -22,9 +24,10 @@ import com.vividsolutions.jts.geom.LineString;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
-/*
- * Adds polygon drawing facilities to BaseCanvas.
- * TODO: add raster functionality 
+/**
+ * @author will
+ * 
+ * Adds polygon and raster drawing facilities to BaseCanvas.
  *  
  */
 public class DataFrame extends BaseCanvas {
@@ -44,7 +47,7 @@ public class DataFrame extends BaseCanvas {
 		
 		//optional params
 		private boolean hasGrid = true;
-		private String backgroundColour = "#ffffff";
+		private Colour backgroundColour = Palette.WHITE.get();
 
 		public Builder(Envelope dataEnv, Rectangle rect, String fileName) {
 			this.env = dataEnv;
@@ -55,8 +58,8 @@ public class DataFrame extends BaseCanvas {
 			this.hasGrid = hasGrid;
 			return this;
 		}
-		public Builder backgroundColour(String hexColour) {
-			this.backgroundColour = hexColour;
+		public Builder backgroundColour(Colour colour) {
+			this.backgroundColour = colour;
 			return this;
 		}
 		public DataFrame build() throws IOException {
@@ -71,7 +74,7 @@ public class DataFrame extends BaseCanvas {
 		setEnvelope(builder.rect.width, builder.rect.height, builder.env);
 		this.origin = builder.rect.getUpperLeft();
 		
-		setBackgroundColour(builder.backgroundColour, 1);
+		setBackgroundColour(builder.backgroundColour);
 
 		cr.setLineWidth(0.2);
 		cr.setSource(0.0, 1.0, 0.0, 1.0);

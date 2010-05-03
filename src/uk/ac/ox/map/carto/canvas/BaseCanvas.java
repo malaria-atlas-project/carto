@@ -5,6 +5,7 @@ import org.freedesktop.cairo.LinearPattern;
 import org.freedesktop.cairo.Surface;
 
 import uk.ac.ox.map.carto.canvas.style.Colour;
+import uk.ac.ox.map.carto.canvas.style.Palette;
 
 /**
  * Encapsulates a cairo context, embracing the fact a cairo context is a state machine.
@@ -20,9 +21,8 @@ public abstract class BaseCanvas {
 	protected final double width;
 	protected final double height;
 
-
-	public void setBackgroundColour(String hex, float a) {
-		setColour(hex, a);
+	public void setBackgroundColour(Colour backgroundColour) {
+		setColour(backgroundColour);
 		cr.rectangle(0, 0, width, height);
 		cr.fill();
 	}
@@ -32,23 +32,12 @@ public abstract class BaseCanvas {
 		cr.fill();
 	}
 	
-	public void setColour(String hex, float a) {
-		Colour c = new Colour(hex, a);
+	public void setColour(Colour c) {
 		cr.setSource(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
-	}
-
-	public void setLineColour(String hexColour, float a) {
-		lineColour.setColour(hexColour, a);
-		setLineColour();
 	}
 
 	protected void setLineColour() {
 		cr.setSource(lineColour.getRed(), lineColour.getGreen(), lineColour.getBlue(), lineColour.getAlpha());
-	}
-
-	public void setFillColour(String hexColour, float a) {
-		fillColour.setColour(hexColour, a);
-		setFillColour();
 	}
 
 	protected void setFillColour() {
@@ -63,8 +52,8 @@ public abstract class BaseCanvas {
 		/*
 		 * Initialise styles to sensible defaults.
 		 */
-		this.lineColour = new Colour("#000000", 1);
-		this.fillColour = new Colour("#CCCCCC", 1);
+		this.lineColour = Palette.BLACK.get();
+		this.fillColour = Palette.GREY.get();
 		this.width = width2;
 		this.height = height2;
 		this.surface = surface;
