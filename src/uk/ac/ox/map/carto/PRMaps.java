@@ -8,6 +8,8 @@ import java.util.List;
 
 import org.freedesktop.cairo.PdfSurface;
 import org.gnome.gtk.Gtk;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import uk.ac.ox.map.base.model.adminunit.AdminUnit;
 import uk.ac.ox.map.base.model.adminunit.AdminUnitRisk;
@@ -34,20 +36,21 @@ import com.vividsolutions.jts.geom.Polygon;
         
 public class PRMaps {
 	
-    static final int w=500; 
-    static final int h = 707; 
+    static final int w=500;
+    static final int h = 707;
+	static final Logger logger = LoggerFactory.getLogger(PRMaps.class);
     
 	public static void main(String[] args) throws IOException, InterruptedException {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		String countryId = "BLZ";
+		String countryId = "KHM";
 		Country country  = adminUnitService.getCountry(countryId);
-		drawMap(adminUnitService, country, "pf");
+//		drawMap(adminUnitService, country, "pf");
 //		drawMap(adminUnitService, country, "pv");
 		
-//		drawMap(adminUnitService, "pf");
-//		drawMap(adminUnitService, "pv");
+		drawMap(adminUnitService, "pf");
+		drawMap(adminUnitService, "pv");
 	}
 
 	@SuppressWarnings("unused")
@@ -56,8 +59,8 @@ public class PRMaps {
 	throws IOException, InterruptedException {
 		List<Country> pfCountries = adminUnitService.getCountries(parasite);
 		for (Country country : pfCountries) {
-	        System.out.println("Processing:" + country.getId());
-	        System.out.println(country.getName());
+	        logger.debug("Processing country: {}, {}", country.getId(), country.getName());
+	        
 	        if (country.getId().compareTo("CHN")==0)
 	        	continue;
 			drawMap(adminUnitService, country, parasite);
@@ -79,7 +82,6 @@ public class PRMaps {
 		 * Create dataframe with specified envelope
 		 */
 		DataFrame df = new DataFrame.Builder(env, new Rectangle(20, 40, 460, 460), "/tmp/tmp_dataframe1.pdf").build();
-		String waterHexColour = "#bee8ff";
 		df.setBackgroundColour(Palette.WATER.get());
         
 		/*
@@ -90,7 +92,6 @@ public class PRMaps {
         List<AdminUnit> adminUnits = adminUnitService.getAdminUnits(resizedEnv);
         for (AdminUnit admin0 : adminUnits) {
         	df.drawMultiPolygon((MultiPolygon) admin0.getGeom());
-        	System.out.println(admin0.getName());
 		}
         
         /*
@@ -132,15 +133,18 @@ public class PRMaps {
         List<String> exclIslands = new ArrayList<String>();
         List<String> exclAdminUnits = new ArrayList<String>();
         List<String> exclMoh = new ArrayList<String>();
+        
         for (Exclusion exclusion : exclusions) {
+        	logger.debug("Exclusion {}", exclusion.getExclusionType());
         	if (exclusion.getExclusionType().compareTo("urban area")==0)
 	        	exclCities.add(exclusion.getName());
         	else if (exclusion.getExclusionType().compareTo("island")==0)
 	        	exclIslands.add(exclusion.getName());
-        	else if (exclusion.getExclusionType().compareTo("ithg exclusion")==0)
+        	else if (exclusion.getExclusionType().compareTo("admin unit")==0)
 	        	exclAdminUnits.add(exclusion.getName());
         	else if (exclusion.getExclusionType().compareTo("moh exclusion")==0)
 	        	exclMoh.add(exclusion.getName());
+        	
         	//MOH hack... damn exclusions
         	if (exclusion.getExclusionType().compareTo("moh exclusion")==0)
 	        	excl2.addFeature((MultiPolygon) exclusion.getGeom(), exclColour);
@@ -239,11 +243,12 @@ public class PRMaps {
 		List<Integer> years = adminUnitService.getYears(country, parasite);
 		List<String> apiAdminLevels = adminUnitService.getAdminLevels(country, parasite);
 		
-	    List<String> intelCountries = Arrays.asList(new String[] {"BWA",  "MRT", "SWZ", "DJI"});
+	    List<String> intelCountries = Arrays.asList(new String[] {"BWA", "CPV", "MRT", "SWZ", "DJI"});
 	    Boolean isAdmin0Inferred = false;
-	    if (apiAdminLevels.size() > 0) {
+	    if (apiAdminLevels.size() == 1) {
 	    	String adminLevel = apiAdminLevels.get(0);
 	    }
+	    
 	    if (intelCountries.contains(country.getId())) {
 			mapTextItems.add((String) mtr.getObject("apiTextNationalMedIntel"));
 	    } else if (country.getId().compareTo("VEN")==0) {
@@ -254,7 +259,7 @@ public class PRMaps {
 	    	mapTextItems.add(
 			    String.format("The health management information system data used to inform the stable, unstable and malaria free categories were available for 6 administrative units at Admin2 level and 21 at Admin1 level for the following years: %s.", StringUtil.getReadableList(years))
 		    );
-	    } else if (apiAdminLevels.get(0).compareTo("0")==0 && apiAdminLevels.size()<2) {
+	    } else if (apiAdminLevels.get(0).compareTo("Admin0")==0 && apiAdminLevels.size()<2) {
 			mapTextItems.add((String) mtr.getObject("apiTextNoInfo"));
 		} else {
 			mapTextItems.add(StringUtil.formatAdminString((String) mtr.getObject("apiText"), apiAdminLevels, years, riskUnits.size()));
@@ -272,10 +277,23 @@ public class PRMaps {
 		
 		/*
 		 * Exclusions
+		logger.debug("excluded admin units: {}", exclAdminUnits.size());
+		logger.debug("excluded cities: {}", exclCities.size());
+		logger.debug("excluded islands: {}", exclIslands.size());
 		 */
+		
+	    List<String> modifiedRiskCountries = Arrays.asList(new String[] {"MMR", "IND"});
+	    String ithgText = "";
+		if (modifiedRiskCountries.contains(country.getId())) {
+			ithgText = (String) mtr.getObject("ithgText2");
+		}
+		else {
+			ithgText = (String) mtr.getObject("ithgText1");
+		}
 		String formatString = "the following %s: %s";
 		if (exclAdminUnits.size() > 0 || exclCities.size() > 0 || exclIslands.size() > 0) {
-			String ithgText = (String) mtr.getObject("ithgText");
+			
+			
 			List<String> txt = new ArrayList<String>();
 			if (exclAdminUnits.size() > 0) {
 				txt.add(
@@ -308,34 +326,10 @@ public class PRMaps {
 		mapTextItems.add((String) mtr.getObject("copyright"));
 		Rectangle mapTextFrame = new Rectangle(50, 555, 320, 0);
 		mapCanvas.drawTextFrame(mapTextItems, mapTextFrame, 6);
-		
-		/*
-		 * Finally put on the logo
-		
-		Dataset x = gdal.Open("/home/will/map1_public/maps/map_overlay3.png");
-		Band band = x.GetRasterBand(1);
-
-		int xsize = x.getRasterXSize();
-		int ysize = x.getRasterYSize();
-
-	   ByteBuffer y = band.ReadRaster_Direct(0, 0, xsize, ysize, gdalconst.GDT_Byte);
-	   byte[] bytes = new byte[y.remaining()];
-	   y.get(bytes);
-	   
-		Pixbuf pb = new Pixbuf(bytes);
-		Rectangle logoFrame = new Rectangle(300, 400, 250, 0);
-		mapCanvas.setLogo(pb, logoFrame);
-		gdal.AllRegister();
-		
-		 */
-		
-		/*
-		 * Understand this better! Does data frame require finishing? Does the data frame even need a pdf surface?
-		 */
 		mapSurface.finish();
+		
 		SystemUtil.addBranding(country.getId(), parasite);
 //		SystemUtil.convertToPng(country.getId()+"_pf");
-
 	}
 
 }
