@@ -4,12 +4,17 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.CountDownLatch;
 
 import org.junit.Test;
 
+import uk.ac.ox.map.base.model.adminunit.Country;
+import uk.ac.ox.map.base.service.AdminUnitService;
+import uk.ac.ox.map.carto.text.MapTextResource;
 import uk.ac.ox.map.carto.util.StringUtil;
 
 public class UnitTests {
+	private String adminStr;
 	@Test
 	public void testStringUtil(){
 		List<String> t = new ArrayList<String>();
@@ -44,8 +49,18 @@ public class UnitTests {
 		assertTrue(s.compareTo("1, 2, 3 and 4") == 0);
 	}
 	@Test
-	public void testLegend() {
+	public void test2() {
+		AdminUnitService aus = new AdminUnitService();
+		Country country = new Country();
+		country.setId("CHN");
+		String parasite = "pf";
+		MapTextResource mtr = new MapTextResource();
+		adminStr = (String) mtr.getObject("apiText");
 		
+		List<Object[]> adminLevels = aus.getAdminLevels2(country, parasite);
+		List<Integer> years = aus.getYears(country, parasite);
+		String x = StringUtil.formatAdminString1(adminStr, adminLevels, years);
+		System.out.println(x);
 	}
 	
 

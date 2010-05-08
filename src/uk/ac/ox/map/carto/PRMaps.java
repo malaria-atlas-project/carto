@@ -1,5 +1,6 @@
 package uk.ac.ox.map.carto;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -44,13 +45,13 @@ public class PRMaps {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		String countryId = "KHM";
+		String countryId = "YEM";
 		Country country  = adminUnitService.getCountry(countryId);
 //		drawMap(adminUnitService, country, "pf");
 //		drawMap(adminUnitService, country, "pv");
 		
 		drawMap(adminUnitService, "pf");
-		drawMap(adminUnitService, "pv");
+//		drawMap(adminUnitService, "pv");
 	}
 
 	@SuppressWarnings("unused")
@@ -61,7 +62,10 @@ public class PRMaps {
 		for (Country country : pfCountries) {
 	        logger.debug("Processing country: {}, {}", country.getId(), country.getName());
 	        
-	        if (country.getId().compareTo("CHN")==0)
+//	        if (country.getId().compareTo("CHN")==0)
+//	        	continue;
+	        File f = new File(String.format("/home/will/maps/pdf/%s_%s.pdf", country.getId(), parasite));
+	        if (f.exists())
 	        	continue;
 			drawMap(adminUnitService, country, parasite);
 		}
@@ -127,26 +131,32 @@ public class PRMaps {
          */
 		FeatureLayer<MultiPolygon> excl = new FeatureLayer<MultiPolygon>();
 		FeatureLayer<MultiPolygon> excl2 = new FeatureLayer<MultiPolygon>();
+		FeatureLayer<MultiPolygon> excl3 = new FeatureLayer<MultiPolygon>();
         List<Exclusion> exclusions = adminUnitService.getExclusions(country);
         Colour exclColour = Palette.WHITE.get();
         List<String> exclCities = new ArrayList<String>();
         List<String> exclIslands = new ArrayList<String>();
         List<String> exclAdminUnits = new ArrayList<String>();
         List<String> exclMoh = new ArrayList<String>();
+        List<String> exclMedIntel = new ArrayList<String>();
         
         for (Exclusion exclusion : exclusions) {
         	logger.debug("Exclusion {}", exclusion.getExclusionType());
-        	if (exclusion.getExclusionType().compareTo("urban area")==0)
+        	if (exclusion.getExclusionType().equals("urban area"))
 	        	exclCities.add(exclusion.getName());
-        	else if (exclusion.getExclusionType().compareTo("island")==0)
+        	else if (exclusion.getExclusionType().equals("island"))
 	        	exclIslands.add(exclusion.getName());
-        	else if (exclusion.getExclusionType().compareTo("admin unit")==0)
+        	else if (exclusion.getExclusionType().equals("admin unit"))
 	        	exclAdminUnits.add(exclusion.getName());
-        	else if (exclusion.getExclusionType().compareTo("moh exclusion")==0)
+        	else if (exclusion.getExclusionType().equals("moh exclusion"))
 	        	exclMoh.add(exclusion.getName());
+        	else if (exclusion.getExclusionType().equals("med intel"))
+	        	exclMedIntel.add(exclusion.getName());
         	
         	//MOH hack... damn exclusions
-        	if (exclusion.getExclusionType().compareTo("moh exclusion")==0)
+        	if (exclusion.getExclusionType().equals("med intel"))
+	        	excl3.addFeature((MultiPolygon) exclusion.getGeom(), exclColour);
+        	else if (exclusion.getExclusionType().equals("moh exclusion"))
 	        	excl2.addFeature((MultiPolygon) exclusion.getGeom(), exclColour);
         	else
 	        	excl.addFeature((MultiPolygon) exclusion.getGeom(), exclColour);
@@ -156,6 +166,7 @@ public class PRMaps {
          */
         df.drawFeatures2(excl, "hatched");
         df.drawFeatures2(excl2, "stipple");
+        df.drawFeatures2(excl3, "stipple");
         
         /*
          * Draw on water bodies
@@ -188,33 +199,36 @@ public class PRMaps {
 		legend.add(new LegendItem("Water", waterColour));
 		legend.add(new LegendItem("Malaria free", colours.get(0)));
 		
-		//TODO - hacks!
-		if (parasite.compareTo("pf")==0)
-			legend.add(new LegendItem("<i>Pf</i>API &lt; 0.1‰", colours.get(1)));
+		/*
+		 * Pv/Pv risk legend items
+		 */
+		String apiLegendStr;
+		if (parasite.equals("pf"))
+			apiLegendStr = "Pf";
 		else
-			legend.add(new LegendItem("<i>Pv</i>API &lt; 0.1‰", colours.get(1)));
+			apiLegendStr = "Pv";
+		legend.add(new LegendItem(String.format("<i>%s</i>API &lt; 0.1‰", apiLegendStr) , colours.get(1)));
+		legend.add(new LegendItem(String.format("<i>Pf</i>API ≥ 0.1‰", apiLegendStr) , colours.get(2)));
 			
-		if (parasite.compareTo("pf")==0)
-			legend.add(new LegendItem("<i>Pf</i>API ≥ 0.1‰", colours.get(2)));
-		else
-			legend.add(new LegendItem("<i>Pv</i>API ≥ 0.1‰", colours.get(2)));
-	
-		LegendItem ithgLi = new LegendItem("ITHG exclusions", exclColour);
-		LegendItem mohLi = new LegendItem("MoH exclusions", exclColour);
+		LegendItem ithgLi = new LegendItem("ITHG exclusion", exclColour);
+		LegendItem mohLi = new LegendItem("MoH exclusion", exclColour);
+		LegendItem medLi = new LegendItem("Med intel exclusion", exclColour);
 		
 		//TODO: hatch hack
 		ithgLi.hatched = true;
 		mohLi.stippled = true;
+		medLi.stippled = true;
 		if (excl.size() > 0 )
 			legend.add(ithgLi);
 		if (excl2.size() > 0 )
 			legend.add(mohLi);
+		if (excl3.size() > 0 )
+			legend.add(medLi);
 		if (noDataPresent)
 			legend.add(new LegendItem("No data", colours.get(9)));
 		
 		Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
 		mapCanvas.drawLegend(legendFrame, legend);
-		
 		
 		/*
 		 * Text stuff
@@ -235,52 +249,21 @@ public class PRMaps {
 		 * Main map text
 		 */
 	    
-	    /*
-	     * TODO: hack - overrides for VEN and CHN
-	     */
+		List<Object[]> levelCounts = adminUnitService.getAdminLevels2(country, parasite);
 		List<String> mapTextItems = new ArrayList<String>();
 		
 		List<Integer> years = adminUnitService.getYears(country, parasite);
-		List<String> apiAdminLevels = adminUnitService.getAdminLevels(country, parasite);
-		
-	    List<String> intelCountries = Arrays.asList(new String[] {"BWA", "CPV", "MRT", "SWZ", "DJI"});
-	    Boolean isAdmin0Inferred = false;
-	    if (apiAdminLevels.size() == 1) {
-	    	String adminLevel = apiAdminLevels.get(0);
-	    }
+	    List<String> intelCountries = Arrays.asList(new String[] {"CPV",});
 	    
 	    if (intelCountries.contains(country.getId())) {
 			mapTextItems.add((String) mtr.getObject("apiTextNationalMedIntel"));
-	    } else if (country.getId().compareTo("VEN")==0) {
-	    	mapTextItems.add(
-			    String.format("The health management information system data used to inform the stable, unstable and malaria free categories were available for 215 administrative units at Admin3 level and 29 at Admin1 level for the following years: %s.", StringUtil.getReadableList(years))
-		    );
-	    } else if (country.getId().compareTo("CHN")==0) {
-	    	mapTextItems.add(
-			    String.format("The health management information system data used to inform the stable, unstable and malaria free categories were available for 6 administrative units at Admin2 level and 21 at Admin1 level for the following years: %s.", StringUtil.getReadableList(years))
-		    );
-	    } else if (apiAdminLevels.get(0).compareTo("Admin0")==0 && apiAdminLevels.size()<2) {
+			
+	    } else if (levelCounts.get(0)[0].equals("Admin0") && levelCounts.size()<2) {
 			mapTextItems.add((String) mtr.getObject("apiTextNoInfo"));
 		} else {
-			mapTextItems.add(StringUtil.formatAdminString((String) mtr.getObject("apiText"), apiAdminLevels, years, riskUnits.size()));
+			mapTextItems.add(StringUtil.formatAdminString1((String) mtr.getObject("apiText"), levelCounts, years));
 		}
 	    
-		
-		/*
-		 * Medical intelligence
-		 */
-		List<String> zeroed = adminUnitService.getZeroed(country, parasite);
-		if (zeroed.size() > 0) {
-			String medintelText = (String) mtr.getObject("medintelText");
-			mapTextItems.add(String.format(medintelText, StringUtil.getReadableList(zeroed)));
-		}
-		
-		/*
-		 * Exclusions
-		logger.debug("excluded admin units: {}", exclAdminUnits.size());
-		logger.debug("excluded cities: {}", exclCities.size());
-		logger.debug("excluded islands: {}", exclIslands.size());
-		 */
 		
 	    List<String> modifiedRiskCountries = Arrays.asList(new String[] {"MMR", "IND"});
 	    String ithgText = "";
@@ -319,6 +302,15 @@ public class PRMaps {
 				String.format(
 					mohText, 
 					StringUtil.formatPlaceName(formatString, "administrative unit", "administrative units", exclMoh)
+				)
+			);
+		}
+		if (exclMedIntel.size() > 0) {
+			String medIntelText = (String) mtr.getObject("medintelText");
+			mapTextItems.add(
+				String.format(
+					medIntelText, 
+					StringUtil.formatPlaceName(formatString, "administrative unit", "administrative units", exclMedIntel)
 				)
 			);
 		}

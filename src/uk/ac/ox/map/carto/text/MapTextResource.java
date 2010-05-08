@@ -12,8 +12,8 @@ public class MapTextResource extends ListResourceBundle {
 	    	 {"apiText", 
 	    		"The health management information system data " +
 	    		"used to inform the stable, unstable and malaria free categories " +
-	    		"were available for {0} at {1} level{2}."},
-	    	 {"mohText", "A personal communiation from the Ministry of Health (MOH) was used to zero risk in the following %s."},
+	    		"%s %s."},
+	    	 {"mohText", "A personal communiation from the Ministry of Health (MOH) was used to zero risk in %s."},
 	    	 {"apiTextNoInfo","No health management information system data could be accessed. Stable risk is assumed to exist throughout the country."},
 	    	 {"apiTextNationalMedIntel","Medical intelligence allowed the definition of risk within the national territory as shown above."},
 	    	 {"pfTitle","<i>Plasmodium falciparum</i> risk in %s"},
