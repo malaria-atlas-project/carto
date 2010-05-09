@@ -1,4 +1,6 @@
-package uk.ac.ox.map.carto.canvas.style;
+package uk.ac.ox.map.carto.style;
+
+import uk.ac.ox.map.carto.canvas.style.Colour;
 
 
 public class LineStyle {
@@ -14,7 +16,6 @@ public class LineStyle {
 	}
 
 	public void setLineColour(String hex, float alpha) {
-		
 		lineColour = new Colour(hex, alpha);
 	}
 

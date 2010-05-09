@@ -238,6 +238,17 @@ public class DataFrame extends BaseCanvas {
 		for (int i = 0; i < p.getNumInteriorRing(); i++) {
 			drawLineString(p.getInteriorRingN(i));
 		}
+		
+		setFillColour();
+		cr.save();
+		cr.clipPreserve();
+		cr.setSource(getSurfacePattern(), 0, 0);
+		cr.paint();
+		cr.restore();
+		setLineColour();
+		cr.stroke();
+		
+		/*
 		setFillColour();
 		cr.fillPreserve();
 		cr.save();
@@ -249,6 +260,7 @@ public class DataFrame extends BaseCanvas {
 			paintStipple();
 		cr.restore();
 		cr.stroke();
+		*/
 	}
 
 	/**

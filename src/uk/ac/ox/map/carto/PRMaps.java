@@ -45,12 +45,12 @@ public class PRMaps {
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		
-		String countryId = "YEM";
+		String countryId = "PHL";
 		Country country  = adminUnitService.getCountry(countryId);
-//		drawMap(adminUnitService, country, "pf");
+		drawMap(adminUnitService, country, "pf");
 //		drawMap(adminUnitService, country, "pv");
 		
-		drawMap(adminUnitService, "pf");
+//		drawMap(adminUnitService, "pf");
 //		drawMap(adminUnitService, "pv");
 	}
 
@@ -85,7 +85,7 @@ public class PRMaps {
 		/*
 		 * Create dataframe with specified envelope
 		 */
-		DataFrame df = new DataFrame.Builder(env, new Rectangle(20, 40, 460, 460), "/tmp/tmp_dataframe1.pdf").build();
+		DataFrame df = new DataFrame.Builder(env, new Rectangle(20, 40, 460, 460), null).build();
 		df.setBackgroundColour(Palette.WATER.get());
         
 		/*
