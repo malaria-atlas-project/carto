@@ -1,22 +1,21 @@
 package uk.ac.ox.map.carto.canvas;
 
-import java.awt.Point;
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 import java.io.IOException;
+import java.util.List;
 
 import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
 import org.gnome.gdk.Pixbuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.slf4j.Marker;
 
 import uk.ac.ox.map.carto.canvas.style.Colour;
 import uk.ac.ox.map.carto.canvas.style.Palette;
 import uk.ac.ox.map.carto.feature.Feature;
-import uk.ac.ox.map.carto.feature.FeatureLayer;
+import uk.ac.ox.map.carto.style.PolygonSymbolizer;
+import uk.ac.ox.map.carto.style.FillStyle.FillType;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -178,12 +177,62 @@ public class DataFrame extends BaseCanvas {
 	 * transform.transform(urPt, urPt); System.out.println("after:");
 	 * System.out.println(llPt); System.out.println(urPt); }
 	 */
-	public void drawFeatures(FeatureLayer<MultiPolygon> features) {
-		for (Feature<MultiPolygon> feature : features) {
-			setFillColour(feature.getColour());
-			drawMultiPolygon(feature.getGeometry());
-		}
+	public void drawFeatures(List<PolygonSymbolizer> ls) {
+		for (PolygonSymbolizer ps : ls) {
+	       drawMultiPolygon3(ps); 
+        }
 	}
+	
+	public void drawMultiPolygon3(PolygonSymbolizer ps) {
+		Colour c = ps.getFillStyle().getFillColor();
+		setFillColour(c);
+		
+		setLineColour(ps.getLineStyle().getLineColour());
+		cr.setLineWidth(ps.getLineStyle().getLineWidth());
+		
+		MultiPolygon mp = ps.getMp();
+		
+		for (int i = 0; i < mp.getNumGeometries(); i++) {
+			drawPolygon3((Polygon) mp.getGeometryN(i), ps);
+		}
+		
+	}
+
+	private void drawPolygon3(Polygon p, PolygonSymbolizer ps) {
+			LineString exteriorRing = p.getExteriorRing();
+			drawLineString(exteriorRing);
+
+			for (int i = 0; i < p.getNumInteriorRing(); i++) {
+				drawLineString(p.getInteriorRingN(i));
+			}
+			FillType ft = ps.getFillStyle().getFillType();
+			
+			if (ft.equals(FillType.SOLID)) {
+				setFillColour();
+				cr.fillPreserve();
+				setLineColour();
+				cr.stroke();
+	        } else {
+				setFillColour();
+				cr.fillPreserve();
+				cr.save();
+				cr.clipPreserve();
+				
+				if (ft.equals(FillType.HATCHED)) {
+					logger.debug("hatch");
+					setLineColour();
+					paintCrossHatch();
+				}
+				else if (ft.equals(FillType.STIPPLED)) {
+					logger.debug("stipple");
+					setLineColour();
+					paintStipple();
+				}
+				
+				cr.restore();
+				cr.stroke();
+	        }
+    }
 
 	public void drawMultiPolygon(MultiPolygon mp) {
 		for (int i = 0; i < mp.getNumGeometries(); i++) {
@@ -216,51 +265,6 @@ public class DataFrame extends BaseCanvas {
 			}
 		}
 
-	}
-
-	public void drawFeatures2(FeatureLayer<MultiPolygon> features, String styleType) {
-		for (Feature<MultiPolygon> feature : features) {
-			setFillColour(feature.getColour());
-			drawMultiPolygon2(feature.getGeometry(), styleType);
-		}
-	}
-
-	public void drawMultiPolygon2(MultiPolygon mp, String styleType) {
-		for (int i = 0; i < mp.getNumGeometries(); i++) {
-			drawPolygon2((Polygon) mp.getGeometryN(i), styleType);
-		}
-	}
-
-	private void drawPolygon2(Polygon p, String styleType) {
-		LineString exteriorRing = p.getExteriorRing();
-		drawLineString(exteriorRing);
-
-		for (int i = 0; i < p.getNumInteriorRing(); i++) {
-			drawLineString(p.getInteriorRingN(i));
-		}
-		
-		setFillColour();
-		cr.save();
-		cr.clipPreserve();
-		cr.setSource(getSurfacePattern(), 0, 0);
-		cr.paint();
-		cr.restore();
-		setLineColour();
-		cr.stroke();
-		
-		/*
-		setFillColour();
-		cr.fillPreserve();
-		cr.save();
-		cr.clipPreserve();
-		setLineColour();
-		if (styleType.compareTo("hatched") == 0)
-			paintCrossHatch();
-		else if (styleType.compareTo("stipple") == 0)
-			paintStipple();
-		cr.restore();
-		cr.stroke();
-		*/
 	}
 
 	/**

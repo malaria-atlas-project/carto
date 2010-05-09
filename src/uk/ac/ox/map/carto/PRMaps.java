@@ -18,14 +18,16 @@ import uk.ac.ox.map.base.model.adminunit.Country;
 import uk.ac.ox.map.base.model.adminunit.Exclusion;
 import uk.ac.ox.map.base.model.adminunit.WaterBody;
 import uk.ac.ox.map.base.service.AdminUnitService;
-
 import uk.ac.ox.map.carto.canvas.DataFrame;
 import uk.ac.ox.map.carto.canvas.LegendItem;
 import uk.ac.ox.map.carto.canvas.MapCanvas;
 import uk.ac.ox.map.carto.canvas.Rectangle;
 import uk.ac.ox.map.carto.canvas.style.Colour;
 import uk.ac.ox.map.carto.canvas.style.Palette;
-import uk.ac.ox.map.carto.feature.FeatureLayer;
+import uk.ac.ox.map.carto.style.FillStyle;
+import uk.ac.ox.map.carto.style.LineStyle;
+import uk.ac.ox.map.carto.style.PolygonSymbolizer;
+import uk.ac.ox.map.carto.style.FillStyle.FillType;
 import uk.ac.ox.map.carto.text.MapTextResource;
 import uk.ac.ox.map.carto.util.EnvelopeFactory;
 import uk.ac.ox.map.carto.util.StringUtil;
@@ -60,6 +62,7 @@ public class PRMaps {
 	throws IOException, InterruptedException {
 		List<Country> pfCountries = adminUnitService.getCountries(parasite);
 		for (Country country : pfCountries) {
+			
 	        logger.debug("Processing country: {}, {}", country.getId(), country.getName());
 	        
 //	        if (country.getId().compareTo("CHN")==0)
@@ -94,6 +97,7 @@ public class PRMaps {
 		 */
         Envelope resizedEnv = df.getEnvelope();
         List<AdminUnit> adminUnits = adminUnitService.getAdminUnits(resizedEnv);
+        
         for (AdminUnit admin0 : adminUnits) {
         	df.drawMultiPolygon((MultiPolygon) admin0.getGeom());
 		}
@@ -116,10 +120,15 @@ public class PRMaps {
          * Check if we have no data
          */
     	boolean noDataPresent = false;
-		FeatureLayer<MultiPolygon> pfFeats = new FeatureLayer<MultiPolygon>();
+		List<PolygonSymbolizer> pfFeats = new ArrayList<PolygonSymbolizer>();
+		
         List<AdminUnitRisk> riskUnits = adminUnitService.getRiskAdminUnits(country, parasite);
+        
+        LineStyle defaultLineStyle = new LineStyle(Palette.BLACK.get(), 0.2);
         for (AdminUnitRisk adminUnitRisk : riskUnits) {
-        	pfFeats.addFeature((MultiPolygon) adminUnitRisk.getGeom(), colours.get(adminUnitRisk.getRisk()));
+			FillStyle fs = new FillStyle(colours.get(adminUnitRisk.getRisk()), FillType.SOLID);
+        	PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) adminUnitRisk.getGeom(), fs, defaultLineStyle);
+        	pfFeats.add(ps);
 			if(adminUnitRisk.getRisk()==9)
         		noDataPresent = true;
 		}
@@ -129,11 +138,11 @@ public class PRMaps {
          * Get excluded cities
          * TODO: get enum type for exclusions
          */
-		FeatureLayer<MultiPolygon> excl = new FeatureLayer<MultiPolygon>();
-		FeatureLayer<MultiPolygon> excl2 = new FeatureLayer<MultiPolygon>();
-		FeatureLayer<MultiPolygon> excl3 = new FeatureLayer<MultiPolygon>();
+        List<PolygonSymbolizer> exclAreas = new ArrayList<PolygonSymbolizer>();
+        
         List<Exclusion> exclusions = adminUnitService.getExclusions(country);
         Colour exclColour = Palette.WHITE.get();
+        
         List<String> exclCities = new ArrayList<String>();
         List<String> exclIslands = new ArrayList<String>();
         List<String> exclAdminUnits = new ArrayList<String>();
@@ -141,11 +150,13 @@ public class PRMaps {
         List<String> exclMedIntel = new ArrayList<String>();
         
         for (Exclusion exclusion : exclusions) {
-        	logger.debug("Exclusion {}", exclusion.getExclusionType());
+        	logger.info("Exclusion {}", exclusion.getExclusionType());
         	if (exclusion.getExclusionType().equals("urban area"))
 	        	exclCities.add(exclusion.getName());
         	else if (exclusion.getExclusionType().equals("island"))
 	        	exclIslands.add(exclusion.getName());
+        	else if (exclusion.getExclusionType().equals("admin unit"))
+	        	exclAdminUnits.add(exclusion.getName());
         	else if (exclusion.getExclusionType().equals("admin unit"))
 	        	exclAdminUnits.add(exclusion.getName());
         	else if (exclusion.getExclusionType().equals("moh exclusion"))
@@ -154,30 +165,38 @@ public class PRMaps {
 	        	exclMedIntel.add(exclusion.getName());
         	
         	//MOH hack... damn exclusions
-        	if (exclusion.getExclusionType().equals("med intel"))
-	        	excl3.addFeature((MultiPolygon) exclusion.getGeom(), exclColour);
-        	else if (exclusion.getExclusionType().equals("moh exclusion"))
-	        	excl2.addFeature((MultiPolygon) exclusion.getGeom(), exclColour);
-        	else
-	        	excl.addFeature((MultiPolygon) exclusion.getGeom(), exclColour);
+        	FillStyle fsHatched = new FillStyle(Palette.WHITE.get(), FillType.HATCHED);
+        	FillStyle fsStipple = new FillStyle(Palette.WHITE.get(), FillType.STIPPLED);
+        	
+        	PolygonSymbolizer ps;
+			if (exclusion.getExclusionType().equals("med intel")) {
+        		ps = new PolygonSymbolizer((MultiPolygon) exclusion.getGeom(), fsHatched, defaultLineStyle);
+	        	exclAreas.add(ps);
+			} else if  (exclusion.getExclusionType().equals("moh exclusion")) {
+        		ps = new PolygonSymbolizer((MultiPolygon) exclusion.getGeom(), fsStipple, defaultLineStyle);
+	        	exclAreas.add(ps);
+			} else {
+        		ps = new PolygonSymbolizer((MultiPolygon) exclusion.getGeom(), fsHatched, defaultLineStyle);
+	        	exclAreas.add(ps);
+			}
 		}
         /*
          * TODO: fix draw features code duplication
          */
-        df.drawFeatures2(excl, "hatched");
-        df.drawFeatures2(excl2, "stipple");
-        df.drawFeatures2(excl3, "stipple");
+        df.drawFeatures(exclAreas);
         
         /*
          * Draw on water bodies
          */
-		FeatureLayer<MultiPolygon> waterBodies = new FeatureLayer<MultiPolygon>();
+        List<PolygonSymbolizer> waterBodies = new ArrayList<PolygonSymbolizer>();
         List<WaterBody> water = adminUnitService.getWaterBodies(resizedEnv);
         Colour waterColour = Palette.WATER.get();
+        FillStyle fs = new FillStyle(Palette.WATER.get(), FillType.SOLID);
         for (WaterBody waterBody : water) {
-        	waterBodies.addFeature((MultiPolygon) waterBody.getGeom(), waterColour);
+        	PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) waterBody.getGeom(), fs, defaultLineStyle);
+        	waterBodies.add(ps);
 		}
-        df.drawFeatures(waterBodies);
+//        df.drawFeatures(waterBodies);
         
         /*
          * Draw the rest of the canvas
@@ -218,12 +237,13 @@ public class PRMaps {
 		ithgLi.hatched = true;
 		mohLi.stippled = true;
 		medLi.stippled = true;
-		if (excl.size() > 0 )
+		if (exclCities.size() > 0 || exclAdminUnits.size() > 0 )
 			legend.add(ithgLi);
-		if (excl2.size() > 0 )
-			legend.add(mohLi);
-		if (excl3.size() > 0 )
+		if (exclMedIntel.size() > 0)
 			legend.add(medLi);
+		if (exclMoh.size() > 0)
+			legend.add(mohLi);
+		//TODO: nodata shouldn't exist
 		if (noDataPresent)
 			legend.add(new LegendItem("No data", colours.get(9)));
 		

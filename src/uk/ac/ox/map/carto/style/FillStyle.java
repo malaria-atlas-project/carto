@@ -10,18 +10,26 @@ import uk.ac.ox.map.carto.canvas.style.Colour;
  *         Incomplete
  */
 public class FillStyle {
+	
+	private final Colour fillColor;
+	private final FillType fillType;
+	
 	public enum FillType {
 		SOLID, HATCHED, STIPPLED;
 	}
 
-	private Colour fillColor;
-
-	public void setFillColor(Colour fillColor) {
-		this.fillColor = fillColor;
-	}
+	public FillStyle(Colour colour, FillType fillType) {
+		this.fillColor = colour;
+		this.fillType = fillType;
+    }
 
 	public Colour getFillColor() {
 		return fillColor;
 	}
+
+
+	public FillType getFillType() {
+	    return fillType;
+    }
 
 }

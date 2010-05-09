@@ -1,5 +1,7 @@
 package uk.ac.ox.map.carto.style;
 
+import com.vividsolutions.jts.geom.MultiPolygon;
+
 
 /**
  * 
@@ -7,6 +9,13 @@ package uk.ac.ox.map.carto.style;
 public class PolygonSymbolizer {
 	private LineStyle lineStyle;
 	private FillStyle fillStyle;
+	private MultiPolygon mp;
+	
+	public PolygonSymbolizer(MultiPolygon mp, FillStyle fs, LineStyle ls) {
+		this.mp = mp;
+		this.lineStyle = ls;
+		this.fillStyle = fs;
+    }
 	
 	public void setLineStyle(LineStyle lineStyle) {
 	    this.lineStyle = lineStyle;
@@ -20,6 +29,11 @@ public class PolygonSymbolizer {
 	public FillStyle getFillStyle() {
 	    return fillStyle;
     }
-	
+	public void setMp(MultiPolygon mp) {
+	    this.mp = mp;
+    }
+	public MultiPolygon getMp() {
+	    return mp;
+    }
 
 }
