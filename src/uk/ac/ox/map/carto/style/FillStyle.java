@@ -2,7 +2,6 @@ package uk.ac.ox.map.carto.style;
 
 import org.gnome.gdk.Color;
 
-import uk.ac.ox.map.carto.canvas.style.Colour;
 
 /**
  * @author will
@@ -22,6 +21,15 @@ public class FillStyle {
 		this.fillColor = colour;
 		this.fillType = fillType;
     }
+
+	/**
+	 * Fill type defaults to solid 
+	 * @param colour
+	 */
+	public FillStyle(Colour colour) {
+		this.fillColor = colour;
+		this.fillType = FillType.SOLID;
+	}
 
 	public Colour getFillColor() {
 		return fillColor;

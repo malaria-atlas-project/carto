@@ -11,9 +11,8 @@ import org.gnome.gdk.Pixbuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.ox.map.carto.canvas.style.Colour;
-import uk.ac.ox.map.carto.canvas.style.Palette;
-import uk.ac.ox.map.carto.feature.Feature;
+import uk.ac.ox.map.carto.style.Colour;
+import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.style.PolygonSymbolizer;
 import uk.ac.ox.map.carto.style.FillStyle.FillType;
 
@@ -96,7 +95,7 @@ public class DataFrame extends BaseCanvas {
 		
 		/*
 		 * Determine the factor by which to scale the canvas to draw the image.
-		 * TODO: Differing scales. 
+		 * NB: cellSize and scale are the inverse of one another
 		 * cellSize is dd / pix 
 		 * scale is pix / dd 
 		 */
@@ -161,6 +160,9 @@ public class DataFrame extends BaseCanvas {
 		transform.translate(-canvasEnv.getMinX(), -canvasEnv.getMinY() - (height / scale));
 	}
 
+	/**
+	 * @return the envelope represented by the dataframe, calculated from the envelope passed in.
+	 */
 	public Envelope getEnvelope() {
 		return this.env;
 	}
@@ -179,11 +181,11 @@ public class DataFrame extends BaseCanvas {
 	 */
 	public void drawFeatures(List<PolygonSymbolizer> ls) {
 		for (PolygonSymbolizer ps : ls) {
-	       drawMultiPolygon3(ps); 
+	       drawMultiPolygon(ps); 
         }
 	}
 	
-	public void drawMultiPolygon3(PolygonSymbolizer ps) {
+	public void drawMultiPolygon(PolygonSymbolizer ps) {
 		Colour c = ps.getFillStyle().getFillColor();
 		setFillColour(c);
 		
@@ -193,12 +195,12 @@ public class DataFrame extends BaseCanvas {
 		MultiPolygon mp = ps.getMp();
 		
 		for (int i = 0; i < mp.getNumGeometries(); i++) {
-			drawPolygon3((Polygon) mp.getGeometryN(i), ps);
+			drawPolygon((Polygon) mp.getGeometryN(i), ps);
 		}
 		
 	}
 
-	private void drawPolygon3(Polygon p, PolygonSymbolizer ps) {
+	private void drawPolygon(Polygon p, PolygonSymbolizer ps) {
 			LineString exteriorRing = p.getExteriorRing();
 			drawLineString(exteriorRing);
 
@@ -233,25 +235,6 @@ public class DataFrame extends BaseCanvas {
 				cr.stroke();
 	        }
     }
-
-	public void drawMultiPolygon(MultiPolygon mp) {
-		for (int i = 0; i < mp.getNumGeometries(); i++) {
-			drawPolygon((Polygon) mp.getGeometryN(i));
-		}
-	}
-
-	private void drawPolygon(Polygon p) {
-		LineString exteriorRing = p.getExteriorRing();
-		drawLineString(exteriorRing);
-
-		for (int i = 0; i < p.getNumInteriorRing(); i++) {
-			drawLineString(p.getInteriorRingN(i));
-		}
-		setFillColour();
-		cr.fillPreserve();
-		setLineColour();
-		cr.stroke();
-	}
 
 	private void drawLineString(LineString ls) {
 
@@ -323,5 +306,4 @@ public class DataFrame extends BaseCanvas {
 	public void finish() {
 	   surface.finish(); 
     }
-
 }

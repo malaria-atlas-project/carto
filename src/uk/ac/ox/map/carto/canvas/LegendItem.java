@@ -1,6 +1,6 @@
 package uk.ac.ox.map.carto.canvas;
 
-import uk.ac.ox.map.carto.canvas.style.Colour;
+import uk.ac.ox.map.carto.style.Colour;
 
 public class LegendItem {
 	public enum FillStyle {

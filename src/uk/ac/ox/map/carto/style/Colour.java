@@ -1,4 +1,4 @@
-package uk.ac.ox.map.carto.canvas.style;
+package uk.ac.ox.map.carto.style;
 
 public class Colour {
 	

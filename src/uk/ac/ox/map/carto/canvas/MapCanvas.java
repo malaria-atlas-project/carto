@@ -16,7 +16,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
-import uk.ac.ox.map.carto.canvas.style.Palette;
+import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.util.AnnotationFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -275,10 +275,11 @@ public class MapCanvas extends BaseCanvas {
 		ScaleBar sb = new ScaleBar(this, frame, scale, fontSize);
 	}
 
-	/*
-	 * TODO prettify
+	/**
+	 * Add a dataframe for later usage in drawing grids and borders.
+	 * 
+	 * @param df A dataframe
 	 */
-	
 	public void addDataFrame(DataFrame df) {
 		dataFrames.add(df);
 	}
