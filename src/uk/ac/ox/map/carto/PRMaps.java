@@ -96,7 +96,7 @@ public class PRMaps {
 		Envelope resizedEnv = df.getEnvelope();
 		List<AdminUnit> adminUnits = adminUnitService.getAdminUnits(resizedEnv);
 
-		FillStyle greyFS = new FillStyle(Palette.GREY.get());
+		FillStyle greyFS = new FillStyle(Palette.GREY_20.get());
 		List<PolygonSymbolizer> adminPolySym = new ArrayList<PolygonSymbolizer>();
 		for (AdminUnit admin0 : adminUnits) {
 			PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) admin0.getGeom(), greyFS, defaultLineStyle);
@@ -155,7 +155,7 @@ public class PRMaps {
 				exclCities.add(exclusion.getName());
 			else if (exclusion.getExclusionType().equals("island"))
 				exclIslands.add(exclusion.getName());
-			else if (exclusion.getExclusionType().equals("admin unit"))
+			else if (exclusion.getExclusionType().equals("ithg admin exclusion"))
 				exclAdminUnits.add(exclusion.getName());
 			else if (exclusion.getExclusionType().equals("moh exclusion"))
 				exclMoh.add(exclusion.getName());
@@ -315,7 +315,7 @@ public class PRMaps {
 
 		mapTextItems.add((String) mtr.getObject("copyright"));
 		Rectangle mapTextFrame = new Rectangle(50, 555, 320, 0);
-		mapCanvas.drawTextFrame(mapTextItems, mapTextFrame, 6);
+		mapCanvas.drawTextFrame(mapTextItems, mapTextFrame, 6, 10);
 		mapSurface.finish();
 
 		SystemUtil.addBranding(country.getId(), parasite);

@@ -3,6 +3,18 @@ package uk.ac.ox.map.carto.util;
 import java.io.IOException;
 
 public class SystemUtil {
+	public static void addVectorBranding(String anoName) throws IOException, InterruptedException {
+		Process process;
+		
+		String command = "pdftk /home/will/map1_public/maps/branding_master.pdf background /tmp/tmp_mapsurface.pdf output /home/will/maps/vector/pdf/%s.pdf";
+		command = "pdftk /home/will/map1_public/maps/branding_master.pdf background /tmp/tmp_mapsurface.pdf output /tmp/%s.pdf";
+		command = String.format(command, anoName);
+		System.out.println(command);
+		process = Runtime.getRuntime().exec(command);
+		int returnCode = process.waitFor();
+		System.out.println("Return code = " + returnCode);
+	}
+	
 	public static void addBranding(String fileName, String parasite) throws IOException, InterruptedException {
 		Process process;
 		

@@ -59,7 +59,7 @@ public class MapCanvas extends BaseCanvas {
 		cr.showLayout(layout);
 	}
 
-	public void drawTextFrame(List<String> text, Rectangle frame, float fontSize) {
+	public void drawTextFrame(List<String> text, Rectangle frame, float fontSize, int paraSpacing) {
 		Layout layout = new Layout(cr);
 		fontDesc.setSize(fontSize);
 		layout.setFontDescription(fontDesc);
@@ -74,7 +74,7 @@ public class MapCanvas extends BaseCanvas {
 			cr.moveTo(frame.x, y);
 			layout.setMarkup(string);
 			cr.showLayout(layout);
-			y += layout.getPixelHeight() + 10;
+			y += layout.getPixelHeight() + paraSpacing;
 		}
 	}
 	
@@ -124,7 +124,7 @@ public class MapCanvas extends BaseCanvas {
 	}
 
 	/**
-	 * Draws already stored dataframes, grids and associated stuff.
+	 * Draws already stored dataframes, grids and borders.
 	 */
 	public void drawDataFrames() {
 		for (DataFrame df : dataFrames) {
@@ -132,11 +132,16 @@ public class MapCanvas extends BaseCanvas {
 			cr.setSource(df.getSurface(), origin.x, origin.y);
 			cr.paint();
 			
-			setColour(Palette.BLACK.get());
-			cr.setLineWidth(0.2);
-			cr.rectangle(origin.x, origin.y, df.getWidth(), df.getHeight());
-			cr.stroke();
+			if (df.hasBorder()) {
+				setColour(df.getBorderColour());
+				cr.setLineWidth(0.2);
+				cr.rectangle(origin.x, origin.y, df.getWidth(), df.getHeight());
+				cr.stroke();
+			}
+			
+			//Free resources used by dataframe.
 			df.finish();
+			
 			if (df.hasGrid())
 				drawMapGrid(4.5, df);
 		}
@@ -189,7 +194,7 @@ public class MapCanvas extends BaseCanvas {
 		 */
 		int intervals[] = { 40, 20, 10, 5, 2, 1 };
 		fontDesc.setSize(fontSize);
-		setColour(Palette.GRID.get());
+		setColour(df.getGridColour());
 		cr.setLineWidth(0.2);
 
 		// only draw grids for dataframes
@@ -223,8 +228,6 @@ public class MapCanvas extends BaseCanvas {
 			chosen_interval = 1;
 		}
 
-		System.out.println("chosen interval: " + chosen_interval);
-
 		double x;
 		double x1;
 		double x2;
@@ -241,14 +244,11 @@ public class MapCanvas extends BaseCanvas {
 				y1 = origin.y - tic_length;
 				y2 = origin.y + df.getHeight() + tic_length;
 
-				System.out.println("x: " + x);
-				System.out.println("y1: " + y1);
-				System.out.println("y2: " + y2);
 				// meridian
 				cr.moveTo(x, y1);
 				cr.lineTo(x, y2);
 				cr.stroke();
-				anno = AnnotationFactory.gridText(i, "EW");
+				anno = AnnotationFactory.gridText(i, "WE");
 				annotateMap(anno, x, y1, Anchor.CB);
 				annotateMap(anno, x, y2, Anchor.CT);
 			}

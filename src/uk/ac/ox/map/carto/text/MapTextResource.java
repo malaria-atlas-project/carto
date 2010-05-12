@@ -24,6 +24,7 @@ public class MapTextResource extends ListResourceBundle {
 	    	 {"adminText", "the following administrative units: %s"},
 	    	 {"citiesText", "the following cities: %s"},
 	    	 {"islandsText", "the following islands: %s"},
+	    	 {"vectorCitation", "<b>Citation:</b> Sinka <i>et al</i>. (2010). The dominant <i>Anopheles</i> vectors of human malaria in the Americas: occurrence data, distribution maps and bionomic précis. <i>Parasites and Vectors</i>, to submit."},
 	     };
 	     
  }

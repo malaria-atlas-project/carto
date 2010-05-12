@@ -58,7 +58,7 @@ public abstract class BaseCanvas {
 		 * Initialise styles to sensible defaults.
 		 */
 		this.lineColour = Palette.BLACK.get();
-		this.fillColour = Palette.GREY.get();
+		this.fillColour = Palette.GREY_20.get();
 		this.width = width2;
 		this.height = height2;
 		this.surface = surface;

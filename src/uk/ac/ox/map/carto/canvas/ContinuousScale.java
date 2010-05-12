@@ -60,12 +60,14 @@ public class ContinuousScale implements DrawSurround {
 		Double startPoint; 
 		Double endPoint; 
 		
-		startPoint = new Point2D.Double(rect.x, rect.y);
 		
-		if (orientation.equals(Orientation.NS))
-			endPoint = new Point2D.Double(rect.x, rect.y + rect.height);
-		else
+		if (orientation.equals(Orientation.NS)) {
+			startPoint = new Point2D.Double(rect.x, rect.y + rect.height);
+			endPoint = new Point2D.Double(rect.x, rect.y);
+		} else {
+			startPoint = new Point2D.Double(rect.x, rect.y);
 			endPoint = new Point2D.Double(rect.x + rect.width, rect.y);
+		}
 		
 		lp = new LinearPattern(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
 		
@@ -88,7 +90,14 @@ public class ContinuousScale implements DrawSurround {
 		mapCanvas.cr.restore();
 		
 		for (ColourStop colourStop : colourStops) {
-	    	mapCanvas.annotateMap(colourStop.annotation, rect.x+rect.width+5, rect.y + (rect.height * colourStop.colourStop[0]), Anchor.LC);
+			if (colourStop.annotation == null)
+				continue;
+	    	mapCanvas.annotateMap(
+	    			colourStop.annotation, 
+	    			rect.x+rect.width+5, 
+					(rect.y + rect.height) - (rect.height * colourStop.colourStop[0]), 
+					Anchor.LC
+			);
 		}
 		
     	

@@ -2,8 +2,8 @@ package uk.ac.ox.map.carto.style;
 
 public class Colour {
 	
-	public Colour(String hexColour, float a) {
-		setColour(hexColour, a);
+	public Colour(String hexColour, double d) {
+		setColour(hexColour, d);
 	}
 	
 	public Colour (double r, double g, double b, double a){

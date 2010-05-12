@@ -36,6 +36,9 @@ public class DataFrame extends BaseCanvas {
 	private final boolean hasGrid;
 	private final AffineTransform transform = new AffineTransform();
 	private final Point2D.Double origin;
+	private final boolean hasBorder;
+	private final Colour borderColour;
+	private final Colour gridColour;
 
 	public static class Builder {
 		//required params
@@ -45,7 +48,10 @@ public class DataFrame extends BaseCanvas {
 		
 		//optional params
 		private boolean hasGrid = true;
+		private boolean hasBorder = true;
 		private Colour backgroundColour = Palette.WHITE.get();
+		private Colour borderColour = Palette.BLACK.get();
+		private Colour gridColour = Palette.GRID.get();
 
 		public Builder(Envelope dataEnv, Rectangle rect, String fileName) {
 			this.env = dataEnv;
@@ -56,6 +62,10 @@ public class DataFrame extends BaseCanvas {
 			this.hasGrid = hasGrid;
 			return this;
 		}
+		public Builder hasBorder(boolean hasBorder) {
+			this.hasBorder = hasBorder;
+			return this;
+		}
 		public Builder backgroundColour(Colour colour) {
 			this.backgroundColour = colour;
 			return this;
@@ -63,6 +73,14 @@ public class DataFrame extends BaseCanvas {
 		public DataFrame build() throws IOException {
 			return new DataFrame(this);
         }
+		public Builder borderColour(Colour borderColour) {
+			this.borderColour = borderColour;
+			return this;
+		}
+		public Builder gridColour(Colour gridColour) {
+			this.gridColour = gridColour;
+			return this;
+		}
 	}
 	
 	public DataFrame(Builder builder) throws IOException {
@@ -77,7 +95,28 @@ public class DataFrame extends BaseCanvas {
 		cr.setLineWidth(0.2);
 		cr.setSource(0.0, 1.0, 0.0, 1.0);
 		this.hasGrid = builder.hasGrid;
+		this.hasBorder = builder.hasBorder;
+		this.borderColour = builder.borderColour;
+		this.gridColour = builder.gridColour;
     }
+	
+	public void drawPoint(double x, double y, boolean isPresent) {
+		
+		Point2D.Double pt = new Point2D.Double(x,y);
+		
+		Colour black = new Colour("#000000", 0.5);
+		transform.transform(pt, pt);
+        cr.arc(pt.x,pt.y,1.5,0,2*Math.PI);
+        if (isPresent)
+	        setFillColour(black);
+        else
+	        setFillColour(Palette.WHITE.get());
+        setFillColour();
+        cr.fillPreserve();
+        setLineColour(Palette.BLACK.get());
+        setLineColour();
+        cr.stroke();
+	}
 	
 	public void addRasterLayer(Raster ras) {
 		cr.save();
@@ -298,6 +337,9 @@ public class DataFrame extends BaseCanvas {
 	public boolean hasGrid() {
 		return hasGrid;
 	}
+	public boolean hasBorder() {
+		return hasBorder;
+	}
 
 	public Point2D.Double getOrigin() {
 		return origin;
@@ -306,4 +348,12 @@ public class DataFrame extends BaseCanvas {
 	public void finish() {
 	   surface.finish(); 
     }
+
+	public Colour getBorderColour() {
+		return borderColour;
+	}
+
+	public Colour getGridColour() {
+		return gridColour;
+	}
 }
