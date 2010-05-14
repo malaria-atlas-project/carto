@@ -37,11 +37,11 @@ import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Polygon;
 
-public class PRMaps {
+public class LimitsMaps {
 
 	static final int w = 500;
 	static final int h = 707;
-	static final Logger logger = LoggerFactory.getLogger(PRMaps.class);
+	static final Logger logger = LoggerFactory.getLogger(LimitsMaps.class);
 	static final LineStyle defaultLineStyle = new LineStyle(Palette.BLACK.get(), 0.2);
 
 	public static void main(String[] args) throws IOException, InterruptedException {

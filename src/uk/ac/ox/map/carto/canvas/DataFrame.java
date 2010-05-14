@@ -104,7 +104,7 @@ public class DataFrame extends BaseCanvas {
 		
 		Point2D.Double pt = new Point2D.Double(x,y);
 		
-		Colour black = new Colour("#000000", 0.5);
+		Colour black = new Colour("#000000", 0.2);
 		transform.transform(pt, pt);
         cr.arc(pt.x,pt.y,1.5,0,2*Math.PI);
         if (isPresent)
