@@ -6,5 +6,6 @@
 	<classpathentry kind="con" path="org.apache.ivyde.eclipse.cpcontainer.IVYDE_CONTAINER/?ivyXmlPath=ivy.xml&amp;confs=*"/>
 	<classpathentry kind="src" path="/Base"/>
 	<classpathentry kind="lib" path="/usr/local/share/java/gtk.jar"/>
+	<classpathentry kind="src" path="/ImageIO"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

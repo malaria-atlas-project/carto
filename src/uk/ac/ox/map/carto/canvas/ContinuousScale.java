@@ -5,10 +5,11 @@ import java.awt.geom.Point2D.Double;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.LinearPattern;
 
 import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
+import uk.ac.ox.map.imageio.RenderScale;
+
 /**
  * 
  * @author will
@@ -22,7 +23,7 @@ import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
  *
  */
 
-public class ContinuousScale implements DrawSurround {
+public class ContinuousScale implements DrawSurround, RenderScale {
 	
 	double[] r = new double[256];
 	double[] g = new double[256];
@@ -166,10 +167,8 @@ public class ContinuousScale implements DrawSurround {
 				g[j] = interp[1];
 				b[j] = interp[2];
 			}
-			
 			prevCS = colourStops.get(i);
 		}
-		
 	}
 	
 	public double getRed(float f) {
@@ -185,5 +184,9 @@ public class ContinuousScale implements DrawSurround {
 	public double getBlue(float f) {
 		int i = (int) (f * 255);
 		return this.b[i];
+	}
+	public double getAlpha(float f) {
+		//FIXME: quick hack
+		return 1;
 	}
 }

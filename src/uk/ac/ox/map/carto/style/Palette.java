@@ -12,6 +12,7 @@ public enum Palette {
 	GREY_70 ("#4e4e4e"), 
 	BLACK ("#000000"),
 	ROSE ("#FFBEBE"),
+	CORAL ("#cd6666"),
 	LIME_MED ("#CDF57A"),
 	FERN ("#89CD66"),
 	YELLOW ("#ffff00"),
@@ -24,6 +25,9 @@ public enum Palette {
 	
 	public Colour get() {
 		return new Colour(hexColour, 1);
+    }
+	public Colour get(double a) {
+		return new Colour(hexColour, a);
     }
 	
 }

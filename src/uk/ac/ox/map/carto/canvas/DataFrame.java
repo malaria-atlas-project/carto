@@ -15,6 +15,7 @@ import uk.ac.ox.map.carto.style.Colour;
 import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.style.PolygonSymbolizer;
 import uk.ac.ox.map.carto.style.FillStyle.FillType;
+import uk.ac.ox.map.imageio.RenderedRaster;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -118,7 +119,7 @@ public class DataFrame extends BaseCanvas {
         cr.stroke();
 	}
 	
-	public void addRasterLayer(Raster ras) {
+	public void addRasterLayer(RenderedRaster ras) {
 		cr.save();
 		
 		Pixbuf pb = ras.getPixbuf();

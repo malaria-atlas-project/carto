@@ -14,15 +14,13 @@
 		License.
 	-->
 <ivy-module version="2.0">
-	<info organisation="uk.ac.ox.map" module="carto" />
+	<info organisation="uk.ac.ox.map" module="GlobalMaps" />
 	<dependencies>
 
 		<dependency org="org.slf4j" name="slf4j-log4j12" rev="1.5.8" />
 		<dependency org="log4j" name="log4j" rev="1.2.12" />
-		<dependency org="com.vividsolutions" name="jts" rev="1.8" />
 		<dependency org="org.geotools" name="gt-main" rev="2.5.8" />
-		
-
+		<dependency org="com.vividsolutions" name="jts" rev="1.8" />
 	</dependencies>
 </ivy-module>
 
