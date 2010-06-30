@@ -6,8 +6,7 @@ public class SystemUtil {
 	public static void addVectorBranding(String anoName, String suffix) throws IOException, InterruptedException {
 		Process process;
 		
-		String command = "pdftk /home/will/map1_public/maps/branding_master.pdf background /tmp/tmp_mapsurface.pdf output /home/will/maps/vector/pdf/%s.pdf";
-		command = "pdftk /home/will/map1_public/maps/branding_master.pdf background /tmp/tmp_mapsurface.pdf output /tmp/pdf/%s_%s.pdf";
+		String command = "pdftk /home/will/map1_public/maps/branding_master.pdf background /tmp/tmp_mapsurface.pdf output /home/will/maps/vector/pdf/%s_%s.pdf";
 		command = String.format(command, anoName, suffix);
 		System.out.println(command);
 		process = Runtime.getRuntime().exec(command);
