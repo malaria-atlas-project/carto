@@ -34,6 +34,7 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 	private final Rectangle rect;
 	
 	private final Orientation orientation;
+	private String title;
 	
 	private enum Orientation {NS, EW};	
 
@@ -46,10 +47,11 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 		}	
 	}
 	
-	public ContinuousScale(Rectangle rect) {
+	public ContinuousScale(Rectangle rect, String title) {
 		colourStops = new ArrayList<ColourStop>();
 		this.rect = rect;
 		orientation = (rect.height >= rect.width)? Orientation.NS: Orientation.EW;
+		this.title = title;
 	}
 
 	/**
@@ -110,7 +112,7 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 		
     	
 //    	mapCanvas.annotateMap("Incidence (‰)", rect.x, rect.y-10, AnchorX.L, AnchorY.B);
-    	mapCanvas.annotateMap("Probability", rect.x, rect.y-10, Anchor.LB);
+    	mapCanvas.annotateMap(title, rect.x, rect.y-10, Anchor.LB);
 	}
 
 	/**
