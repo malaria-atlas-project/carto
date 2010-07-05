@@ -31,7 +31,7 @@ import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.style.PolygonSymbolizer;
 import uk.ac.ox.map.carto.style.FillStyle.FillType;
 import uk.ac.ox.map.carto.text.MapTextResource;
-import uk.ac.ox.map.carto.util.EnvelopeFactory;
+import uk.ac.ox.map.carto.util.EnvelopeUtils;
 import uk.ac.ox.map.carto.util.StringUtil;
 import uk.ac.ox.map.carto.util.SystemUtil;
 import uk.ac.ox.map.imageio.FltReader;
@@ -91,8 +91,10 @@ public class LimitsMaps {
 		 * appropriate admin units
 		 */
 
-		Polygon poly = (Polygon) country.getEnvelope();
-		Envelope env = EnvelopeFactory.envelopeFromPolygon(poly, 1.05);
+		
+		Envelope env = new Envelope(country.getMinX(), country.getMaxX(), 
+				country.getMinY(), country.getMaxY());
+		
 
 		/*
 		 * Create dataframe with specified envelope
