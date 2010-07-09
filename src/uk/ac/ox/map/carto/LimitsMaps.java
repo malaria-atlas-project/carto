@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.freedesktop.cairo.PdfSurface;
+import org.gnome.gdk.PixbufFormat;
 import org.gnome.gtk.Gtk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,11 +19,11 @@ import uk.ac.ox.map.base.model.adminunit.Country;
 import uk.ac.ox.map.base.model.adminunit.Exclusion;
 import uk.ac.ox.map.base.model.adminunit.WaterBody;
 import uk.ac.ox.map.base.service.AdminUnitService;
-import uk.ac.ox.map.carto.canvas.ContinuousScale;
 import uk.ac.ox.map.carto.canvas.DataFrame;
 import uk.ac.ox.map.carto.canvas.LegendItem;
 import uk.ac.ox.map.carto.canvas.MapCanvas;
 import uk.ac.ox.map.carto.canvas.Rectangle;
+import uk.ac.ox.map.carto.raster.WMSRaster;
 import uk.ac.ox.map.carto.style.Colour;
 import uk.ac.ox.map.carto.style.DummyRenderScale;
 import uk.ac.ox.map.carto.style.FillStyle;
@@ -31,17 +32,13 @@ import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.style.PolygonSymbolizer;
 import uk.ac.ox.map.carto.style.FillStyle.FillType;
 import uk.ac.ox.map.carto.text.MapTextResource;
-import uk.ac.ox.map.carto.util.EnvelopeUtils;
 import uk.ac.ox.map.carto.util.StringUtil;
 import uk.ac.ox.map.carto.util.SystemUtil;
 import uk.ac.ox.map.imageio.FltReader;
-import uk.ac.ox.map.imageio.RenderScale;
-import uk.ac.ox.map.imageio.RenderedRaster;
+import uk.ac.ox.map.imageio.RasterLayer;
 
-import com.sun.xml.internal.stream.events.DummyEvent;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.MultiPolygon;
-import com.vividsolutions.jts.geom.Polygon;
 
 public class LimitsMaps {
 
@@ -58,11 +55,11 @@ public class LimitsMaps {
 
 		String countryId = "BWA";
 		Country country = adminUnitService.getCountry(countryId);
-		 drawMap(adminUnitService, country, "pf");
-		 drawMap(adminUnitService, country, "pv");
+		drawMap(adminUnitService, country, "pf");
+		drawMap(adminUnitService, country, "pv");
 
-//		drawMap(adminUnitService, "pf");
-//		 drawMap(adminUnitService, "pv");
+		// drawMap(adminUnitService, "pf");
+		// drawMap(adminUnitService, "pv");
 	}
 
 	@SuppressWarnings("unused")
@@ -82,7 +79,7 @@ public class LimitsMaps {
 	}
 
 	public static void drawMap(AdminUnitService adminUnitService, Country country, String parasite) throws IOException, InterruptedException {
-		
+
 		// Legend items
 		List<LegendItem> legend = new ArrayList<LegendItem>();
 
@@ -91,10 +88,7 @@ public class LimitsMaps {
 		 * appropriate admin units
 		 */
 
-		
-		Envelope env = new Envelope(country.getMinX(), country.getMaxX(), 
-				country.getMinY(), country.getMaxY());
-		
+		Envelope env = new Envelope(country.getMinX(), country.getMaxX(), country.getMinY(), country.getMaxY());
 
 		/*
 		 * Create dataframe with specified envelope
@@ -146,7 +140,7 @@ public class LimitsMaps {
 				noDataPresent = true;
 		}
 		df.drawFeatures(pfFeats);
-		
+
 		/*
 		 * Draw limits layer
 		 */
@@ -154,19 +148,23 @@ public class LimitsMaps {
 		dr.putColour(1, Palette.BLACK.get(0.5));
 		dr.putColour(0, Palette.BLACK.get(0));
 
-		RenderedRaster ras = FltReader.openFloatFile(aridityMaskFilePath, "gc1k_200", dr, df.getEnvelope());
+//		RasterLayer ras = FltReader.openFloatFile(aridityMaskFilePath, "gc1k_200", dr, df.getEnvelope());
+		RasterLayer ras = new WMSRaster(resizedEnv, 0.00833333333);
+		ras.getPixbuf().save("/tmp/bwa.png", PixbufFormat.PNG);
 		df.addRasterLayer(ras);
+		
+//		df.drawPoint(ras.getOrigin().x+1, ras.getOrigin().y+1, true);
+		
 		legend.add(new LegendItem("Aridity mask", Palette.BLACK.get(0.5)));
 
 		DummyRenderScale dr2 = new DummyRenderScale();
 		dr2.putColour(1, Palette.GREY_30.get(0.5));
 		dr2.putColour(0, Palette.BLACK.get(0));
-		RenderedRaster ras2 = FltReader.openFloatFile(tempLimsLoc, "templimspf_CLEAN", dr2, df.getEnvelope());
-		df.addRasterLayer(ras2);
+//		RasterLayer ras2 = FltReader.openFloatFile(tempLimsLoc, "templimspf_CLEAN", dr2, df.getEnvelope());
+//		df.addRasterLayer(ras2);
 		legend.add(new LegendItem("Limits", Palette.GREY_30.get(0.5)));
 		
-		
-		
+
 		/*
 		 * Get excluded cities TODO: get enum type for exclusions
 		 */
@@ -228,9 +226,8 @@ public class LimitsMaps {
 			PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) waterBody.getGeom(), fs, defaultLineStyle);
 			waterBodies.add(ps);
 		}
-//		df.drawFeatures(waterBodies);
-		
-		
+		// df.drawFeatures(waterBodies);
+
 		/*
 		 * Draw the rest of the canvas
 		 */
@@ -277,7 +274,6 @@ public class LimitsMaps {
 		if (noDataPresent)
 			legend.add(new LegendItem("No data", colours.get(9)));
 
-		
 		Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
 		mapCanvas.drawLegend(legendFrame, legend);
 

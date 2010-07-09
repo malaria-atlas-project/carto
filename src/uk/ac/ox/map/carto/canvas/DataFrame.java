@@ -15,7 +15,7 @@ import uk.ac.ox.map.carto.style.Colour;
 import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.style.PolygonSymbolizer;
 import uk.ac.ox.map.carto.style.FillStyle.FillType;
-import uk.ac.ox.map.imageio.RenderedRaster;
+import uk.ac.ox.map.imageio.RasterLayer;
 
 import com.vividsolutions.jts.geom.Coordinate;
 import com.vividsolutions.jts.geom.Envelope;
@@ -119,7 +119,7 @@ public class DataFrame extends BaseCanvas {
         cr.stroke();
 	}
 	
-	public void addRasterLayer(RenderedRaster ras) {
+	public void addRasterLayer(RasterLayer ras) {
 		cr.save();
 		
 		Pixbuf pb = ras.getPixbuf();
@@ -132,6 +132,7 @@ public class DataFrame extends BaseCanvas {
 		
 		transform.transform(pt, pt);
 		double cellSize = ras.getCellSize();
+		logger.debug("Cellsize: {}", cellSize);
 		
 		/*
 		 * Determine the factor by which to scale the canvas to draw the image.
@@ -147,6 +148,7 @@ public class DataFrame extends BaseCanvas {
 		 * therefore this needs to be corrected.
 		 */
 		cr.setSource(pb, pt.x/newScale, pt.y/newScale);
+//		drawPoint(pt.x/newScale, pt.y/newScale, true);
 		
 		cr.paint();
 		cr.restore();
