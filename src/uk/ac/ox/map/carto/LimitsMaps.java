@@ -150,7 +150,6 @@ public class LimitsMaps {
 
 //		RasterLayer ras = FltReader.openFloatFile(aridityMaskFilePath, "gc1k_200", dr, df.getEnvelope());
 		RasterLayer ras = new WMSRaster(resizedEnv, 0.00833333333);
-		ras.getPixbuf().save("/tmp/bwa.png", PixbufFormat.PNG);
 		df.addRasterLayer(ras);
 		
 //		df.drawPoint(ras.getOrigin().x+1, ras.getOrigin().y+1, true);
