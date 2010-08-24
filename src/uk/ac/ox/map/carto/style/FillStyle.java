@@ -1,6 +1,5 @@
 package uk.ac.ox.map.carto.style;
 
-import org.gnome.gdk.Color;
 
 
 /**

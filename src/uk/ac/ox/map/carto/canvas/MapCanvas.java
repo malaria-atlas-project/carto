@@ -11,12 +11,10 @@ import org.freedesktop.cairo.PdfSurface;
 import org.gnome.pango.Alignment;
 import org.gnome.pango.FontDescription;
 import org.gnome.pango.Layout;
-import org.gnome.pango.LayoutLine;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
-import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.util.AnnotationFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -78,38 +76,6 @@ public class MapCanvas extends BaseCanvas {
 		}
 	}
 	
-	public void drawTable(List<String[]> tab, Rectangle frame, float fontSize) {
-		Layout layout = new Layout(cr);
-		fontDesc.setSize(fontSize);
-		layout.setFontDescription(fontDesc);
-		layout.setWidth(frame.width);
-		layout.setJustify(true);
-		cr.setSource(0.0, 0.0, 0.0);
-		
-		LayoutLine[] x = layout.getLines();
-		
-		//Work out width of table
-		for (String[] strings : tab) {
-			
-		}
-		 
-		 /*
-		 LayoutLine[] lines = layout.getLinesReadonly();
-		 x = leftMargin;
-		 y = topMargin + rect.getAscent();
-		 
-		 for (i = 0; i < lines.length; i++) {
-		     rect = lines[i].getExtentsLogical();
-		     y += rect.getHeight();
-		 
-		     cr.moveTo(x, y);
-		     cr.showLayout(lines[i]);
-		 }
-		 
-		 */
-		
-	}
-
 	public void annotateMap(String text, double x, double y, Anchor anchor) {
 
 		Layout layout = new Layout(cr);

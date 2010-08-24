@@ -1,7 +1,6 @@
 package uk.ac.ox.map.carto.canvas;
 
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 
 /**
  * Yet another rectangle class. All fields are double for flexibility.

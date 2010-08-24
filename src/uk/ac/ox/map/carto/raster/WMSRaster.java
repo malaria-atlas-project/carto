@@ -23,14 +23,13 @@ import uk.ac.ox.map.imageio.RasterLayer;
 
 public class WMSRaster implements RasterLayer {
 	Logger logger = LoggerFactory.getLogger(WMSRaster.class);
-	private  String url =  	
-	"http://map1.zoo.ox.ac.uk/geoserver/wms?LAYERS=Base:pvlims&STYLES=&SRS=EPSG:4326&FORMAT=image/png&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&EXCEPTIONS=application%2Fvnd.ogc.se_inimage";
+	private final String url;
 	private Envelope env;
 	private double cellSize;
 	private int width;
 	private int height;
 	
-	public WMSRaster(Envelope env, double cellSize) {
+	public WMSRaster(Envelope env, double cellSize, String url) {
 		/*
 		 * Envelope resized already.
 		 */
@@ -38,6 +37,7 @@ public class WMSRaster implements RasterLayer {
 		this.cellSize = cellSize;
 		this.width = (int) Math.ceil(env.getWidth() / cellSize);
 		this.height =  (int) Math.ceil(env.getWidth() / cellSize);
+		this.url = url;
 		
 	}
 	

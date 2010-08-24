@@ -2,12 +2,9 @@ package uk.ac.ox.map.carto.canvas;
 
 import java.io.IOException;
 
-import org.freedesktop.cairo.Content;
 import org.freedesktop.cairo.Context;
-import org.freedesktop.cairo.LinearPattern;
 import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
-import org.freedesktop.cairo.SurfacePattern;
 
 import uk.ac.ox.map.carto.style.Colour;
 import uk.ac.ox.map.carto.style.Palette;

@@ -36,7 +36,7 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 	private final Orientation orientation;
 	private String title;
 	
-	private enum Orientation {NS, EW};	
+	private enum Orientation {NS, EW}	
 
 	private class ColourStop {
 		final String annotation;
@@ -66,7 +66,6 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 	 * Takes a cairo context and draws itself.
 	 */
 	public void draw(MapCanvas mapCanvas) {
-		Point2D.Double ul = rect.getUpperLeft();
 		Double startPoint; 
 		Double endPoint; 
 		

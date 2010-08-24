@@ -8,7 +8,6 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.freedesktop.cairo.PdfSurface;
-import org.gnome.gdk.PixbufFormat;
 import org.gnome.gtk.Gtk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -34,7 +33,6 @@ import uk.ac.ox.map.carto.style.FillStyle.FillType;
 import uk.ac.ox.map.carto.text.MapTextResource;
 import uk.ac.ox.map.carto.util.StringUtil;
 import uk.ac.ox.map.carto.util.SystemUtil;
-import uk.ac.ox.map.imageio.FltReader;
 import uk.ac.ox.map.imageio.RasterLayer;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -55,11 +53,11 @@ public class LimitsMaps {
 
 		String countryId = "BWA";
 		Country country = adminUnitService.getCountry(countryId);
-		drawMap(adminUnitService, country, "pf");
-		drawMap(adminUnitService, country, "pv");
+//		drawMap(adminUnitService, country, "pf");
+//		drawMap(adminUnitService, country, "pv");
 
-		// drawMap(adminUnitService, "pf");
-		// drawMap(adminUnitService, "pv");
+//		 drawMap(adminUnitService, "pf");
+		 drawMap(adminUnitService, "pv");
 	}
 
 	@SuppressWarnings("unused")
@@ -149,7 +147,8 @@ public class LimitsMaps {
 		dr.putColour(0, Palette.BLACK.get(0));
 
 //		RasterLayer ras = FltReader.openFloatFile(aridityMaskFilePath, "gc1k_200", dr, df.getEnvelope());
-		RasterLayer ras = new WMSRaster(resizedEnv, 0.00833333333);
+		String wmsUrl = "http://map1.zoo.ox.ac.uk/geoserver/wms?LAYERS=Base:pvlims&STYLES=&SRS=EPSG:4326&FORMAT=image/png&SERVICE=WMS&VERSION=1.1.1&REQUEST=GetMap&EXCEPTIONS=application%2Fvnd.ogc.se_inimage";
+		RasterLayer ras = new WMSRaster(resizedEnv, 0.00833333333, wmsUrl);
 		df.addRasterLayer(ras);
 		
 //		df.drawPoint(ras.getOrigin().x+1, ras.getOrigin().y+1, true);
