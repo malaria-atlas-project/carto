@@ -34,6 +34,12 @@ public abstract class BaseCanvas {
 		cr.fill();
 	}
 	
+	public void drawTestRectangle(Rectangle r) {
+		setFillColour(new Colour("#000000", 1));
+		cr.setLineWidth(1);
+		cr.rectangle(r.x, r.y, r.width, r.height);
+	}
+	
 	public void setColour(Colour c) {
 		cr.setSource(c.getRed(), c.getGreen(), c.getBlue(), c.getAlpha());
 	}

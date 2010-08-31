@@ -14,10 +14,18 @@ public class SystemUtil {
 		System.out.println("Return code = " + returnCode);
 	}
 	
-	public static void addBranding(String fileName, String parasite) throws IOException, InterruptedException {
+	public static void addBranding(String fileName, String parasite, String orientation) throws IOException, InterruptedException {
 		Process process;
+		fileName = fileName.replace(" ", "_");
 		
-		String command = "pdftk /home/will/map1_public/maps/branding_master.pdf background /tmp/tmp_mapsurface.pdf output /home/will/maps/pdf/%s_%s.pdf";
+		String pdf;
+		if (orientation.equals("portrait")) {
+			pdf = "branding_final";
+		} else {
+			pdf = "branding_final_landscape";
+		}
+		
+		String command = "pdftk /home/will/map1_public/maps/" + pdf + ".pdf background /tmp/tmp_mapsurface.pdf output /home/will/maps/pdf/%s_%s.pdf";
 		command = String.format(command, fileName, parasite);
 		System.out.println(command);
 		process = Runtime.getRuntime().exec(command);

@@ -101,6 +101,9 @@ public class DataFrame extends BaseCanvas {
 		this.gridColour = builder.gridColour;
     }
 	
+	/*
+	 * TODO: remove and put in pointsymbolizer
+	 */
 	public void drawPoint(double x, double y, boolean isPresent) {
 		
 		Point2D.Double pt = new Point2D.Double(x,y);
@@ -112,6 +115,24 @@ public class DataFrame extends BaseCanvas {
 	        setFillColour(black);
         else
 	        setFillColour(Palette.WHITE.get());
+        setFillColour();
+        cr.fillPreserve();
+        setLineColour(Palette.BLACK.get());
+        setLineColour();
+        cr.stroke();
+	}
+	
+	/*
+	 * TODO: remove and put in pointsymbolizer
+	 */
+	public void drawPoint(double x, double y, String col) {
+		
+		Point2D.Double pt = new Point2D.Double(x,y);
+		
+		Colour colour = new Colour(col, 1);
+		transform.transform(pt, pt);
+        cr.arc(pt.x,pt.y,1.75,0,2*Math.PI);
+        setFillColour(colour);
         setFillColour();
         cr.fillPreserve();
         setLineColour(Palette.BLACK.get());

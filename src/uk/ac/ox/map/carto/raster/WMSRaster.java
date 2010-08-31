@@ -36,7 +36,7 @@ public class WMSRaster implements RasterLayer {
 		this.env = env;
 		this.cellSize = cellSize;
 		this.width = (int) Math.ceil(env.getWidth() / cellSize);
-		this.height =  (int) Math.ceil(env.getWidth() / cellSize);
+		this.height =  (int) Math.ceil(env.getHeight() / cellSize);
 		this.url = url;
 		
 	}

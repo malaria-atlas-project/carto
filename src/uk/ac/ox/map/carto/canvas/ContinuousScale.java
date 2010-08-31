@@ -34,7 +34,8 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 	private final Rectangle rect;
 	
 	private final Orientation orientation;
-	private String title;
+	private final String title;
+	private final String description;
 	
 	private enum Orientation {NS, EW}	
 
@@ -47,11 +48,12 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 		}	
 	}
 	
-	public ContinuousScale(Rectangle rect, String title) {
+	public ContinuousScale(Rectangle rect, String title, String description) {
 		colourStops = new ArrayList<ColourStop>();
 		this.rect = rect;
 		orientation = (rect.height >= rect.width)? Orientation.NS: Orientation.EW;
 		this.title = title;
+		this.description = description;
 	}
 
 	/**
@@ -101,17 +103,32 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 		for (ColourStop colourStop : colourStops) {
 			if (colourStop.annotation == null)
 				continue;
-	    	mapCanvas.annotateMap(
-	    			colourStop.annotation, 
-	    			rect.x+rect.width+5, 
-					(rect.y + rect.height) - (rect.height * colourStop.colourStop[0]), 
-					Anchor.LC
-			);
+			if (orientation.equals(Orientation.NS)) {
+		    	mapCanvas.annotateMap(
+		    			colourStop.annotation, 
+		    			rect.x+rect.width+5, 
+						(rect.y + rect.height) - (rect.height * colourStop.colourStop[0]), 
+						Anchor.LC
+				);
+			} else {
+		    	mapCanvas.annotateMap(
+		    			colourStop.annotation, 
+		    			rect.x + (rect.width * colourStop.colourStop[0]),
+						(rect.y + rect.height),
+						Anchor.CT
+				);
+			}
 		}
 		
     	
 //    	mapCanvas.annotateMap("Incidence (‰)", rect.x, rect.y-10, AnchorX.L, AnchorY.B);
-    	mapCanvas.annotateMap(title, rect.x, rect.y-10, Anchor.LB);
+		//TODO: hackery with description
+		if (description == null) {
+	    	mapCanvas.annotateMap(title, rect.x, rect.y-10, Anchor.LB);
+		} else {
+	    	mapCanvas.annotateMap(title, rect.x, rect.y-18, Anchor.LB);
+	    	mapCanvas.annotateMap(description, rect.x, rect.y-5, Anchor.LB);
+		}
 	}
 
 	/**

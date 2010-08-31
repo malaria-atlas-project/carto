@@ -46,10 +46,10 @@ public class LimitsMaps {
 	static final LineStyle defaultLineStyle = new LineStyle(Palette.BLACK.get(), 0.2);
 	static final File tempLimsLoc = new File("/home/will/map1_srv/data/mastergrids/cleandata/tempsuitability/pf/");
 	static final File aridityMaskFilePath = new File("/home/will/map1_srv/data/mastergrids/cleandata/Globcover/classmasks/200_bare_areas/");
+	static final AdminUnitService adminUnitService = new AdminUnitService();
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		Gtk.init(null);
-		AdminUnitService adminUnitService = new AdminUnitService();
 
 		String countryId = "BWA";
 		Country country = adminUnitService.getCountry(countryId);
@@ -57,12 +57,12 @@ public class LimitsMaps {
 //		drawMap(adminUnitService, country, "pv");
 
 //		 drawMap(adminUnitService, "pf");
-		 drawMap(adminUnitService, "pv");
+		 drawMap("pv");
 	}
 
 	@SuppressWarnings("unused")
-	private static void drawMap(AdminUnitService adminUnitService, String parasite) throws IOException, InterruptedException {
-		List<Country> pfCountries = adminUnitService.getCountries(parasite);
+	private static void drawMap(String parasite) throws IOException, InterruptedException {
+		List<Country> pfCountries = adminUnitService.getCountries(parasite, true);
 		for (Country country : pfCountries) {
 
 			logger.debug("Processing country: {}, {}", country.getId(), country.getName());
@@ -345,7 +345,7 @@ public class LimitsMaps {
 		mapCanvas.drawTextFrame(mapTextItems, mapTextFrame, 6, 10);
 		mapSurface.finish();
 
-		SystemUtil.addBranding(country.getId(), parasite);
+		SystemUtil.addBranding(country.getId(), parasite, "portrait");
 	}
 
 }
