@@ -38,6 +38,7 @@ public abstract class BaseCanvas {
 		setFillColour(new Colour("#000000", 1));
 		cr.setLineWidth(1);
 		cr.rectangle(r.x, r.y, r.width, r.height);
+		cr.stroke();
 	}
 	
 	public void setColour(Colour c) {

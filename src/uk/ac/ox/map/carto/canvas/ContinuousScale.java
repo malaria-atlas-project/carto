@@ -36,6 +36,8 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 	private final Orientation orientation;
 	private final String title;
 	private final String description;
+	//FIXME: hack with getting last number and normalizing scale
+	private double normalization;
 	
 	private enum Orientation {NS, EW}	
 
@@ -83,9 +85,10 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 		lp = new LinearPattern(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
 		
 		double[] cs;
+		
 		for (ColourStop colourStop : colourStops) {
 			cs = colourStop.colourStop;
-			lp.addColorStopRGB(cs[0], cs[1], cs[2], cs[3]);
+			lp.addColorStopRGB(cs[0]*normalization, cs[1]*normalization, cs[2]*normalization, cs[3]*normalization);
 		}
 		
 		mapCanvas.cr.save();
@@ -107,13 +110,13 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 		    	mapCanvas.annotateMap(
 		    			colourStop.annotation, 
 		    			rect.x+rect.width+5, 
-						(rect.y + rect.height) - (rect.height * colourStop.colourStop[0]), 
+						(rect.y + rect.height) - (rect.height * (colourStop.colourStop[0] * normalization)), 
 						Anchor.LC
 				);
 			} else {
 		    	mapCanvas.annotateMap(
 		    			colourStop.annotation, 
-		    			rect.x + (rect.width * colourStop.colourStop[0]),
+		    			(rect.x + (rect.width * (colourStop.colourStop[0] * normalization))),
 						(rect.y + rect.height),
 						Anchor.CT
 				);
@@ -187,6 +190,8 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 			}
 			prevCS = colourStops.get(i);
 		}
+		double max = colourStops.get(colourStops.size()-1).colourStop[0];
+		normalization = 1/max;
 	}
 	
 	public double getRed(float f) {
