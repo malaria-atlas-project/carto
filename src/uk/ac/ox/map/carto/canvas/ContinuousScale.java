@@ -127,7 +127,7 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 //    	mapCanvas.annotateMap("Incidence (‰)", rect.x, rect.y-10, AnchorX.L, AnchorY.B);
 		//TODO: hackery with description
 		if (description == null) {
-	    	mapCanvas.annotateMap(title, rect.x, rect.y-10, Anchor.LB);
+	    	mapCanvas.annotateMap(title, rect.x, rect.y-2, Anchor.LB);
 		} else {
 	    	mapCanvas.annotateMap(title, rect.x, rect.y-18, Anchor.LB);
 	    	mapCanvas.annotateMap(description, rect.x, rect.y-5, Anchor.LB);
