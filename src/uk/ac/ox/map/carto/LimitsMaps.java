@@ -345,7 +345,7 @@ public class LimitsMaps {
 		mapCanvas.drawTextFrame(mapTextItems, mapTextFrame, 6, 10);
 		mapSurface.finish();
 
-		SystemUtil.addBranding(country.getId(), parasite, "portrait");
+		SystemUtil.addBranding("limits", country.getId(), parasite, "portrait");
 	}
 
 }

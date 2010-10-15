@@ -21,6 +21,7 @@
 		<dependency org="log4j" name="log4j" rev="1.2.12" />
 		<dependency org="org.geotools" name="gt-main" rev="2.5.8" />
 		<dependency org="com.vividsolutions" name="jts" rev="1.8" />
+		<dependency org="org.freemarker" name="freemarker" rev="2.3.14"/>
 	</dependencies>
 </ivy-module>
 

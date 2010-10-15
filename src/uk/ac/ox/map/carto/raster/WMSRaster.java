@@ -1,25 +1,20 @@
 package uk.ac.ox.map.carto.raster;
 
 import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
-import javax.vecmath.Point2d;
 
 import org.gnome.gdk.Pixbuf;
-import org.postgis.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import com.sun.jndi.toolkit.url.UrlUtil;
-import com.vividsolutions.jts.geom.Envelope;
-
-import sun.net.util.URLUtil;
 import uk.ac.ox.map.imageio.RasterLayer;
+
+import com.vividsolutions.jts.geom.Envelope;
 
 public class WMSRaster implements RasterLayer {
 	Logger logger = LoggerFactory.getLogger(WMSRaster.class);
@@ -47,11 +42,7 @@ public class WMSRaster implements RasterLayer {
 
 	@Override
 	public Point2D.Double getOrigin() {
-		Point2D.Double ll = new Point2D.Double(env.getMinX(), env.getMinY());
-		double x = ll.x; 
-		double y = ll.y;
-		y += height * cellSize;
-		return new Point2D.Double(x,y);
+		return new Point2D.Double(env.getMinX(), env.getMaxY());
 	}
 
 	@Override

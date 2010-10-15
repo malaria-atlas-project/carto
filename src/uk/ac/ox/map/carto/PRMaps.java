@@ -48,7 +48,6 @@ public class PRMaps {
 	static final PRService prService = new PRService();
 	static final AdminUnitService adminUnitService = new AdminUnitService();
 	static Map<String, String> rasLayers = new HashMap<String, String>();
-	private static File fltLocation;
 
 	public static void main(String[] args) throws IOException, InterruptedException {
 		Gtk.init(null);
@@ -109,20 +108,20 @@ public class PRMaps {
 		ContinuousScale cs;
 		if (mapConf.getName().equals("Uncertainty")) {
 			cs = new ContinuousScale(frameConf.get("continuousScale"), "Standard deviation", "(in units of <i>" + parasiteStr + "</i>PR<sub><small>2-10</small></sub>, 0-100%)");
-			cs.addColorStopRGB("0",   0.0, 1.0, 1.0, 0.0);
-			cs.addColorStopRGB("",  0.2, 0.0, 1.0, 0.0);
-			cs.addColorStopRGB("40", 0.4, 0.0, 0.0, 1.0);
+			cs.addColorStopRGB("0",   0.0, 1.0, 1.0, 0.0, false);
+			cs.addColorStopRGB("",  0.2, 0.0, 1.0, 0.0, false);
+			cs.addColorStopRGB("40", 0.4, 0.0, 0.0, 1.0, false);
 			cs.finish();
 		} else if (mapConf.getName().startsWith("Attack")) {
 			cs = new ContinuousScale(frameConf.get("continuousScale"), "Attack rate", null);
-			cs.addColorStopRGB("0", 0.0, 0.0, 1.0, 1.0);
-			cs.addColorStopRGB("",  0.35, 0.0, 0.0, 1.0);
-			cs.addColorStopRGB("70",  0.7, 1.0, 0.0, 1.0);
+			cs.addColorStopRGB("0", 0.0, 0.0, 1.0, 1.0, false);
+			cs.addColorStopRGB("",  0.35, 0.0, 0.0, 1.0, false);
+			cs.addColorStopRGB("70",  0.7, 1.0, 0.0, 1.0, false);
 			cs.finish();
 		} else {
 			cs = new ContinuousScale(frameConf.get("continuousScale"), "Probability", "(in units of <i>" + parasiteStr + "</i>PR<sub><small>2-10</small></sub>, 0-100%)");
-			cs.addColorStopRGB("0",   0.0, 1.0, 1.0, 0);
-			cs.addColorStopRGB("100", 1.0, 1.0, 0.0, 0);
+			cs.addColorStopRGB("0",   0.0, 1.0, 1.0, 0, false);
+			cs.addColorStopRGB("100", 1.0, 1.0, 0.0, 0, false);
 			cs.finish();
 		}
 		
@@ -272,9 +271,9 @@ public class PRMaps {
 		mapSurface.finish();
 
 		if (regionName.equals("CSE Asia") || regionName.equals("World")) {
-			SystemUtil.addBranding(regionName, mapConf.getName(), "landscape_n");
+			SystemUtil.addBranding("pr", regionName, mapConf.getName(), "landscape_n");
 		} else {
-			SystemUtil.addBranding(regionName, mapConf.getName(), "portrait_n");
+			SystemUtil.addBranding("pr", regionName, mapConf.getName(), "portrait_n");
 		}
 	}
 

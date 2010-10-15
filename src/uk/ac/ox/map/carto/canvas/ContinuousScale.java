@@ -31,6 +31,7 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 
 	private LinearPattern lp;
 	private final List<ColourStop> colourStops;
+	private final List<ScaleAnnotation> scaleAnnotations = new ArrayList<ContinuousScale.ScaleAnnotation>();
 	private final Rectangle rect;
 	
 	private final Orientation orientation;
@@ -50,6 +51,15 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 		}	
 	}
 	
+	private class ScaleAnnotation {
+		public ScaleAnnotation(String annotation, double ratio) {
+			this.ratio = ratio;
+			this.annotation = annotation;
+		}
+		final double ratio;
+		final String annotation;
+	}
+	
 	public ContinuousScale(Rectangle rect, String title, String description) {
 		colourStops = new ArrayList<ColourStop>();
 		this.rect = rect;
@@ -60,9 +70,13 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 
 	/**
 	 * Adds a colour stop.
+	 * @param ignoreRGB TODO
 	 */
-	public void addColorStopRGB(String annotation, double d, double e, double f, double g) {
-		colourStops.add(new ColourStop(annotation, new double[] {d, e, f, g}));
+	public void addColorStopRGB(String annotation, double d, double e, double f, double g, boolean ignoreRGB) {
+		if (!ignoreRGB)	{
+			colourStops.add(new ColourStop(annotation, new double[] {d, e, f, g}));
+		}
+		scaleAnnotations.add(new ScaleAnnotation(annotation, d));
 	}
 	
 	/**
@@ -103,20 +117,21 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 		mapCanvas.cr.stroke();
 		mapCanvas.cr.restore();
 		
-		for (ColourStop colourStop : colourStops) {
+		
+		for (ScaleAnnotation colourStop : scaleAnnotations) {
 			if (colourStop.annotation == null)
 				continue;
 			if (orientation.equals(Orientation.NS)) {
 		    	mapCanvas.annotateMap(
 		    			colourStop.annotation, 
 		    			rect.x+rect.width+5, 
-						(rect.y + rect.height) - (rect.height * (colourStop.colourStop[0] * normalization)), 
+						(rect.y + rect.height) - (rect.height * (colourStop.ratio * normalization)), 
 						Anchor.LC
 				);
 			} else {
 		    	mapCanvas.annotateMap(
 		    			colourStop.annotation, 
-		    			(rect.x + (rect.width * (colourStop.colourStop[0] * normalization))),
+		    			(rect.x + (rect.width * (colourStop.ratio * normalization))),
 						(rect.y + rect.height),
 						Anchor.CT
 				);
@@ -127,7 +142,7 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 //    	mapCanvas.annotateMap("Incidence (‰)", rect.x, rect.y-10, AnchorX.L, AnchorY.B);
 		//TODO: hackery with description
 		if (description == null) {
-	    	mapCanvas.annotateMap(title, rect.x, rect.y-2, Anchor.LB);
+	    	mapCanvas.annotateMap(title, rect.x, rect.y-5, Anchor.LB);
 		} else {
 	    	mapCanvas.annotateMap(title, rect.x, rect.y-18, Anchor.LB);
 	    	mapCanvas.annotateMap(description, rect.x, rect.y-5, Anchor.LB);
@@ -181,6 +196,7 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 			int b0 = (int) Math.floor(prevCS.colourStop[0] * 255);
 			int b1 = (int) Math.floor(thisCS.colourStop[0] * 255);
 			
+			
 			for (int j = b0; j < b1; j++) {
 				double x = ((double) j) / 255;
 				double[] interp = interpolate(x, prevCS.colourStop, thisCS.colourStop);
@@ -211,5 +227,18 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 	public double getAlpha(float f) {
 		//FIXME: quick hack
 		return 1;
+	}
+	public void printHex() {
+		for (ColourStop colourStop : colourStops) {
+			String s = "";
+			for (int i = 1; i < colourStop.colourStop.length; i++) {
+				String hex = Integer.toString((int) Math.floor(colourStop.colourStop[i] * 255), 16);
+				if (hex.length() == 1) {
+					hex = '0' + hex;
+				}
+				s = s + hex;
+			}
+			System.out.println(s);
+		}
 	}
 }
