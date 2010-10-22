@@ -1,5 +1,7 @@
 package uk.ac.ox.map.carto.style;
 
+import uk.ac.ox.map.deps.Colour;
+
 
 
 public class LineStyle {

@@ -6,8 +6,8 @@ import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
 
-import uk.ac.ox.map.carto.style.Colour;
 import uk.ac.ox.map.carto.style.Palette;
+import uk.ac.ox.map.deps.Colour;
 
 /**
  * Encapsulates a cairo context, embracing the fact a cairo context is a state machine.

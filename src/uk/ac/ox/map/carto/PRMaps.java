@@ -27,14 +27,13 @@ import uk.ac.ox.map.carto.canvas.LegendItem;
 import uk.ac.ox.map.carto.canvas.MapCanvas;
 import uk.ac.ox.map.carto.canvas.Rectangle;
 import uk.ac.ox.map.carto.raster.WMSRaster;
-import uk.ac.ox.map.carto.style.Colour;
 import uk.ac.ox.map.carto.style.FillStyle;
+import uk.ac.ox.map.carto.style.FillStyle.FillType;
 import uk.ac.ox.map.carto.style.LineStyle;
 import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.style.PolygonSymbolizer;
-import uk.ac.ox.map.carto.style.FillStyle.FillType;
-import uk.ac.ox.map.carto.text.MapTextResource;
 import uk.ac.ox.map.carto.util.SystemUtil;
+import uk.ac.ox.map.deps.Colour;
 import uk.ac.ox.map.imageio.FltReader;
 import uk.ac.ox.map.imageio.RasterLayer;
 
@@ -138,7 +137,6 @@ public class PRMaps {
 		colours.put(0, Palette.GREY_20.get());
 		colours.put(1, Palette.GREY_40.get());
 		colours.put(2, Palette.GREY_60.get());
-		MapTextResource mtr = new MapTextResource();
 
 		/*
 		 * expand by 5% (1/20 * width)
@@ -267,7 +265,8 @@ public class PRMaps {
 		mapTextItems.add((String) mtr.getObject("copyright"));
 		*/
 		
-		mapCanvas.drawTextFrame(mapTextItems, frameConf.get("mapTextFrame"), 6, 10);
+		//FIXME
+//		mapCanvas.drawTextFrame(mapTextItems, frameConf.get("mapTextFrame"), 6, 10);
 		mapSurface.finish();
 
 		if (regionName.equals("CSE Asia") || regionName.equals("World")) {

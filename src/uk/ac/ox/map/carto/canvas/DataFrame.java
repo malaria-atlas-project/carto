@@ -11,10 +11,10 @@ import org.gnome.gdk.Pixbuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.ox.map.carto.style.Colour;
+import uk.ac.ox.map.carto.style.FillStyle.FillType;
 import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.style.PolygonSymbolizer;
-import uk.ac.ox.map.carto.style.FillStyle.FillType;
+import uk.ac.ox.map.deps.Colour;
 import uk.ac.ox.map.imageio.RasterLayer;
 
 import com.vividsolutions.jts.geom.Coordinate;

@@ -57,7 +57,7 @@ public class MapCanvas extends BaseCanvas {
 		cr.showLayout(layout);
 	}
 
-	public void drawTextFrame(List<String> text, Rectangle frame, float fontSize, int paraSpacing) {
+	public void drawTextFrame(String text, Rectangle frame, float fontSize, int paraSpacing) {
 		Layout layout = new Layout(cr);
 		fontDesc.setSize(fontSize);
 		layout.setFontDescription(fontDesc);
@@ -67,10 +67,11 @@ public class MapCanvas extends BaseCanvas {
 		cr.setSource(0.0, 0.0, 0.0);
 
 		double y = frame.y;
-
-		for (String string : text) {
+		
+		String[] statArr = text.split("<br>");
+		for (int i = 0; i < statArr.length; i++) {
 			cr.moveTo(frame.x, y);
-			layout.setMarkup(string);
+			layout.setMarkup(statArr[i]);
 			cr.showLayout(layout);
 			y += layout.getPixelHeight() + paraSpacing;
 		}

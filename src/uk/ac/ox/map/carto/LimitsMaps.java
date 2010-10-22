@@ -23,16 +23,16 @@ import uk.ac.ox.map.carto.canvas.LegendItem;
 import uk.ac.ox.map.carto.canvas.MapCanvas;
 import uk.ac.ox.map.carto.canvas.Rectangle;
 import uk.ac.ox.map.carto.raster.WMSRaster;
-import uk.ac.ox.map.carto.style.Colour;
 import uk.ac.ox.map.carto.style.DummyRenderScale;
 import uk.ac.ox.map.carto.style.FillStyle;
+import uk.ac.ox.map.carto.style.FillStyle.FillType;
 import uk.ac.ox.map.carto.style.LineStyle;
 import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.style.PolygonSymbolizer;
-import uk.ac.ox.map.carto.style.FillStyle.FillType;
 import uk.ac.ox.map.carto.text.MapTextResource;
 import uk.ac.ox.map.carto.util.StringUtil;
 import uk.ac.ox.map.carto.util.SystemUtil;
+import uk.ac.ox.map.deps.Colour;
 import uk.ac.ox.map.imageio.RasterLayer;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -52,7 +52,7 @@ public class LimitsMaps {
 		Gtk.init(null);
 
 		String countryId = "BWA";
-		Country country = adminUnitService.getCountry(countryId);
+//		Country country = adminUnitService.getCountry(countryId);
 //		drawMap(adminUnitService, country, "pf");
 //		drawMap(adminUnitService, country, "pv");
 
@@ -60,7 +60,6 @@ public class LimitsMaps {
 		 drawMap("pv");
 	}
 
-	@SuppressWarnings("unused")
 	private static void drawMap(String parasite) throws IOException, InterruptedException {
 		List<Country> pfCountries = adminUnitService.getCountries(parasite, true);
 		for (Country country : pfCountries) {
@@ -342,7 +341,12 @@ public class LimitsMaps {
 
 		mapTextItems.add((String) mtr.getObject("copyright"));
 		Rectangle mapTextFrame = new Rectangle(50, 555, 320, 0);
-		mapCanvas.drawTextFrame(mapTextItems, mapTextFrame, 6, 10);
+		StringBuilder sb = new StringBuilder();
+		for (String string : mapTextItems) {
+			sb.append(string);
+			sb.append("<br>");
+		}
+		mapCanvas.drawTextFrame(sb.toString(), mapTextFrame, 6, 10);
 		mapSurface.finish();
 
 		SystemUtil.addBranding("limits", country.getId(), parasite, "portrait");

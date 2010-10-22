@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.freedesktop.cairo.LinearPattern;
 
+import uk.ac.ox.map.carto.canvas.Rectangle;
 import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
 import uk.ac.ox.map.imageio.RenderScale;
 
@@ -23,7 +24,7 @@ import uk.ac.ox.map.imageio.RenderScale;
  *
  */
 
-public class ContinuousScale implements DrawSurround, RenderScale {
+public class ContinuousScale implements RenderScale {
 	
 	double[] r = new double[256];
 	double[] g = new double[256];
@@ -43,11 +44,9 @@ public class ContinuousScale implements DrawSurround, RenderScale {
 	private enum Orientation {NS, EW}	
 
 	private class ColourStop {
-		final String annotation;
 		final double[] colourStop;
 		public ColourStop(String annotation, double[] cs) {
 			this.colourStop = cs;
-			this.annotation = annotation;
 		}	
 	}
 	

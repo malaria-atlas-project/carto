@@ -1,6 +1,5 @@
 package uk.ac.ox.map.carto.style;
 
-import com.vividsolutions.jts.geom.MultiPolygon;
 import com.vividsolutions.jts.geom.Point;
 
 
