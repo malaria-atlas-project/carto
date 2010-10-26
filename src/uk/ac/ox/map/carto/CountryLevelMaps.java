@@ -1,7 +1,9 @@
 package uk.ac.ox.map.carto;
 
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -13,10 +15,13 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.ox.map.base.model.adminunit.AdminUnit;
+import uk.ac.ox.map.base.model.adminunit.AdminUnitRisk;
 import uk.ac.ox.map.base.model.adminunit.Country;
 import uk.ac.ox.map.base.model.adminunit.CountryPopulation;
+import uk.ac.ox.map.base.model.adminunit.Exclusion;
 import uk.ac.ox.map.base.model.adminunit.MAPRegion;
 import uk.ac.ox.map.base.model.adminunit.WaterBody;
+import uk.ac.ox.map.base.model.carto.Duffy;
 import uk.ac.ox.map.base.model.pr.PRPoint;
 import uk.ac.ox.map.base.model.pr.Parasite;
 import uk.ac.ox.map.base.service.AdminUnitService;
@@ -29,12 +34,15 @@ import uk.ac.ox.map.carto.canvas.MapCanvas;
 import uk.ac.ox.map.carto.canvas.Rectangle;
 import uk.ac.ox.map.carto.layer.LayerFactory;
 import uk.ac.ox.map.carto.raster.WMSRaster;
+import uk.ac.ox.map.carto.style.DummyRenderScale;
 import uk.ac.ox.map.carto.style.FillStyle;
 import uk.ac.ox.map.carto.style.FillStyle.FillType;
 import uk.ac.ox.map.carto.style.LineStyle;
 import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.style.PolygonSymbolizer;
 import uk.ac.ox.map.carto.text.MapTextFactory;
+import uk.ac.ox.map.carto.text.MapTextResource;
+import uk.ac.ox.map.carto.util.StringUtil;
 import uk.ac.ox.map.carto.util.SystemUtil;
 import uk.ac.ox.map.deps.Colour;
 import uk.ac.ox.map.h5.H5FloatRaster;
@@ -68,19 +76,21 @@ public class CountryLevelMaps {
 
 	
 	public static void main(String[] args) throws Exception {
+		
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
 		h5RF = new H5RasterFactory("/home/will/workspace/ImageIO/pop10.h5");
 		H5RasterFactory h5RFpf = new H5RasterFactory("/home/will/workspace/ImageBase/pf_limits.h5");
+		H5RasterFactory h5RFpfOld = new H5RasterFactory("/home/will/workspace/ImageBase/pf_old_limits.h5");
 		H5RasterFactory h5RFpv = new H5RasterFactory("/home/will/workspace/ImageBase/pv_limits.h5");
 		
 		Map<String, Rectangle> frameConfP = new HashMap<String, Rectangle>();
 		frameConfP.put("dataFrame", new Rectangle(20, 40, 460, 460));
 		frameConfP.put("scalebar", new Rectangle(20, 530, 430, 20));
-		frameConfP.put("legendFrame", new Rectangle(390, 555, 150, 200));
+		frameConfP.put("legendFrame", new Rectangle(370, 555, 170, 200));
 		frameConfP.put("continuousScale", new Rectangle(390, 675, 100, 15));
 		frameConfP.put("titleFrame", new Rectangle(0, 3, 500, 0));
-		frameConfP.put("mapTextFrame", new Rectangle(50, 555, 320, 0));
+		frameConfP.put("mapTextFrame", new Rectangle(50, 555, 300, 0));
 		
 		Map<String, Rectangle> frameConfLS = new HashMap<String, Rectangle>();
 		frameConfLS.put("dataFrame", new Rectangle(20, 40, 667, 330));
@@ -91,35 +101,477 @@ public class CountryLevelMaps {
 		frameConfLS.put("mapTextFrame", new Rectangle(50, 410, 420, 0));
 		
 		List<Country> countries = adminUnitService.getMECountries();
-		for (Country c : countries) {
-			if(c.getId().equals("KEN")) {
-				drawLimitsMap(c, Parasite.Pv, h5RFpv, frameConfP, 500, 707);
-				drawLimitsMap(c, Parasite.Pf, h5RFpf, frameConfP, 500, 707);
-			}
-			if(c.getId().equals("AFG")) {
-				drawLimitsMap(c, Parasite.Pv, h5RFpv, frameConfP, 500, 707);
-				drawLimitsMap(c, Parasite.Pf, h5RFpf, frameConfP, 500, 707);
-			}
-			if(c.getId().equals("ARG")) {
-//				drawLimitsMap(c, Parasite.Pv, h5RFpv, frameConfP, 500, 707);
-//				drawLimitsMap(c, Parasite.Pf, h5RFpf, frameConfP, 500, 707);
-			}
-//				drawPopMap(c, frameConfP, 500, 707);
-//				drawLimitsMap(c, Parasite.Pf, frameConfP, 500, 707);
-//			if(c.getId().equals("SDN"))
-//			if(c.getId().equals("AFG"))
-//				drawLimitsMap(adminUnitService, c, "pf", 500, 707);
-//			if(c.getId().equals("ARG"))
-//				drawLimitsMap(adminUnitService, c, "pf", 500, 707);
-//				drawPopMap(adminUnitService, c, frameConfP, templ, 500, 707);
+		
+		Parasite currentParasite = Parasite.Pf;
+		boolean drawRegMaps = false;
+		if(drawRegMaps) {
+//				drawLimitsMap(c, Parasite.Pf, h5RFpfOld, frameConfP, 500, 707, false, false);
+			drawLimitsMapRegion("North Africa Globcover", currentParasite, h5RFpf, frameConfP, 500, 707, false, false);
+			drawLimitsMapRegion("Southern Africa Globcover", currentParasite, h5RFpf, frameConfP, 500, 707, false, false);
+			drawLimitsMapRegion("North Africa", currentParasite, h5RFpfOld, frameConfP, 500, 707, false, false);
+			drawLimitsMapRegion("Southern Africa", currentParasite, h5RFpfOld, frameConfP, 500, 707, false, false);
 		}
 		
-//		drawRegionPopMap(adminUnitService, "Africa+", frameConfP, templ, 500, 707);
-//		drawRegionPopMap(adminUnitService, "CSE Asia", frameConfLS, templ, 707, 505);
-//		drawRegionPopMap(adminUnitService, "Americas", frameConfP, templ, 500, 707);
+		Country cntry = adminUnitService.getCountry("PAN");
+		drawAPIMap(cntry, Parasite.Pf, frameConfP, 500, 707);
+		
+		boolean drawCountryMaps = false;
+		if(drawCountryMaps) {
+				
+			for (Country c : countries) {
+				Boolean duffyReq = false;
+				
+				if (c.getPfEndemic()) {
+					drawLimitsMap(c, Parasite.Pf, h5RFpfOld, frameConfP, 500, 707, false, false);
+				}
+				if (c.getPvEndemic()) {
+					if (c.getRegionId()==1) {
+						duffyReq = true;
+					}
+					drawLimitsMap(c, Parasite.Pv, h5RFpv, frameConfP, 500, 707, false, duffyReq);
+				}
+			}
+		}
+		
+//			drawRegionPopMap(adminUnitService, "Africa+", frameConfP, templ, 500, 707);
+//			drawRegionPopMap(adminUnitService, "CSE Asia", frameConfLS, templ, 707, 505);
+//			drawRegionPopMap(adminUnitService, "Americas", frameConfP, templ, 500, 707);
 	}
 
 	
+	public static void drawAPIMap(Country country, Parasite parasite, Map<String, Rectangle> frameConf, int w, int h) throws OutOfMemoryError, Exception {
+	
+			// Legend items
+			List<LegendItem> legend = new ArrayList<LegendItem>();
+	
+			/*
+			 * Get country then use extent to: 1. Create map canvas 2. Get
+			 * appropriate admin units
+			 */
+	
+			Envelope env = new Envelope(country.getMinX(), country.getMaxX(), country.getMinY(), country.getMaxY());
+	
+			/*
+			 * Create dataframe with specified envelope
+			 */
+			DataFrame df = new DataFrame.Builder(env, frameConf.get("dataFrame"), null).build();
+			df.setBackgroundColour(Palette.WATER.get());
+	
+			/*
+			 * Get envelope as resized by dataframe Get admin units (level 0)
+			 * overlapping data frame and draw them
+			 */
+			Envelope resizedEnv = df.getEnvelope();
+			List<AdminUnit> adminUnits = adminUnitService.getAdminUnits(resizedEnv);
+	
+			FillStyle greyFS = new FillStyle(Palette.GREY_20.get());
+			List<PolygonSymbolizer> adminPolySym = new ArrayList<PolygonSymbolizer>();
+			for (AdminUnit admin0 : adminUnits) {
+				PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) admin0.getGeom(), greyFS, defaultLineStyle);
+				adminPolySym.add(ps);
+			}
+			df.drawFeatures(adminPolySym);
+	
+			/*
+			 * Draw the risk units
+			 */
+			HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
+			colours.put(0, Palette.WHITE.get());
+			colours.put(1, Palette.ROSE.get());
+			colours.put(2, Palette.CORAL.get());
+	
+			/*
+			 * TODO: possible to obtain a nice feature class, colours included,
+			 * direct from the hibernate service?
+			 */
+	
+			/*
+			 * Get risk admin units Check if we have no data
+			 */
+			boolean noDataPresent = false;
+			List<PolygonSymbolizer> pfFeats = new ArrayList<PolygonSymbolizer>();
+	
+			List<AdminUnitRisk> riskUnits = adminUnitService.getRiskAdminUnits(country, parasite);
+	
+			for (AdminUnitRisk adminUnitRisk : riskUnits) {
+				FillStyle fs = new FillStyle(colours.get(adminUnitRisk.getRisk()), FillType.SOLID);
+				PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) adminUnitRisk.getGeom(), fs, defaultLineStyle);
+				pfFeats.add(ps);
+				if (adminUnitRisk.getRisk() == 9)
+					noDataPresent = true;
+			}
+			df.drawFeatures(pfFeats);
+	
+			/*
+			 * Draw limits layer
+			 */
+			DummyRenderScale dr = new DummyRenderScale();
+			dr.putColour(1, Palette.BLACK.get(0.5));
+			dr.putColour(0, Palette.BLACK.get(0));
+	
+	
+			DummyRenderScale dr2 = new DummyRenderScale();
+			dr2.putColour(1, Palette.GREY_30.get(0.5));
+			dr2.putColour(0, Palette.BLACK.get(0));
+	//		RasterLayer ras2 = FltReader.openFloatFile(tempLimsLoc, "templimspf_CLEAN", dr2, df.getEnvelope());
+	//		df.addRasterLayer(ras2);
+			legend.add(new LegendItem("Limits", Palette.GREY_30.get(0.5)));
+			
+	
+			/*
+			 * Get excluded cities TODO: get enum type for exclusions
+			 */
+			List<PolygonSymbolizer> exclAreas = new ArrayList<PolygonSymbolizer>();
+	
+			List<Exclusion> exclusions = adminUnitService.getExclusions(country);
+			Colour exclColour = Palette.WHITE.get();
+	
+			List<String> exclCities = new ArrayList<String>();
+			List<String> exclIslands = new ArrayList<String>();
+			List<String> exclAdminUnits = new ArrayList<String>();
+			List<String> exclMoh = new ArrayList<String>();
+			List<String> exclMedIntel = new ArrayList<String>();
+	
+			for (Exclusion exclusion : exclusions) {
+				logger.info("Exclusion {}", exclusion.getExclusionType());
+				if (exclusion.getExclusionType().equals("urban area"))
+					exclCities.add(exclusion.getName());
+				else if (exclusion.getExclusionType().equals("island"))
+					exclIslands.add(exclusion.getName());
+				else if (exclusion.getExclusionType().equals("ithg admin exclusion"))
+					exclAdminUnits.add(exclusion.getName());
+				else if (exclusion.getExclusionType().equals("moh exclusion"))
+					exclMoh.add(exclusion.getName());
+				else if (exclusion.getExclusionType().equals("med intel"))
+					exclMedIntel.add(exclusion.getName());
+				else
+					throw new IllegalArgumentException("Unknown exclusion type: " + exclusion.getExclusionType());
+	
+				// MOH hack... damn exclusions
+				FillStyle fsHatched = new FillStyle(Palette.WHITE.get(), FillType.HATCHED);
+				FillStyle fsStipple = new FillStyle(Palette.WHITE.get(), FillType.STIPPLED);
+	
+				PolygonSymbolizer ps;
+				if (exclusion.getExclusionType().equals("med intel")) {
+					ps = new PolygonSymbolizer((MultiPolygon) exclusion.getGeom(), fsHatched, defaultLineStyle);
+					exclAreas.add(ps);
+				} else if (exclusion.getExclusionType().equals("moh exclusion")) {
+					ps = new PolygonSymbolizer((MultiPolygon) exclusion.getGeom(), fsStipple, defaultLineStyle);
+					exclAreas.add(ps);
+				} else {
+					ps = new PolygonSymbolizer((MultiPolygon) exclusion.getGeom(), fsHatched, defaultLineStyle);
+					exclAreas.add(ps);
+				}
+			}
+			/*
+			 * Draw excluded areas
+			 */
+			df.drawFeatures(exclAreas);
+	
+			/*
+			 * Draw on water bodies
+			 */
+			List<PolygonSymbolizer> waterBodies = new ArrayList<PolygonSymbolizer>();
+			List<WaterBody> water = adminUnitService.getWaterBodies(resizedEnv);
+			Colour waterColour = Palette.WATER.get();
+			FillStyle fs = new FillStyle(Palette.WATER.get(), FillType.SOLID);
+			for (WaterBody waterBody : water) {
+				PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) waterBody.getGeom(), fs, defaultLineStyle);
+				waterBodies.add(ps);
+			}
+			// df.drawFeatures(waterBodies);
+	
+			/*
+			 * Draw the rest of the canvas
+			 */
+			PdfSurface mapSurface = new PdfSurface("/tmp/tmp_mapsurface.pdf", w, h);
+			MapCanvas mapCanvas = new MapCanvas(mapSurface, w, h);
+			mapCanvas.addDataFrame(df);
+			mapCanvas.drawDataFrames();
+	
+			mapCanvas.setScaleBar(frameConf.get("scalebar"), df.getScale(), 7);
+	
+			/*
+			 * Draw the legend TODO: combine this and the styling in a layer
+			 */
+			legend.add(new LegendItem("Water", waterColour));
+			legend.add(new LegendItem("Malaria free", colours.get(0)));
+	
+			/*
+			 * Pv/Pv risk legend items
+			 */
+			legend.add(new LegendItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite.toString()), colours.get(1)));
+			legend.add(new LegendItem(String.format("<i>%s</i>API ≥ 0.1‰", parasite.toString()), colours.get(2)));
+	
+			LegendItem ithgLi = new LegendItem("ITHG exclusion", exclColour);
+			LegendItem mohLi = new LegendItem("MoH exclusion", exclColour);
+			LegendItem medLi = new LegendItem("Med intel exclusion", exclColour);
+	
+			// TODO: hatch hack
+			ithgLi.hatched = true;
+			mohLi.stippled = true;
+			medLi.stippled = true;
+			if (exclCities.size() > 0 || exclAdminUnits.size() > 0)
+				legend.add(ithgLi);
+			if (exclMedIntel.size() > 0)
+				legend.add(medLi);
+			if (exclMoh.size() > 0)
+				legend.add(mohLi);
+			// TODO: nodata shouldn't exist
+			if (noDataPresent)
+				legend.add(new LegendItem("No data", colours.get(9)));
+	
+			mapCanvas.drawLegend(frameConf.get("legendFrame"), legend);
+	
+			/*
+			 * Text stuff TODO: factor all this string building out
+			 */
+			MapTextResource mtr = new MapTextResource();
+			
+			String mapTitle = "<i>%s</i> risk from medical intelligence in %s";
+			mapTitle = String.format(mapTitle, parasite.getSpecies(), country.getName());
+			mapCanvas.setTitle(mapTitle, frameConf.get("titleFrame"), 11);
+	
+			/*
+			 * Main map text
+			 */
+			List<Object[]> levelCounts = adminUnitService.getAdminLevels2(country, parasite);
+			List<String> mapTextItems = new ArrayList<String>();
+	
+			List<Integer> years = adminUnitService.getYears(country, parasite);
+			List<String> intelCountries = Arrays.asList(new String[] { "CPV", });
+	
+			if (intelCountries.contains(country.getId())) {
+				mapTextItems.add((String) mtr.getObject("apiTextNationalMedIntel"));
+			} else if (levelCounts.get(0)[0].equals("Admin0") && levelCounts.size() < 2) {
+				mapTextItems.add((String) mtr.getObject("apiTextNoInfo"));
+			} else {
+				mapTextItems.add(StringUtil.formatAdminString1((String) mtr.getObject("apiText"), levelCounts, years));
+			}
+	
+			List<String> modifiedRiskCountries = Arrays.asList(new String[] { "MMR", "IND" });
+			String ithgText = "";
+			if (modifiedRiskCountries.contains(country.getId())) {
+				ithgText = (String) mtr.getObject("ithgText2");
+			} else {
+				ithgText = (String) mtr.getObject("ithgText1");
+			}
+			String formatString = "the following %s: %s";
+			if (exclAdminUnits.size() > 0 || exclCities.size() > 0 || exclIslands.size() > 0) {
+	
+				List<String> txt = new ArrayList<String>();
+				if (exclAdminUnits.size() > 0) {
+					txt.add(StringUtil.formatPlaceName(formatString, "administrative unit", "administrative units", exclAdminUnits));
+				}
+				if (exclCities.size() > 0) {
+					txt.add(StringUtil.formatPlaceName(formatString, "city", "cities", exclCities));
+				}
+				if (exclIslands.size() > 0) {
+					txt.add(StringUtil.formatPlaceName(formatString, "island", "islands", exclIslands));
+				}
+				mapTextItems.add(String.format(ithgText, StringUtil.getReadableList(txt)));
+			}
+	
+			if (exclMoh.size() > 0) {
+				String mohText = (String) mtr.getObject("mohText");
+				mapTextItems.add(String.format(mohText, StringUtil.formatPlaceName(formatString, "administrative unit", "administrative units", exclMoh)));
+			}
+			if (exclMedIntel.size() > 0) {
+				String medIntelText = (String) mtr.getObject("medintelText");
+				mapTextItems.add(String.format(medIntelText, StringUtil.formatPlaceName(formatString, "administrative unit", "administrative units", exclMedIntel)));
+			}
+	
+			mapTextItems.add((String) mtr.getObject("copyright"));
+			StringBuilder sb = new StringBuilder();
+			for (String string : mapTextItems) {
+				sb.append(string);
+				sb.append("<br>");
+			}
+			mapCanvas.drawTextFrame(sb.toString(), frameConf.get("mapTextFrame"), 6, 10);
+			mapSurface.finish();
+	
+			SystemUtil.addBranding("api", country.getId(), parasite.toString() + "_med_intel", "branding_final");
+		}
+
+
+	public static void drawLimitsMap(Country country, Parasite parasite, H5RasterFactory h5Fact, Map<String, Rectangle> frameConf, int w, int h, boolean prPointsRequired, boolean duffyReq) throws OutOfMemoryError, Exception {
+	
+		
+		// Legend items
+		List<LegendItem> legend = new ArrayList<LegendItem>();
+		HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
+		colours.put(0, Palette.GREY_20.get());
+		colours.put(1, Palette.GREY_40.get());
+		colours.put(2, Palette.GREY_60.get());
+		
+		/*
+		 * 1. Draw limits raster
+		 * 2. Draw mask (countries)
+		 * 3. Draw PR points
+		 */
+	
+		/*
+		 * Get country then use extent to create map canvas and get appropriate admin units.
+		 */
+		Envelope env = new Envelope(country.getMinX(), country.getMaxX(), country.getMinY(), country.getMaxY());
+		//Expand by 5%
+		env.expandBy(env.getWidth()/20);
+		
+		/*
+		 * Create dataframe with specified envelope
+		 */
+		DataFrame df = new DataFrame.Builder(env, frameConf.get("dataFrame"), null).build();
+		df.setBackgroundColour(Palette.WATER.get());
+		
+		/*
+		 * Get envelope as resized by dataframe 
+		 */
+		Envelope resizedEnv = df.getEnvelope();
+		List<AdminUnit> adminUnits = adminUnitService.getAdminUnits(resizedEnv);
+		
+		/*
+		 * Draw limits layer
+		 */
+		ColourMap cm = new ColourMap();
+		cm.addColour(0, colours.get(0));
+		cm.addColour(1, colours.get(1));
+		cm.addColour(2, colours.get(2));
+		
+		cm.finish();
+		H5IntRaster.Transform tm= new H5IntRaster.Transform() {
+			@Override
+			public int transform(int inVal) {
+				return inVal;
+			}
+		};
+		
+		H5IntRaster h5r = h5Fact.getRaster(resizedEnv, tm, cm);
+		h5r.getPixbuf().save("/tmp/pixbuftest.png", PixbufFormat.PNG);
+		df.addRasterLayer(h5r);
+		
+		/*
+		 * Duffy mask
+		 */
+		if (duffyReq) {
+			Duffy duf = cartoService.getDuffy();
+			FillStyle fsDuffy = new FillStyle(Palette.WHITE.get(0), FillType.DUFFY);
+			PolygonSymbolizer dufPs = new PolygonSymbolizer((MultiPolygon) duf.getGeom(), fsDuffy, new LineStyle(Palette.WHITE.get(0), 0));
+			df.drawMultiPolygon(dufPs);
+		}
+		
+		/* Get admin units (level 0)
+		 * overlapping data frame and draw them, avoiding country in question
+		 * to produce a mask
+		 */
+		FillStyle greyFS = new FillStyle(Palette.WHITE.get());
+		List<PolygonSymbolizer> adminPolySym = new ArrayList<PolygonSymbolizer>();
+		for (AdminUnit admin0 : adminUnits) {
+			if (admin0.getCountryId().equals(country.getId())) {
+				continue;
+			}
+			PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) admin0.getGeom(), greyFS, defaultLineStyle);
+			adminPolySym.add(ps);
+		}
+		df.drawFeatures(adminPolySym);
+	
+		/*
+		 * Draw on water bodies
+		 */
+		List<PolygonSymbolizer> waterBodies = layerFactory.getPolygonLayer(
+			adminUnitService.getWaterBodies(resizedEnv),
+			new FillStyle(Palette.WATER.get(), FillType.SOLID),	
+			new LineStyle(Palette.WATER.get(), 0.2)
+		);
+		df.drawFeatures(waterBodies);
+		
+		/*
+		 * Draw on points
+		 */
+		if (prPointsRequired) {
+			List<PRPoint> pvPoints = prService.getPoints(country.getId(), parasite);
+			for (PRPoint pvPoint : pvPoints) {
+				df.drawPoint(pvPoint.getLongitude(), pvPoint.getLatitude(), pvPoint.getColour());
+			}
+		}
+	
+		/*
+		 * Draw the rest of the canvas
+		 */
+		PdfSurface mapSurface = new PdfSurface("/tmp/tmp_mapsurface.pdf", w, h);
+		MapCanvas mapCanvas = new MapCanvas(mapSurface, w, h);
+		mapCanvas.addDataFrame(df);
+		mapCanvas.drawDataFrames();
+		mapCanvas.setScaleBar(frameConf.get("scalebar"), df.getScale(), 7);
+	
+		/*
+		 * Draw the legend TODO: combine this and the styling in a layer
+		 */
+		legend.add(new LegendItem("Water", Palette.WATER.get()));
+		legend.add(new LegendItem("Malaria free", Palette.GREY_20.get()));
+	
+		legend.add(new LegendItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
+		legend.add(new LegendItem(String.format("<i>%s</i>API ≥ 0.1‰", parasite), colours.get(2)));
+		
+		/*
+		 * Add duffy if required
+		 */
+		if (duffyReq) {
+			LegendItem li = new LegendItem("Duffy negativity ≥ 90%", Palette.BLACK.get(0));
+			li.duffy = true;
+			legend.add(li);
+		}
+	
+		mapCanvas.drawLegend(frameConf.get("legendFrame"), legend);
+	
+		if(prPointsRequired) {
+			ContinuousScale cs = new ContinuousScale(frameConf.get("continuousScale"), "Probability", "(in units of <i>" + parasite + "</i>PR<sub><small>2-10</small></sub>, 0-100%)");
+			cs.addColorStopRGB("0",   0.0, 1.0, 1.0, 0, false);
+			cs.addColorStopRGB("100", 1.0, 1.0, 0.0, 0, false);
+			cs.finish();
+			cs.draw(mapCanvas);
+		}
+		
+		/*
+		 * Title
+		 */
+		String mapTitle = "<i>%s</i> malaria risk in %s";
+		mapTitle = String.format(mapTitle, parasite.getSpecies(), country.getName());
+		mapCanvas.setTitle(mapTitle, frameConf.get("titleFrame"), 10);
+		
+		/*
+		 * Map text
+		 */
+		
+		Map<String, Object> x = prService.getSurveyMetadata(country.getId(), parasite);
+		Integer startYear = (Integer) x.get("min");
+		Integer endYear = (Integer) x.get("max");
+		Long nSurveys = (Long) x.get("n");
+		Map<String, Object> context = new HashMap<String, Object>();
+		
+		if (startYear != null) {
+			context.put("yearStart", startYear.toString());
+		}
+		if (endYear != null) {
+			context.put("yearEnd", endYear.toString());
+		}
+		
+		context.put("nSurveys", nSurveys);
+		//TODO: hack to avoid putting text on
+		if (!prPointsRequired) {
+			context.put("nSurveys", 0);
+		}
+		
+		context.put("parasiteAbbr", parasite.getSpeciesAbbr());
+		context.put("parasite", parasite);
+		
+		String mapText = mapTextFactory.processTemplate(context, "limitsText.ftl");
+		mapCanvas.drawTextFrame(mapText, frameConf.get("mapTextFrame"), 6, 10);
+		mapSurface.finish();
+	
+		SystemUtil.addBranding(parasite.toString().toLowerCase()+"_limits", country.getId(), parasite.toString().toLowerCase(), "branding_final");
+	}
+
+
 	public static void drawPopMap(Country country, Map<String, Rectangle> frameConf, int w, int h) throws Exception {
 		
 		/*
@@ -214,6 +666,7 @@ public class CountryLevelMaps {
 		df.drawMultiPolygon(aps);
 		df.drawFeatures(adminPolySym);
 		
+		
 		/*
 		 * Draw on water bodies
 		 */
@@ -272,155 +725,6 @@ public class CountryLevelMaps {
 		
 	}
 	
-	public static void drawLimitsMap(Country country, Parasite parasite, H5RasterFactory h5Fact, Map<String, Rectangle> frameConf, int w, int h) throws OutOfMemoryError, Exception {
-
-		
-		// Legend items
-		List<LegendItem> legend = new ArrayList<LegendItem>();
-		HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
-		colours.put(0, Palette.GREY_20.get());
-		colours.put(1, Palette.GREY_40.get());
-		colours.put(2, Palette.GREY_60.get());
-		
-		/*
-		 * 1. Draw limits raster
-		 * 2. Draw mask (countries)
-		 * 3. Draw PR points
-		 */
-
-		/*
-		 * Get country then use extent to create map canvas and get appropriate admin units.
-		 */
-		Envelope env = new Envelope(country.getMinX(), country.getMaxX(), country.getMinY(), country.getMaxY());
-		//Expand by 5%
-		env.expandBy(env.getWidth()/20);
-		
-		/*
-		 * Create dataframe with specified envelope
-		 */
-		DataFrame df = new DataFrame.Builder(env, frameConf.get("dataFrame"), null).build();
-		df.setBackgroundColour(Palette.WATER.get());
-		
-		/*
-		 * Get envelope as resized by dataframe 
-		 */
-		Envelope resizedEnv = df.getEnvelope();
-		List<AdminUnit> adminUnits = adminUnitService.getAdminUnits(resizedEnv);
-		
-		/*
-		 * Draw limits layer
-		 */
-		ColourMap cm = new ColourMap();
-		cm.addColour(0, colours.get(0));
-		cm.addColour(1, colours.get(1));
-		cm.addColour(2, colours.get(2));
-		
-		cm.finish();
-		H5IntRaster.Transform tm= new H5IntRaster.Transform() {
-			@Override
-			public int transform(int inVal) {
-				return inVal;
-			}
-		};
-		
-		H5IntRaster h5r = h5Fact.getRaster(resizedEnv, tm, cm);
-		h5r.getPixbuf().save("/tmp/pixbuftest.png", PixbufFormat.PNG);
-		df.addRasterLayer(h5r);
-		
-		/* Get admin units (level 0)
-		 * overlapping data frame and draw them, avoiding country in question
-		 * to produce a mask
-		 */
-		FillStyle greyFS = new FillStyle(Palette.WHITE.get());
-		List<PolygonSymbolizer> adminPolySym = new ArrayList<PolygonSymbolizer>();
-		for (AdminUnit admin0 : adminUnits) {
-			if (admin0.getCountryId().equals(country.getId())) {
-				continue;
-			}
-			PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) admin0.getGeom(), greyFS, defaultLineStyle);
-			adminPolySym.add(ps);
-		}
-		df.drawFeatures(adminPolySym);
-
-		/*
-		 * Draw on water bodies
-		 */
-		List<PolygonSymbolizer> waterBodies = layerFactory.getPolygonLayer(
-			adminUnitService.getWaterBodies(resizedEnv),
-			new FillStyle(Palette.WATER.get(), FillType.SOLID),	
-			new LineStyle(Palette.WATER.get(), 0.2)
-		);
-		df.drawFeatures(waterBodies);
-		
-		/*
-		 * Draw on points
-		 */
-		List<PRPoint> pvPoints = prService.getPoints(country.getId(), parasite);
-		for (PRPoint pvPoint : pvPoints) {
-			df.drawPoint(pvPoint.getLongitude(), pvPoint.getLatitude(), pvPoint.getColour());
-		}
-
-		/*
-		 * Draw the rest of the canvas
-		 */
-		PdfSurface mapSurface = new PdfSurface("/tmp/tmp_mapsurface.pdf", w, h);
-		MapCanvas mapCanvas = new MapCanvas(mapSurface, w, h);
-		mapCanvas.addDataFrame(df);
-		mapCanvas.drawDataFrames();
-		mapCanvas.setScaleBar(frameConf.get("scalebar"), df.getScale(), 7);
-
-		/*
-		 * Draw the legend TODO: combine this and the styling in a layer
-		 */
-		legend.add(new LegendItem("Water", Palette.WATER.get()));
-		legend.add(new LegendItem("Malaria free", Palette.GREY_20.get()));
-
-		legend.add(new LegendItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
-		legend.add(new LegendItem(String.format("<i>%s</i>API ≥ 0.1‰", parasite), colours.get(2)));
-
-		mapCanvas.drawLegend(frameConf.get("legendFrame"), legend);
-
-		ContinuousScale cs = new ContinuousScale(frameConf.get("continuousScale"), "Probability", "(in units of <i>" + parasite + "</i>PR<sub><small>2-10</small></sub>, 0-100%)");
-		cs.addColorStopRGB("0",   0.0, 1.0, 1.0, 0, false);
-		cs.addColorStopRGB("100", 1.0, 1.0, 0.0, 0, false);
-		cs.finish();
-		cs.draw(mapCanvas);
-		
-		/*
-		 * Title
-		 */
-		String mapTitle = "<i>%s</i> malaria risk in %s";
-		mapTitle = String.format(mapTitle, parasite.getSpecies(), country.getName());
-		mapCanvas.setTitle(mapTitle, frameConf.get("titleFrame"), 10);
-		
-		/*
-		 * Map text
-		 */
-		
-		Map<String, Object> x = prService.getSurveyMetadata(country.getId(), parasite);
-		Integer startYear = (Integer) x.get("min");
-		Integer endYear = (Integer) x.get("max");
-		Long nSurveys = (Long) x.get("n");
-		Map<String, Object> context = new HashMap<String, Object>();
-		
-		if (startYear != null) {
-			context.put("yearStart", startYear.toString());
-		}
-		if (endYear != null) {
-			context.put("yearEnd", endYear.toString());
-		}
-		context.put("nSurveys", nSurveys);
-		context.put("parasiteAbbr", parasite.getSpeciesAbbr());
-		context.put("parasite", parasite);
-		
-		String mapText = mapTextFactory.processTemplate(context, "limitsText.ftl");
-		mapCanvas.drawTextFrame(mapText, frameConf.get("mapTextFrame"), 6, 10);
-		mapSurface.finish();
-
-		SystemUtil.addBranding(parasite.toString().toLowerCase()+"_limits", country.getId(), parasite.toString().toLowerCase(), "branding_final");
-	}
-
-
 	public static void drawRegionPopMap(String regionName, Map<String, Rectangle> frameConf, Template templ, int w, int h) throws Exception {
 		
 		/*
@@ -527,6 +831,178 @@ public class CountryLevelMaps {
 			SystemUtil.addBranding("population", regionName, "population", "portrait_n");
 		}
 		
+	}
+
+
+	public static void drawLimitsMapRegion(String regionName, Parasite parasite, H5RasterFactory h5Fact, Map<String, Rectangle> frameConf, int w, int h, 
+			boolean prPointsRequired, boolean duffyReq) throws OutOfMemoryError, Exception {
+	
+		
+		// Legend items
+		List<LegendItem> legend = new ArrayList<LegendItem>();
+		HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
+		colours.put(0, Palette.GREY_20.get());
+		colours.put(1, Palette.GREY_40.get());
+		colours.put(2, Palette.GREY_60.get());
+		
+		/*
+		 * 1. Draw limits raster
+		 * 2. Draw mask (countries)
+		 * 3. Draw PR points
+		 */
+	
+		/*
+		 * Get country then use extent to create map canvas and get appropriate admin units.
+		 */
+		Envelope env = null; 
+		if(regionName.startsWith("North Africa"))
+			env = new Envelope(-20, 55, 10, 30);
+		else
+			env = new Envelope(0, 55, -35, -10);
+			
+		//Expand by 5%
+//		env.expandBy(env.getWidth()/20);
+		
+		/*
+		 * Create dataframe with specified envelope
+		 */
+		DataFrame df = new DataFrame.Builder(env, frameConf.get("dataFrame"), null).build();
+		df.setBackgroundColour(Palette.WATER.get());
+		
+		/*
+		 * Get envelope as resized by dataframe 
+		 */
+		Envelope resizedEnv = df.getEnvelope();
+		List<AdminUnit> adminUnits = adminUnitService.getAdminUnits(resizedEnv);
+		
+		/* Get admin units (level 0)
+		 * overlapping data frame and draw them, avoiding country in question
+		 * to produce a mask
+		 */
+		FillStyle greyFS = new FillStyle(Palette.WHITE.get());
+		List<PolygonSymbolizer> adminPolySym = new ArrayList<PolygonSymbolizer>();
+		for (AdminUnit admin0 : adminUnits) {
+			PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) admin0.getGeom(), greyFS, defaultLineStyle);
+			adminPolySym.add(ps);
+		}
+		df.drawFeatures(adminPolySym);
+		
+		/*
+		 * Draw limits layer
+		 */
+		ColourMap cm = new ColourMap();
+		cm.addColour(0, colours.get(0));
+		cm.addColour(1, colours.get(1));
+		cm.addColour(2, colours.get(2));
+		
+		cm.finish();
+		H5IntRaster.Transform tm= new H5IntRaster.Transform() {
+			@Override
+			public int transform(int inVal) {
+				return inVal;
+			}
+		};
+		
+		H5IntRaster h5r = h5Fact.getRaster(resizedEnv, tm, cm);
+//		h5r.getPixbuf().save("/tmp/pixbuftest.png", PixbufFormat.PNG);
+		df.addRasterLayer(h5r);
+		
+		/*
+		 * Duffy mask
+		 */
+		if (duffyReq) {
+			Duffy duf = cartoService.getDuffy();
+			FillStyle fsDuffy = new FillStyle(Palette.WHITE.get(0), FillType.DUFFY);
+			PolygonSymbolizer dufPs = new PolygonSymbolizer((MultiPolygon) duf.getGeom(), fsDuffy, new LineStyle(Palette.WHITE.get(0), 0));
+			df.drawMultiPolygon(dufPs);
+		}
+		
+	
+		/*
+		 * Draw on water bodies
+		 */
+		List<PolygonSymbolizer> waterBodies = layerFactory.getPolygonLayer(
+			adminUnitService.getWaterBodies(resizedEnv),
+			new FillStyle(Palette.WATER.get(), FillType.SOLID),	
+			new LineStyle(Palette.WATER.get(), 0.2)
+		);
+		df.drawFeatures(waterBodies);
+		
+		/*
+		 * Draw the rest of the canvas
+		 */
+		PdfSurface mapSurface = new PdfSurface("/tmp/tmp_mapsurface.pdf", w, h);
+		MapCanvas mapCanvas = new MapCanvas(mapSurface, w, h);
+		mapCanvas.addDataFrame(df);
+		mapCanvas.drawDataFrames();
+		mapCanvas.setScaleBar(frameConf.get("scalebar"), df.getScale(), 7);
+	
+		/*
+		 * Draw the legend TODO: combine this and the styling in a layer
+		 */
+		legend.add(new LegendItem("Water", Palette.WATER.get()));
+		legend.add(new LegendItem("Malaria free", Palette.GREY_20.get()));
+	
+		legend.add(new LegendItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
+		legend.add(new LegendItem(String.format("<i>%s</i>API ≥ 0.1‰", parasite), colours.get(2)));
+		
+		/*
+		 * Add duffy if required
+		 */
+		if (duffyReq) {
+			LegendItem li = new LegendItem("Duffy negativity ≥ 90%", Palette.BLACK.get(0));
+			li.duffy = true;
+			legend.add(li);
+		}
+	
+		mapCanvas.drawLegend(frameConf.get("legendFrame"), legend);
+	
+		if(prPointsRequired) {
+			ContinuousScale cs = new ContinuousScale(frameConf.get("continuousScale"), "Probability", "(in units of <i>" + parasite + "</i>PR<sub><small>2-10</small></sub>, 0-100%)");
+			cs.addColorStopRGB("0",   0.0, 1.0, 1.0, 0, false);
+			cs.addColorStopRGB("100", 1.0, 1.0, 0.0, 0, false);
+			cs.finish();
+			cs.draw(mapCanvas);
+		}
+		
+		/*
+		 * Title
+		 */
+		String mapTitle = "<i>%s</i> malaria risk in %s";
+		mapTitle = String.format(mapTitle, parasite.getSpecies(), regionName);
+		mapCanvas.setTitle(mapTitle, frameConf.get("titleFrame"), 10);
+		
+		/*
+		 * Map text
+		 */
+		
+		Map<String, Object> x = prService.getSurveyMetadata(regionName, parasite);
+		Integer startYear = (Integer) x.get("min");
+		Integer endYear = (Integer) x.get("max");
+		Long nSurveys = (Long) x.get("n");
+		Map<String, Object> context = new HashMap<String, Object>();
+		
+		if (startYear != null) {
+			context.put("yearStart", startYear.toString());
+		}
+		if (endYear != null) {
+			context.put("yearEnd", endYear.toString());
+		}
+		
+		context.put("nSurveys", nSurveys);
+		//TODO: hack to avoid putting text on
+		if (!prPointsRequired) {
+			context.put("nSurveys", 0);
+		}
+		
+		context.put("parasiteAbbr", parasite.getSpeciesAbbr());
+		context.put("parasite", parasite);
+		
+		String mapText = mapTextFactory.processTemplate(context, "limitsText.ftl");
+		mapCanvas.drawTextFrame(mapText, frameConf.get("mapTextFrame"), 6, 10);
+		mapSurface.finish();
+	
+		SystemUtil.addBranding(parasite.toString().toLowerCase()+"_limits_reg", regionName, parasite.toString().toLowerCase(), "branding_final");
 	}
 
 }

@@ -264,13 +264,17 @@ public class DataFrame extends BaseCanvas {
 	}
 
 	private void drawPolygon(Polygon p, PolygonSymbolizer ps) {
+			
 			LineString exteriorRing = p.getExteriorRing();
 			drawLineString(exteriorRing);
+			
+			FillType ft = ps.getFillStyle().getFillType();
+			if (!ft.equals(FillType.DUFFY)) {
+			}
 
 			for (int i = 0; i < p.getNumInteriorRing(); i++) {
 				drawLineString(p.getInteriorRingN(i));
 			}
-			FillType ft = ps.getFillStyle().getFillType();
 			
 			if (ft.equals(FillType.SOLID)) {
 				setFillColour();
@@ -287,15 +291,19 @@ public class DataFrame extends BaseCanvas {
 					logger.debug("hatch");
 					setLineColour();
 					paintCrossHatch();
-				}
-				else if (ft.equals(FillType.STIPPLED)) {
+					cr.stroke();
+				} else if (ft.equals(FillType.STIPPLED)) {
 					logger.debug("stipple");
 					setLineColour();
 					paintStipple();
+					cr.stroke();
+				} else if (ft.equals(FillType.DUFFY)) {
+					cr.stroke();
+					logger.debug("duffy");
+					setLineColour();
+					paintDuffy();
 				}
-				
 				cr.restore();
-				cr.stroke();
 	        }
     }
 

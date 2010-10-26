@@ -12,6 +12,7 @@ public class LegendItem {
 	public boolean hatched = false;
 	public boolean stippled = false;
 	public FillStyle fillStyle;
+	public boolean duffy = false;
 
 	public LegendItem(String description, Colour colour) {
 		this.description = description;

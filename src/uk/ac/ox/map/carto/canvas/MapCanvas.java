@@ -115,6 +115,9 @@ public class MapCanvas extends BaseCanvas {
 	}
 
 	public void drawLegend(Rectangle rect, List<LegendItem> legend) {
+		/*
+		 * FIXME: Hacks to draw custom fillstyles
+		 */
 		double y = rect.y;
 		double x = rect.x;
 
@@ -144,8 +147,12 @@ public class MapCanvas extends BaseCanvas {
 				cr.clipPreserve();
 				paintStipple();
 				cr.restore();
+			} else if (li.duffy) {
+				cr.save();
+				cr.clipPreserve();
+				paintDuffy();
+				cr.restore();
 			}
-			setLineColour();
 			cr.setDash(new double[] { 1, 0 });
 			cr.stroke();
 

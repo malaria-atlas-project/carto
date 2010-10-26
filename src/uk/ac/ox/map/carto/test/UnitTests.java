@@ -56,10 +56,10 @@ public class UnitTests {
 		MapTextResource mtr = new MapTextResource();
 		adminStr = (String) mtr.getObject("apiText");
 		
-		List<Object[]> adminLevels = aus.getAdminLevels2(country, parasite);
-		List<Integer> years = aus.getYears(country, parasite);
-		String x = StringUtil.formatAdminString1(adminStr, adminLevels, years);
-		System.out.println(x);
+//		List<Object[]> adminLevels = aus.getAdminLevels2(country, parasite);
+//		List<Integer> years = aus.getYears(country, parasite);
+//		String x = StringUtil.formatAdminString1(adminStr, adminLevels, years);
+//		System.out.println(x);
 	}
 	
 

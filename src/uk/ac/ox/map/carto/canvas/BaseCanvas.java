@@ -132,6 +132,21 @@ public abstract class BaseCanvas {
 			x1 += spacing;
 		}
 	}
+	
+	void paintDuffy() {
+		int spacing = 9;
+		setLineColour(Palette.ORANGE_DARK.get());
+		cr.setLineWidth(1.5);
+		double offset = (height > width) ? height : width;
+		double x1 = -offset;
+		int y1 = 0;
+		for (int i = 0; i < (offset * 2); i += spacing) {
+			cr.moveTo(x1, y1 + offset);
+			cr.lineTo(x1 + offset, y1);
+			cr.stroke();
+			x1 += spacing;
+		}
+	}
 
 	void paintStipple() {
 		/*

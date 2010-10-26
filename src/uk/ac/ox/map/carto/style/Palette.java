@@ -18,6 +18,7 @@ public enum Palette {
 	LIME_MED ("#CDF57A"),
 	FERN ("#89CD66"),
 	YELLOW ("#ffff00"),
+	ORANGE_DARK ("#FF8C00"),
 	GRID ("#0066cc");
 	
 	private String hexColour;

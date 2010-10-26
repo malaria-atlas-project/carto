@@ -15,7 +15,7 @@ public class FillStyle {
 	private final FillType fillType;
 	
 	public enum FillType {
-		SOLID, HATCHED, STIPPLED;
+		SOLID, HATCHED, STIPPLED, DUFFY;
 	}
 
 	public FillStyle(Colour colour, FillType fillType) {
