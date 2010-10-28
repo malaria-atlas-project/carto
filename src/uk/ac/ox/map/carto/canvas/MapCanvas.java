@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
+import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.util.AnnotationFactory;
 
 import com.vividsolutions.jts.geom.Envelope;
@@ -40,12 +41,12 @@ public class MapCanvas extends BaseCanvas {
 		return this;
 	}
 
-	public void setTitle(String text, Rectangle frame, Integer fontSize) {
+	public void setTitle(String text, Rectangle frame, double d) {
 		/*
 		 * TODO look at Reportlab api to think of good ways of abstracting
 		 */
 		Layout layout = new Layout(cr);
-		fontDesc.setSize(fontSize);
+		fontDesc.setSize(d);
 		layout.setFontDescription(fontDesc);
 		layout.setWidth(frame.width);
 		layout.setAlignment(Alignment.CENTER);
@@ -127,29 +128,31 @@ public class MapCanvas extends BaseCanvas {
 		double patchWidth = 25;
 		double patchHeight = 12.5;
 		double spacing = 22;
-		double textMargin = 40;
+		double textMargin = 35;
 
 		fontDesc.setSize(6);
 		for (LegendItem li : legend) {
 			setFillColour(li.colour);
 			cr.rectangle(x, y, patchWidth, patchHeight);
 			cr.fillPreserve();
-			setLineColour();
+			setLineColour(Palette.BLACK.get());
+			cr.setLineWidth(0.15);
+			cr.strokePreserve();
 			if (li.hatched) {
 				// don't clip preserve
 				cr.save();
-				cr.clipPreserve();
+				cr.clip();
 				paintCrossHatch();
 				cr.restore();
 			} else if (li.stippled) {
 				// don't clip preserve
 				cr.save();
-				cr.clipPreserve();
+				cr.clip();
 				paintStipple();
 				cr.restore();
 			} else if (li.duffy) {
 				cr.save();
-				cr.clipPreserve();
+				cr.clip();
 				paintDuffy();
 				cr.restore();
 			}

@@ -1,6 +1,5 @@
 package uk.ac.ox.map.carto;
 
-import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -17,11 +16,13 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ox.map.base.model.adminunit.AdminUnit;
 import uk.ac.ox.map.base.model.adminunit.AdminUnitRisk;
 import uk.ac.ox.map.base.model.adminunit.Country;
+import uk.ac.ox.map.base.model.adminunit.CountryDTO;
 import uk.ac.ox.map.base.model.adminunit.CountryPopulation;
 import uk.ac.ox.map.base.model.adminunit.Exclusion;
 import uk.ac.ox.map.base.model.adminunit.MAPRegion;
 import uk.ac.ox.map.base.model.adminunit.WaterBody;
 import uk.ac.ox.map.base.model.carto.Duffy;
+import uk.ac.ox.map.base.model.carto.WorldInverse;
 import uk.ac.ox.map.base.model.pr.PRPoint;
 import uk.ac.ox.map.base.model.pr.Parasite;
 import uk.ac.ox.map.base.service.AdminUnitService;
@@ -86,11 +87,11 @@ public class CountryLevelMaps {
 		
 		Map<String, Rectangle> frameConfP = new HashMap<String, Rectangle>();
 		frameConfP.put("dataFrame", new Rectangle(20, 40, 460, 460));
-		frameConfP.put("scalebar", new Rectangle(20, 530, 430, 20));
-		frameConfP.put("legendFrame", new Rectangle(370, 555, 170, 200));
+		frameConfP.put("scalebar", new Rectangle(20, 525, 430, 20));
+		frameConfP.put("legendFrame", new Rectangle(365, 545, 170, 200));
 		frameConfP.put("continuousScale", new Rectangle(390, 675, 100, 15));
 		frameConfP.put("titleFrame", new Rectangle(0, 3, 500, 0));
-		frameConfP.put("mapTextFrame", new Rectangle(50, 555, 300, 0));
+		frameConfP.put("mapTextFrame", new Rectangle(50, 545, 300, 0));
 		
 		Map<String, Rectangle> frameConfLS = new HashMap<String, Rectangle>();
 		frameConfLS.put("dataFrame", new Rectangle(20, 40, 667, 330));
@@ -112,24 +113,25 @@ public class CountryLevelMaps {
 			drawLimitsMapRegion("Southern Africa", currentParasite, h5RFpfOld, frameConfP, 500, 707, false, false);
 		}
 		
-		Country cntry = adminUnitService.getCountry("PAN");
-		drawAPIMap(cntry, Parasite.Pf, frameConfP, 500, 707);
+		List<String> duffyCountryIds = adminUnitService.getDuffyCountryIds();
 		
-		boolean drawCountryMaps = false;
-		if(drawCountryMaps) {
+		for (Country c : countries) {
+			logger.debug(c.getId());
+//			if(c.getId().equals("CHN")) continue;
+//			if(c.getId().equals("MWI")) continue;
+//			if(!c.getId().equals("ARG")) continue;
+			
+			if (c.getPfEndemic()) {
+				drawAPIMap(c, Parasite.Pf, frameConfP, 500, 707);
+//				drawLimitsMap(c, Parasite.Pf, h5RFpf, frameConfP, 500, 707, false, false);
+			}
+			
+			if (c.getPvEndemic()) {
 				
-			for (Country c : countries) {
-				Boolean duffyReq = false;
-				
-				if (c.getPfEndemic()) {
-					drawLimitsMap(c, Parasite.Pf, h5RFpfOld, frameConfP, 500, 707, false, false);
-				}
-				if (c.getPvEndemic()) {
-					if (c.getRegionId()==1) {
-						duffyReq = true;
-					}
-					drawLimitsMap(c, Parasite.Pv, h5RFpv, frameConfP, 500, 707, false, duffyReq);
-				}
+//				drawLimitsMap(c, Parasite.Pv, h5RFpv, frameConfP, 500, 707, false, duffyCountryIds.contains(c.getId()));
+//				drawAPIMap(c, Parasite.Pv, frameConfP, 500, 707);
+//				if (c.getId().compareTo("NPL") >= 0) {
+//				}
 			}
 		}
 		
@@ -150,6 +152,7 @@ public class CountryLevelMaps {
 			 */
 	
 			Envelope env = new Envelope(country.getMinX(), country.getMaxX(), country.getMinY(), country.getMaxY());
+			env.expandBy(env.getWidth()/20);
 	
 			/*
 			 * Create dataframe with specified envelope
@@ -215,8 +218,6 @@ public class CountryLevelMaps {
 			dr2.putColour(0, Palette.BLACK.get(0));
 	//		RasterLayer ras2 = FltReader.openFloatFile(tempLimsLoc, "templimspf_CLEAN", dr2, df.getEnvelope());
 	//		df.addRasterLayer(ras2);
-			legend.add(new LegendItem("Limits", Palette.GREY_30.get(0.5)));
-			
 	
 			/*
 			 * Get excluded cities TODO: get enum type for exclusions
@@ -268,18 +269,15 @@ public class CountryLevelMaps {
 			 */
 			df.drawFeatures(exclAreas);
 	
-			/*
+		/*
 			 * Draw on water bodies
 			 */
-			List<PolygonSymbolizer> waterBodies = new ArrayList<PolygonSymbolizer>();
-			List<WaterBody> water = adminUnitService.getWaterBodies(resizedEnv);
-			Colour waterColour = Palette.WATER.get();
-			FillStyle fs = new FillStyle(Palette.WATER.get(), FillType.SOLID);
-			for (WaterBody waterBody : water) {
-				PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) waterBody.getGeom(), fs, defaultLineStyle);
-				waterBodies.add(ps);
-			}
-			// df.drawFeatures(waterBodies);
+			List<PolygonSymbolizer> waterBodies = layerFactory.getPolygonLayer(
+				adminUnitService.getWaterBodies(resizedEnv),
+				new FillStyle(Palette.WATER.get(), FillType.SOLID),	
+				new LineStyle(Palette.WATER.get(), 0.2)
+			);
+			df.drawFeatures(waterBodies);
 	
 			/*
 			 * Draw the rest of the canvas
@@ -294,7 +292,7 @@ public class CountryLevelMaps {
 			/*
 			 * Draw the legend TODO: combine this and the styling in a layer
 			 */
-			legend.add(new LegendItem("Water", waterColour));
+			legend.add(new LegendItem("Water", Palette.WATER.get()));
 			legend.add(new LegendItem("Malaria free", colours.get(0)));
 	
 			/*
@@ -328,9 +326,9 @@ public class CountryLevelMaps {
 			 */
 			MapTextResource mtr = new MapTextResource();
 			
-			String mapTitle = "<i>%s</i> risk from medical intelligence in %s";
+			String mapTitle = "<i>%s</i> risk derived from medical intelligence in %s";
 			mapTitle = String.format(mapTitle, parasite.getSpecies(), country.getName());
-			mapCanvas.setTitle(mapTitle, frameConf.get("titleFrame"), 11);
+			mapCanvas.setTitle(mapTitle, frameConf.get("titleFrame"), 9.5);
 	
 			/*
 			 * Main map text
@@ -390,11 +388,11 @@ public class CountryLevelMaps {
 			mapCanvas.drawTextFrame(sb.toString(), frameConf.get("mapTextFrame"), 6, 10);
 			mapSurface.finish();
 	
-			SystemUtil.addBranding("api", country.getId(), parasite.toString() + "_med_intel", "branding_final");
+			SystemUtil.addBranding(parasite.toString().toLowerCase()+"_api", country.getId(), parasite.toString() + "_med_intel", "branding_final");
 		}
 
 
-	public static void drawLimitsMap(Country country, Parasite parasite, H5RasterFactory h5Fact, Map<String, Rectangle> frameConf, int w, int h, boolean prPointsRequired, boolean duffyReq) throws OutOfMemoryError, Exception {
+	public static void drawLimitsMap(Country country, Parasite parasite, H5RasterFactory h5Fact, Map<String, Rectangle> frameConf, int w, int h, boolean prPointsRequired, boolean duffyRequired) throws OutOfMemoryError, Exception {
 	
 		
 		// Legend items
@@ -452,7 +450,7 @@ public class CountryLevelMaps {
 		/*
 		 * Duffy mask
 		 */
-		if (duffyReq) {
+		if (duffyRequired) {
 			Duffy duf = cartoService.getDuffy();
 			FillStyle fsDuffy = new FillStyle(Palette.WHITE.get(0), FillType.DUFFY);
 			PolygonSymbolizer dufPs = new PolygonSymbolizer((MultiPolygon) duf.getGeom(), fsDuffy, new LineStyle(Palette.WHITE.get(0), 0));
@@ -485,6 +483,17 @@ public class CountryLevelMaps {
 		df.drawFeatures(waterBodies);
 		
 		/*
+		WorldInverse wi = adminUnitService.getWorldInverse();
+		df.drawMultiPolygon(
+			new PolygonSymbolizer(
+				(MultiPolygon) wi.getGeom(), 
+				new FillStyle(Palette.WATER.get(), FillType.SOLID),	
+				new LineStyle(Palette.WATER.get(), 0.2)
+			)
+		);
+		*/
+		
+		/*
 		 * Draw on points
 		 */
 		if (prPointsRequired) {
@@ -515,7 +524,7 @@ public class CountryLevelMaps {
 		/*
 		 * Add duffy if required
 		 */
-		if (duffyReq) {
+		if (duffyRequired) {
 			LegendItem li = new LegendItem("Duffy negativity ≥ 90%", Palette.BLACK.get(0));
 			li.duffy = true;
 			legend.add(li);
@@ -534,7 +543,7 @@ public class CountryLevelMaps {
 		/*
 		 * Title
 		 */
-		String mapTitle = "<i>%s</i> malaria risk in %s";
+		String mapTitle = "<i>%s</i> risk including biological masks in %s";
 		mapTitle = String.format(mapTitle, parasite.getSpecies(), country.getName());
 		mapCanvas.setTitle(mapTitle, frameConf.get("titleFrame"), 10);
 		
@@ -555,6 +564,7 @@ public class CountryLevelMaps {
 			context.put("yearEnd", endYear.toString());
 		}
 		
+		context.put("duffyRequired", duffyRequired);
 		context.put("nSurveys", nSurveys);
 		//TODO: hack to avoid putting text on
 		if (!prPointsRequired) {
@@ -568,7 +578,7 @@ public class CountryLevelMaps {
 		mapCanvas.drawTextFrame(mapText, frameConf.get("mapTextFrame"), 6, 10);
 		mapSurface.finish();
 	
-		SystemUtil.addBranding(parasite.toString().toLowerCase()+"_limits", country.getId(), parasite.toString().toLowerCase(), "branding_final");
+		SystemUtil.addBranding(parasite.toString().toLowerCase()+"_limits", country.getId(), parasite.toString() + "_limits", "branding_final");
 	}
 
 
