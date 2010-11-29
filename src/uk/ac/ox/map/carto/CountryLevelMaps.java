@@ -117,21 +117,21 @@ public class CountryLevelMaps {
 		
 		for (Country c : countries) {
 			logger.debug(c.getId());
-//			if(c.getId().equals("CHN")) continue;
-//			if(c.getId().equals("MWI")) continue;
+//			if(!c.getId().equals("CHN")) continue;
+//			if(!c.getId().equals("MWI")) continue;
 //			if(!c.getId().equals("ARG")) continue;
+			if(!(c.getId().equals("NAM") || c.getId().equals("DJI") || c.getId().equals("SWZ")))
+				continue;
 			
 			if (c.getPfEndemic()) {
-				drawAPIMap(c, Parasite.Pf, frameConfP, 500, 707);
+//				drawAPIMap(c, Parasite.Pf, frameConfP, 500, 707);
 //				drawLimitsMap(c, Parasite.Pf, h5RFpf, frameConfP, 500, 707, false, false);
 			}
 			
 			if (c.getPvEndemic()) {
 				
 //				drawLimitsMap(c, Parasite.Pv, h5RFpv, frameConfP, 500, 707, false, duffyCountryIds.contains(c.getId()));
-//				drawAPIMap(c, Parasite.Pv, frameConfP, 500, 707);
-//				if (c.getId().compareTo("NPL") >= 0) {
-//				}
+				drawAPIMap(c, Parasite.Pv, frameConfP, 500, 707);
 			}
 		}
 		
