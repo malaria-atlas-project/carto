@@ -16,13 +16,11 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ox.map.base.model.adminunit.AdminUnit;
 import uk.ac.ox.map.base.model.adminunit.AdminUnitRisk;
 import uk.ac.ox.map.base.model.adminunit.Country;
-import uk.ac.ox.map.base.model.adminunit.CountryDTO;
 import uk.ac.ox.map.base.model.adminunit.CountryPopulation;
 import uk.ac.ox.map.base.model.adminunit.Exclusion;
 import uk.ac.ox.map.base.model.adminunit.MAPRegion;
 import uk.ac.ox.map.base.model.adminunit.WaterBody;
 import uk.ac.ox.map.base.model.carto.Duffy;
-import uk.ac.ox.map.base.model.carto.WorldInverse;
 import uk.ac.ox.map.base.model.pr.PRPoint;
 import uk.ac.ox.map.base.model.pr.Parasite;
 import uk.ac.ox.map.base.service.AdminUnitService;
@@ -70,7 +68,6 @@ public class CountryLevelMaps {
 	static final AdminUnitService adminUnitService = new AdminUnitService();
 	
 	static final CartoService cartoService = new CartoService();
-	static H5RasterFactory h5RF;
 	private static LayerFactory layerFactory = new LayerFactory();
 	
 	private static final MapTextFactory mapTextFactory = new MapTextFactory();
@@ -80,10 +77,10 @@ public class CountryLevelMaps {
 		
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
-		h5RF = new H5RasterFactory("/home/will/workspace/ImageIO/pop10.h5");
-		H5RasterFactory h5RFpf = new H5RasterFactory("/home/will/workspace/ImageBase/pf_limits.h5");
-		H5RasterFactory h5RFpfOld = new H5RasterFactory("/home/will/workspace/ImageBase/pf_old_limits.h5");
-		H5RasterFactory h5RFpv = new H5RasterFactory("/home/will/workspace/ImageBase/pv_limits.h5");
+		H5RasterFactory h5RFpop = new H5RasterFactory("/home/will/workspace/ImageIO/pop10.h5");
+		H5RasterFactory h5RFpfLims = new H5RasterFactory("/home/will/workspace/ImageBase/pf_limits.h5");
+		H5RasterFactory h5RFpvLims = new H5RasterFactory("/home/will/workspace/ImageBase/pv_limits.h5");
+		H5RasterFactory h5RFPfPR = new H5RasterFactory("/home/will/workspace/ImageBase/pf_pr.h5");
 		
 		Map<String, Rectangle> frameConfP = new HashMap<String, Rectangle>();
 		frameConfP.put("dataFrame", new Rectangle(20, 40, 460, 460));
@@ -107,31 +104,28 @@ public class CountryLevelMaps {
 		boolean drawRegMaps = false;
 		if(drawRegMaps) {
 //				drawLimitsMap(c, Parasite.Pf, h5RFpfOld, frameConfP, 500, 707, false, false);
-			drawLimitsMapRegion("North Africa Globcover", currentParasite, h5RFpf, frameConfP, 500, 707, false, false);
-			drawLimitsMapRegion("Southern Africa Globcover", currentParasite, h5RFpf, frameConfP, 500, 707, false, false);
-			drawLimitsMapRegion("North Africa", currentParasite, h5RFpfOld, frameConfP, 500, 707, false, false);
-			drawLimitsMapRegion("Southern Africa", currentParasite, h5RFpfOld, frameConfP, 500, 707, false, false);
+			drawLimitsMapRegion("North Africa Globcover", currentParasite, h5RFpfLims, frameConfP, 500, 707, false, false);
+			drawLimitsMapRegion("Southern Africa Globcover", currentParasite, h5RFpfLims, frameConfP, 500, 707, false, false);
+//			drawLimitsMapRegion("North Africa", currentParasite, h5RFpfOld, frameConfP, 500, 707, false, false);
+//			drawLimitsMapRegion("Southern Africa", currentParasite, h5RFpfOld, frameConfP, 500, 707, false, false);
 		}
 		
 		List<String> duffyCountryIds = adminUnitService.getDuffyCountryIds();
 		
 		for (Country c : countries) {
 			logger.debug(c.getId());
-//			if(!c.getId().equals("CHN")) continue;
-//			if(!c.getId().equals("MWI")) continue;
-//			if(!c.getId().equals("ARG")) continue;
-			if(!(c.getId().equals("NAM") || c.getId().equals("DJI") || c.getId().equals("SWZ")))
+			if(!(c.getId().equals("NAM") || c.getId().equals("DJI") || c.getId().equals("SWZ")|| c.getId().equals("BTN")))
 				continue;
 			
 			if (c.getPfEndemic()) {
+				drawPRMap(c, Parasite.Pf, frameConfP, 500, 707, h5RFPfPR, h5RFpfLims);
 //				drawAPIMap(c, Parasite.Pf, frameConfP, 500, 707);
 //				drawLimitsMap(c, Parasite.Pf, h5RFpf, frameConfP, 500, 707, false, false);
 			}
 			
 			if (c.getPvEndemic()) {
-				
 //				drawLimitsMap(c, Parasite.Pv, h5RFpv, frameConfP, 500, 707, false, duffyCountryIds.contains(c.getId()));
-				drawAPIMap(c, Parasite.Pv, frameConfP, 500, 707);
+//				drawAPIMap(c, Parasite.Pv, frameConfP, 500, 707);
 			}
 		}
 		
@@ -582,7 +576,7 @@ public class CountryLevelMaps {
 	}
 
 
-	public static void drawPopMap(Country country, Map<String, Rectangle> frameConf, int w, int h) throws Exception {
+	public static void drawPRMap(Country country, Parasite parasite, Map<String, Rectangle> frameConf, int w, int h, H5RasterFactory h5RFPr, H5RasterFactory h5RFPfLims) throws Exception {
 		
 		/*
 		 * Get country then use extent to create map canvas and get appropriate admin units.
@@ -591,6 +585,12 @@ public class CountryLevelMaps {
 		if (country.getId().equals("ARG")) {
 			env = new Envelope(-73.5829, -53.5918, -55.0613, -21.7812);
 		}
+		
+		
+		HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
+		colours.put(0, Palette.GREY_20.get());
+		colours.put(1, Palette.GREY_40.get());
+		colours.put(2, Palette.GREY_60.get(0));
 		
 		/*
 		 * expand by 5% (1/20 * width)
@@ -609,36 +609,40 @@ public class CountryLevelMaps {
 		List<AdminUnit> adminUnits = adminUnitService.getAdminUnits(resizedEnv);
 		
 		/*
-		 * Add population layer
+		 * Add PR layer
 		 */
-		ContinuousScale cs = new ContinuousScale(new Rectangle(390, 600, 15, 90), "Population", null);
-		
-		double incr = 1d/6;
-		DecimalFormat decF = new DecimalFormat("#,###,###");
-		
-		cs.addColorStopRGB("&lt;1", incr * 0, 26d/255, 152d/255, 80d/255, false);
-		cs.addColorStopRGB(decF.format(Math.pow(10, 1)), incr * 1, 0, 0, 0, true);
-		cs.addColorStopRGB(decF.format(Math.pow(10, 2)), incr * 2, 0, 0, 0, true);
-		cs.addColorStopRGB(decF.format(Math.pow(10, 3)), incr * 3, 234d/255, 230d/255, 138d/255, false);
-		cs.addColorStopRGB(decF.format(Math.pow(10, 4)), incr * 4, 0, 0, 0, true);
-		cs.addColorStopRGB(decF.format(Math.pow(10, 5)), incr * 5, 0, 0, 0, true);
-		cs.addColorStopRGB(decF.format(Math.pow(10, 6)), incr * 6, 234d/255, 4d/255, 3d/255, false);
+		ContinuousScale cs = new ContinuousScale(frameConf.get("continuousScale"), "Probability", "(in units of <i>" + Parasite.Pf.toString() + "</i>PR<span rise='-3000' size='x-small'>2-10</span>, 0-100%)");
+		cs.addColorStopRGB("0",   0.0, 1.0, 1.0, 0, false);
+		cs.addColorStopRGB("100", 1.0, 1.0, 0.0, 0, false);
 		cs.finish();
 		
-		H5FloatRaster ras = h5RF.getRaster(resizedEnv, new H5FloatRaster.Transform() {
+		H5FloatRaster ras = h5RFPr.getRaster(resizedEnv, new H5FloatRaster.Transform() {
 			@Override
 			public float transform(float fV) {
-				if (fV < 1) {
-					fV = 1;
-				}
-				fV = (float) (Math.log10(fV))/6;
-				if (fV < 0) {
-					fV = 0;
-				}
 				return fV;
 			}
 		}, cs);
 		df.addRasterLayer(ras);
+		
+		/*
+		 * Draw limits layer
+		 */
+		ColourMap cm = new ColourMap();
+		cm.addColour(0, colours.get(0));
+		cm.addColour(1, colours.get(1));
+		cm.addColour(2, colours.get(2));
+		
+		cm.finish();
+		H5IntRaster.Transform tm= new H5IntRaster.Transform() {
+			@Override
+			public int transform(int inVal) {
+				return inVal;
+			}
+		};
+		
+		H5IntRaster h5r = h5RFPfLims.getRaster(resizedEnv, tm, cm);
+		h5r.getPixbuf().save("/tmp/pixbuftest.png", PixbufFormat.PNG);
+		df.addRasterLayer(h5r);
 		
 		/* Get admin units (level 0)
 		 * overlapping data frame and draw them, avoiding country in question
@@ -701,10 +705,12 @@ public class CountryLevelMaps {
 		mapCanvas.setScaleBar(frame, df.getScale(), 7);
 
 		/*
-		 * Draw the legend TODO: combine this and the styling in a layer
+		 * Draw the legend.
 		 */
 		List<LegendItem> legend = new ArrayList<LegendItem>();
 		legend.add(new LegendItem("Water", Palette.WATER.get()));
+		legend.add(new LegendItem("Malaria free", Palette.GREY_20.get()));
+		legend.add(new LegendItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
 
 		Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
 		mapCanvas.drawLegend(legendFrame, legend);
@@ -714,24 +720,20 @@ public class CountryLevelMaps {
 		/*
 		 * Title
 		 */
-		String mapTitle = String.format("The population count per km<sup>2</sup> in %s in 2010", country.getName());
+		String mapTitle = String.format("The spatial distribution of <i>%s</i> malaria endemicity in %s", parasite.getSpecies(), country.getName());
 		mapCanvas.setTitle(mapTitle, frameConf.get("titleFrame"), 10);
 		
 		/*
 		 * Text
 		 */
-		CountryPopulation cp = adminUnitService.getCountryPop(country);
 		Map<String, Object> context = new HashMap<String, Object>();
-		Integer popTot = (int) (Math.round(((double) cp.getTotal()) / 1000) * 1000);
-		context.put("pop_total", popTot);
 		context.put("country_name", country.getName());
-		context.put("usesAfripop", cp.getUsesAfripop());
 		
-		String mapText = mapTextFactory.processTemplate(context, "populationText.ftl");
+		String mapText = mapTextFactory.processTemplate(context, "prText.ftl");
 		mapCanvas.drawTextFrame(mapText, frameConf.get("mapTextFrame"), 6, 10);
 		mapSurface.finish();
 
-		SystemUtil.addBranding("population", country.getId(), "population", "portrait_n");
+		SystemUtil.addBranding("pf_pr", country.getId(), "Pf_PR", "branding_final");
 		
 	}
 	
@@ -1014,5 +1016,159 @@ public class CountryLevelMaps {
 	
 		SystemUtil.addBranding(parasite.toString().toLowerCase()+"_limits_reg", regionName, parasite.toString().toLowerCase(), "branding_final");
 	}
+
+
+  public static void drawPopMap(Country country, Map<String, Rectangle> frameConf, int w, int h, H5RasterFactory h5RF) throws Exception {
+  	
+  	/*
+  	 * Get country then use extent to create map canvas and get appropriate admin units.
+  	 */
+  	Envelope env = new Envelope(country.getMinX(), country.getMaxX(), country.getMinY(), country.getMaxY());
+  	if (country.getId().equals("ARG")) {
+  		env = new Envelope(-73.5829, -53.5918, -55.0613, -21.7812);
+  	}
+  	
+  	/*
+  	 * expand by 5% (1/20 * width)
+  	 */
+  	env.expandBy(env.getWidth()/20);
+  	/*
+  	 * Create dataframe with specified envelope
+  	 */
+  	DataFrame df = new DataFrame.Builder(env, frameConf.get("dataFrame"), null).build();
+  	df.setBackgroundColour(Palette.WATER.get());
+  	
+  	/*
+  	 * Get envelope as resized by dataframe 
+  	 */
+  	Envelope resizedEnv = df.getEnvelope();
+  	List<AdminUnit> adminUnits = adminUnitService.getAdminUnits(resizedEnv);
+  	
+  	/*
+  	 * Add population layer
+  	 */
+  	ContinuousScale cs = new ContinuousScale(new Rectangle(390, 600, 15, 90), "Population", null);
+  	
+  	double incr = 1d/6;
+  	DecimalFormat decF = new DecimalFormat("#,###,###");
+  	
+  	cs.addColorStopRGB("&lt;1", incr * 0, 26d/255, 152d/255, 80d/255, false);
+  	cs.addColorStopRGB(decF.format(Math.pow(10, 1)), incr * 1, 0, 0, 0, true);
+  	cs.addColorStopRGB(decF.format(Math.pow(10, 2)), incr * 2, 0, 0, 0, true);
+  	cs.addColorStopRGB(decF.format(Math.pow(10, 3)), incr * 3, 234d/255, 230d/255, 138d/255, false);
+  	cs.addColorStopRGB(decF.format(Math.pow(10, 4)), incr * 4, 0, 0, 0, true);
+  	cs.addColorStopRGB(decF.format(Math.pow(10, 5)), incr * 5, 0, 0, 0, true);
+  	cs.addColorStopRGB(decF.format(Math.pow(10, 6)), incr * 6, 234d/255, 4d/255, 3d/255, false);
+  	cs.finish();
+  	
+  	H5FloatRaster ras = h5RF.getRaster(resizedEnv, new H5FloatRaster.Transform() {
+  		@Override
+  		public float transform(float fV) {
+  			if (fV < 1) {
+  				fV = 1;
+  			}
+  			fV = (float) (Math.log10(fV))/6;
+  			if (fV < 0) {
+  				fV = 0;
+  			}
+  			return fV;
+  		}
+  	}, cs);
+  	df.addRasterLayer(ras);
+  	
+  	/* Get admin units (level 0)
+  	 * overlapping data frame and draw them, avoiding country in question
+  	 * to produce a mask
+  	 */
+  	MultiPolygon rect = (MultiPolygon) cartoService.getWorldRect().getGeom();
+  	Geometry tempG = rect;
+  	
+  	FillStyle greyFS = new FillStyle(Palette.WHITE.get());
+  	List<PolygonSymbolizer> adminPolySym = new ArrayList<PolygonSymbolizer>();
+  	for (AdminUnit admin0 : adminUnits) {
+  		if (admin0.getCountryId().equals(country.getId())) {
+  			/*
+  			 * get difference for sea_mask
+  			 */
+  			OverlayOp ol = new OverlayOp(tempG, admin0.getGeom());
+  			tempG = ol.getResultGeometry(OverlayOp.DIFFERENCE);
+  		} else {
+  			PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) admin0.getGeom(), greyFS, new LineStyle(Palette.GREY_70.get(), 0.2));
+  			adminPolySym.add(ps);
+  		}
+  	}
+  	
+  	/*
+  	 * Sea mask
+  	 */
+  	MultiPolygon mp;
+  	if (tempG.getNumGeometries() > 1) {
+  		mp = (MultiPolygon) tempG;
+  	} else {
+  		Polygon p = (Polygon) tempG;
+  		mp = new MultiPolygon(new Polygon[]{p}, new GeometryFactory());
+  	}
+  	PolygonSymbolizer aps = new PolygonSymbolizer(mp, new FillStyle(Palette.WATER.get()), new LineStyle(Palette.WATER.get(), 0.2));
+  	df.drawMultiPolygon(aps);
+  	df.drawFeatures(adminPolySym);
+  	
+  	
+  	/*
+  	 * Draw on water bodies
+  	 */
+  	List<PolygonSymbolizer> waterBodies = new ArrayList<PolygonSymbolizer>();
+  	List<WaterBody> water = adminUnitService.getWaterBodies(resizedEnv);
+  	FillStyle fs = new FillStyle(Palette.WATER.get(), FillType.SOLID);
+  	for (WaterBody waterBody : water) {
+  		PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) waterBody.getGeom(), fs, new LineStyle(Palette.WATER.get(), 0.2));
+  		waterBodies.add(ps);
+  	}
+  	df.drawFeatures(waterBodies);
+  	
+  	/*
+  	 * Draw the rest of the canvas
+  	 */
+  	PdfSurface mapSurface = new PdfSurface("/tmp/tmp_mapsurface.pdf", w, h);
+  	MapCanvas mapCanvas = new MapCanvas(mapSurface, w, h);
+  	mapCanvas.addDataFrame(df);
+  	mapCanvas.drawDataFrames();
+  
+  	Rectangle frame = new Rectangle(20, 530, 430, 20);
+  	mapCanvas.setScaleBar(frame, df.getScale(), 7);
+  
+  	/*
+  	 * Draw the legend TODO: combine this and the styling in a layer
+  	 */
+  	List<LegendItem> legend = new ArrayList<LegendItem>();
+  	legend.add(new LegendItem("Water", Palette.WATER.get()));
+  
+  	Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
+  	mapCanvas.drawLegend(legendFrame, legend);
+  
+  	cs.draw(mapCanvas);
+  	
+  	/*
+  	 * Title
+  	 */
+  	String mapTitle = String.format("The population count per km<sup>2</sup> in %s in 2010", country.getName());
+  	mapCanvas.setTitle(mapTitle, frameConf.get("titleFrame"), 10);
+  	
+  	/*
+  	 * Text
+  	 */
+  	CountryPopulation cp = adminUnitService.getCountryPop(country);
+  	Map<String, Object> context = new HashMap<String, Object>();
+  	Integer popTot = (int) (Math.round(((double) cp.getTotal()) / 1000) * 1000);
+  	context.put("pop_total", popTot);
+  	context.put("country_name", country.getName());
+  	context.put("usesAfripop", cp.getUsesAfripop());
+  	
+  	String mapText = mapTextFactory.processTemplate(context, "populationText.ftl");
+  	mapCanvas.drawTextFrame(mapText, frameConf.get("mapTextFrame"), 6, 10);
+  	mapSurface.finish();
+  
+  	SystemUtil.addBranding("population", country.getId(), "population", "portrait_n");
+  	
+  }
 
 }

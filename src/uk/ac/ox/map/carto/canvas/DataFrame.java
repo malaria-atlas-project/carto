@@ -169,7 +169,6 @@ public class DataFrame extends BaseCanvas {
 		 * therefore this needs to be corrected.
 		 */
 		cr.setSource(pb, pt.x/newScale, pt.y/newScale);
-//		drawPoint(pt.x/newScale, pt.y/newScale, true);
 		
 		cr.paint();
 		cr.restore();

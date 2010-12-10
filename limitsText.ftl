@@ -3,7 +3,7 @@
 <#if (nSurveys > 0)>The ${nSurveys} <i>${parasiteAbbr}</i> parasite rate surveys available for predicting prevalance within the stable limits were collected between ${yearStart} and ${yearEnd}.</#if>
 <b>Biological masks:</b> Biological masks were used to modify malaria risk defined by the 
 medical intelligence layers. If temperature did not exceed the limit for successful 
-sporogony of <i>P. vivax</i> in the local dominant <i>Anopheles</i> vector species, 
+sporogony of <i>${parasiteAbbr}</i> in the local dominant <i>Anopheles</i> vector species, 
 risk was downgraded to malaria free (Gething <i>et al</i>. (2011). in prep). If the 
 area was hyper-arid (as defined by the bare area definition of the GLOBCOVER product 
 (http://ionia1.esrin.esa.int/)) risk was downgraded from stable to unstable or 

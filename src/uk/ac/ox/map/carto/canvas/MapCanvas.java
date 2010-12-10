@@ -8,6 +8,7 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.freedesktop.cairo.PdfSurface;
+import org.gnome.gdk.Pixbuf;
 import org.gnome.pango.Alignment;
 import org.gnome.pango.FontDescription;
 import org.gnome.pango.Layout;
@@ -260,4 +261,18 @@ public class MapCanvas extends BaseCanvas {
 	public void addDataFrame(DataFrame df) {
 		dataFrames.add(df);
 	}
+
+  public void drawImage(double i, double j, double w, double h, Pixbuf pbTri) {
+    cr.save();
+    
+    double sx = w / (double) pbTri.getWidth();
+    double sy = h / (double) pbTri.getHeight();
+    
+    cr.scale(sx, sy);
+    cr.setSource(pbTri, i/sx, j/sy);
+    
+    cr.paint();
+    
+    cr.restore();
+  }
 }

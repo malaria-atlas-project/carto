@@ -160,10 +160,6 @@ public abstract class BaseCanvas {
 	}
 
 	void paintStipple() {
-		/*
-         * 
-         */
-
 		int spacing = 3;
 		cr.setDash(new double[] { 1, 3 });
 		for (int j = 0; j < height; j += spacing) {
@@ -179,4 +175,5 @@ public abstract class BaseCanvas {
 			cr.stroke();
 		}
 	}
+	
 }

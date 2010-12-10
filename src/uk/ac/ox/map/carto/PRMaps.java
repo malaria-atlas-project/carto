@@ -97,7 +97,6 @@ public class PRMaps {
 			layers.add(adminUnitService.getLayer(mapLayer.getLayerId()));
 		}
 		
-		
 		String parasiteStr;
 		if (parasite.equals("pf"))
 			parasiteStr = "Pf";
