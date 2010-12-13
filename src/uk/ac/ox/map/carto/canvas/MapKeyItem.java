@@ -2,7 +2,7 @@ package uk.ac.ox.map.carto.canvas;
 
 import uk.ac.ox.map.deps.Colour;
 
-public class LegendItem {
+public class MapKeyItem {
 	public enum FillStyle {
 		SOLID, HATCHED, STIPPLED;
 	}
@@ -14,7 +14,7 @@ public class LegendItem {
 	public FillStyle fillStyle;
 	public boolean duffy = false;
 
-	public LegendItem(String description, Colour colour) {
+	public MapKeyItem(String description, Colour colour) {
 		this.description = description;
 		this.colour = colour;
 //		this.fillStyle = fillStyle;

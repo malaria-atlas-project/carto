@@ -1,5 +1,6 @@
 package uk.ac.ox.map.carto;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -12,13 +13,15 @@ import org.gnome.gtk.Gtk;
 import uk.ac.ox.map.base.model.adminunit.AdminUnit;
 import uk.ac.ox.map.base.model.adminunit.Country;
 import uk.ac.ox.map.base.model.adminunit.CountryDVS;
+import uk.ac.ox.map.base.model.adminunit.MAPRegion;
 import uk.ac.ox.map.base.model.adminunit.WaterBody;
 import uk.ac.ox.map.base.model.vector.Anopheline;
 import uk.ac.ox.map.base.service.AdminUnitService;
 import uk.ac.ox.map.base.service.CartoService;
 import uk.ac.ox.map.base.service.VectorService;
+import uk.ac.ox.map.carto.canvas.ContinuousScale;
 import uk.ac.ox.map.carto.canvas.DataFrame;
-import uk.ac.ox.map.carto.canvas.LegendItem;
+import uk.ac.ox.map.carto.canvas.MapKeyItem;
 import uk.ac.ox.map.carto.canvas.MapCanvas;
 import uk.ac.ox.map.carto.canvas.Rectangle;
 import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
@@ -51,8 +54,90 @@ public class DVS3 {
 
   public static void main(String[] args) throws Exception {
     Gtk.init(args);
+    Country country = adminUnitService.getCountry("BRA");
+    drawCountryDVSMap(country);
+    /*
+    country = adminUnitService.getCountry("COD");
+    drawCountryDVSMap(country);
+    country = adminUnitService.getCountry("KEN");
+    drawCountryDVSMap(country);
+    country = adminUnitService.getCountry("UGA");
+    drawCountryDVSMap(country);
+    */
+//    drawRegionDVSMap("Africa+");
+  }
 
+  private static void drawRegionDVSMap(String regionName) throws IOException, Exception {
+    
     Country country = adminUnitService.getCountry("UGA");
+    List<CountryDVS> countryDVS = adminUnitService.getCountryDVS(country);
+  
+    /*
+     * Get the DVS
+     */
+    List<Anopheline> anos = new ArrayList<Anopheline>();
+    for (CountryDVS cdvs : countryDVS) {
+      anos.add(vectorService.getAnophelineById(cdvs.getAnoId()));
+    }
+  
+    /*
+     * Build the list of file paths forming the composite and build the raster
+     */
+    List<String> floatFilePaths = new ArrayList<String>();
+    for (Anopheline anopheline : anos) {
+      floatFilePaths.add(String.format(baseDir, anopheline.getAbbreviation()));
+    }
+    RasterLayer ras = FltReader.getCompositeRaster(floatFilePaths);
+  
+    Map<String, Rectangle> frameConfP = new HashMap<String, Rectangle>();
+    frameConfP.put("dataFrame", new Rectangle(20, 40, 460, 460));
+    frameConfP.put("scalebar", new Rectangle(20, 525, 430, 20));
+    frameConfP.put("legendFrame", new Rectangle(365, 545, 170, 200));
+    frameConfP.put("continuousScale", new Rectangle(390, 675, 100, 15));
+    frameConfP.put("titleFrame", new Rectangle(0, 3, 500, 0));
+    frameConfP.put("mapTextFrame", new Rectangle(50, 545, 300, 0));
+  
+		MAPRegion region = adminUnitService.getRegion(regionName);
+		Envelope env = new Envelope(region.getMinX(), region.getMaxX(), region.getMinY(), region.getMaxY());
+    /*
+     * expand by 5% (1/20 * width)
+     */
+    env.expandBy(env.getWidth() / 20);
+    
+    /*
+     * Create dataframe with specified envelope
+     */
+    DataFrame df = new DataFrame.Builder(env, frameConfP.get("dataFrame"), null) .build();
+    df.setBackgroundColour(Palette.GREY_20.get());
+  
+    /*
+     * Get envelope as resized by dataframe
+     */
+    Envelope resizedEnv = df.getEnvelope();
+  
+    // Add the externally generated raster layer
+    df.addRasterLayer(ras);
+    
+    /*
+     * Get admin units (level 0) overlapping data frame and draw them, avoiding
+     * country in question to produce a mask
+     */
+    List<AdminUnit> adminUnits = adminUnitService.getMaskByRegion(resizedEnv, region);
+    
+    FillStyle greyFS = new FillStyle(Palette.GREY_40.get());
+    List<PolygonSymbolizer> adminPolySym = new ArrayList<PolygonSymbolizer>();
+    for (AdminUnit admin0 : adminUnits) {
+        PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) admin0.getGeom(), greyFS, new LineStyle( Palette.GREY_70.get(), 0.2));
+        adminPolySym.add(ps);
+    }
+    df.drawFeatures(adminPolySym);
+    
+  
+    drawDVSMap(regionName, df, null, null, anos, ras, frameConfP, 500, 707, regionName);
+  }
+
+  private static void drawCountryDVSMap(Country country) throws IOException, Exception {
+    
     List<CountryDVS> countryDVS = adminUnitService.getCountryDVS(country);
 
     /*
@@ -80,33 +165,18 @@ public class DVS3 {
     frameConfP.put("titleFrame", new Rectangle(0, 3, 500, 0));
     frameConfP.put("mapTextFrame", new Rectangle(50, 545, 300, 0));
 
-    drawDVSMap(country, anos, ras, frameConfP, 500, 707);
-  }
-
-  public static void drawDVSMap(Country country, List<Anopheline> anos,
-      RasterLayer ras, Map<String, Rectangle> frameConf, int w, int h)
-      throws Exception {
-
-    /*
-     * Get country then use extent to create map canvas and get appropriate
-     * admin units.
-     */
-    Envelope env = new Envelope(country.getMinX(), country.getMaxX(),
-        country.getMinY(), country.getMaxY());
-    if (country.getId().equals("ARG")) {
-      env = new Envelope(-73.5829, -53.5918, -55.0613, -21.7812);
-    }
-
+    Envelope env = new Envelope(country.getMinX(), country.getMaxX(), country.getMinY(), country.getMaxY());
     /*
      * expand by 5% (1/20 * width)
      */
     env.expandBy(env.getWidth() / 20);
+    
     /*
      * Create dataframe with specified envelope
      */
-    DataFrame df = new DataFrame.Builder(env, frameConf.get("dataFrame"), null)
-        .build();
-    df.setBackgroundColour(Palette.WATER.get());
+    DataFrame df = new DataFrame.Builder(env, frameConfP.get("dataFrame"), null) .build();
+    df.setBackgroundColour(Palette.GREY_10.get());
+    
 
     /*
      * Get envelope as resized by dataframe
@@ -114,6 +184,9 @@ public class DVS3 {
     Envelope resizedEnv = df.getEnvelope();
     List<AdminUnit> adminUnits = adminUnitService.getAdminUnits(resizedEnv);
 
+    // Add the externally generated raster layer
+    df.addRasterLayer(ras);
+    
     /*
      * Get admin units (level 0) overlapping data frame and draw them, avoiding
      * country in question to produce a mask
@@ -121,7 +194,7 @@ public class DVS3 {
     MultiPolygon rect = (MultiPolygon) cartoService.getWorldRect().getGeom();
     Geometry tempG = rect;
 
-    FillStyle greyFS = new FillStyle(Palette.GREY_30.get());
+    FillStyle greyFS = new FillStyle(Palette.GREY_40.get());
     List<PolygonSymbolizer> adminPolySym = new ArrayList<PolygonSymbolizer>();
     for (AdminUnit admin0 : adminUnits) {
       if (admin0.getCountryId().equals(country.getId())) {
@@ -131,41 +204,85 @@ public class DVS3 {
         OverlayOp ol = new OverlayOp(tempG, admin0.getGeom());
         tempG = ol.getResultGeometry(OverlayOp.DIFFERENCE);
       } else {
-        PolygonSymbolizer ps = new PolygonSymbolizer(
-            (MultiPolygon) admin0.getGeom(), greyFS, new LineStyle(
-                Palette.GREY_70.get(), 0.2));
+        PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) admin0.getGeom(), greyFS, new LineStyle( Palette.GREY_70.get(), 0.2));
         adminPolySym.add(ps);
       }
     }
-
-    // Add the externally generated raster layer
-    df.addRasterLayer(ras);
-
-    /*
-     * Sea mask
-     */
-    MultiPolygon mp;
-    if (tempG.getNumGeometries() > 1) {
-      mp = (MultiPolygon) tempG;
-    } else {
-      Polygon p = (Polygon) tempG;
-      mp = new MultiPolygon(new Polygon[] { p }, new GeometryFactory());
-    }
-    PolygonSymbolizer aps = new PolygonSymbolizer(mp, new FillStyle(
-        Palette.WATER.get()), new LineStyle(Palette.WATER.get(), 0.2));
-    df.drawMultiPolygon(aps);
     df.drawFeatures(adminPolySym);
+    
+    /**
+     * build list of overview frames 
+     */
+    List<DataFrame> overviewFrames = new ArrayList<DataFrame>(); 
+    List<ContinuousScale> continuousScales = new ArrayList<ContinuousScale>(); 
+    double leftEdge = 550;
+    double ovfW = 150;
+    double ovfH = 150;
+    double ovfSpace = 50;
+    double ovfTopOrig = 40;
+    double csOffsetY = 20 + ovfTopOrig;
+    /*
+     *  Overview 1
+     */
+    csOffsetY += ovfH;
+    ContinuousScale cs1 = new ContinuousScale(new Rectangle(leftEdge, csOffsetY, 100, 15), anos.get(0).getScientificAbbreviation(), null); 
+    cs1.addColorStopRGB("0", 0, 0, 0, 0, false);
+    cs1.addColorStopRGB("", 0.5, 0, 0, 0, false);
+    cs1.addColorStopRGB("1", 1, 1, 0, 0, false);
+    cs1.finish();
+    overviewFrames.add(buildOverviewFrame(floatFilePaths.get(0), env, cs1, new Rectangle(leftEdge, ovfTopOrig, ovfW, ovfH), adminPolySym));
+    continuousScales.add(cs1);
+    
+    /*
+     *  Overview 2
+     */
+    ovfTopOrig += (ovfH+ovfSpace);
+    csOffsetY += ovfH + ovfSpace;
+    ContinuousScale cs2 = new ContinuousScale(new Rectangle(leftEdge, csOffsetY, 100, 15), anos.get(1).getScientificAbbreviation(), null); 
+    cs2.addColorStopRGB("0", 0, 0, 0, 0, false);
+    cs2.addColorStopRGB("", 0.5, 0, 0, 0, false);
+    cs2.addColorStopRGB("1", 1, 0, 0, 1, false);
+    cs2.finish();
+    overviewFrames.add(buildOverviewFrame(floatFilePaths.get(1), env, cs2, new Rectangle(leftEdge, ovfTopOrig, ovfW, ovfH), adminPolySym));
+    continuousScales.add(cs2);
+    
+    /*
+     *  Overview 3
+     */
+    ovfTopOrig += (ovfH+ovfSpace);
+    csOffsetY += ovfH + ovfSpace;
+    ContinuousScale cs3 = new ContinuousScale(new Rectangle(leftEdge, csOffsetY, 100, 15), anos.get(2).getScientificAbbreviation(), null); 
+    cs3.addColorStopRGB("0", 0, 0, 0, 0, false);
+    cs3.addColorStopRGB("", 0.5, 0, 0, 0, false);
+    cs3.addColorStopRGB("", 0.5, 0, 0.5, 0, false);
+    cs3.addColorStopRGB("1", 1, 0, 1, 0, false);
+    cs3.finish();
+    overviewFrames.add(buildOverviewFrame(floatFilePaths.get(2), env, cs3, new Rectangle(leftEdge, ovfTopOrig, ovfW, ovfH), adminPolySym));
+    continuousScales.add(cs3);
+    
+    drawDVSMap(country.getName(), df, overviewFrames, continuousScales, anos, ras, frameConfP, 750, 707, country.getId());
+  }
+  
+  public static DataFrame buildOverviewFrame(String floatFilePath, Envelope env, ContinuousScale cs, Rectangle rectangle, List<PolygonSymbolizer> adminPolySym) throws IOException {
+    
+    RasterLayer ras = FltReader.openFloatFile(floatFilePath, cs, env);
+    DataFrame df2 = new DataFrame.Builder(env, rectangle, null).hasGrid(false).build();
+    df2.setBackgroundColour(Palette.GREY_10.get());
+    df2.addRasterLayer(ras);
+    df2.drawFeatures(adminPolySym);
+    return df2;
+  }
 
+  public static void drawDVSMap(String areaName, DataFrame df, List<DataFrame> overviewFrames, List<ContinuousScale> cScales, List<Anopheline> anos, RasterLayer ras, Map<String, Rectangle> frameConf, int w, int h, String fileName) throws Exception {
     /*
      * Draw on water bodies
      */
     List<PolygonSymbolizer> waterBodies = new ArrayList<PolygonSymbolizer>();
-    List<WaterBody> water = adminUnitService.getWaterBodies(resizedEnv);
-    FillStyle fs = new FillStyle(Palette.WATER.get(), FillType.SOLID);
+    List<WaterBody> water = adminUnitService.getWaterBodies(df.getEnvelope());
+    FillStyle fs = new FillStyle(Palette.GREY_10.get(), FillType.SOLID);
     for (WaterBody waterBody : water) {
       PolygonSymbolizer ps = new PolygonSymbolizer(
-          (MultiPolygon) waterBody.getGeom(), fs, new LineStyle(
-              Palette.WATER.get(), 0.2));
+          (MultiPolygon) waterBody.getGeom(), fs, new LineStyle(Palette.GREY_10.get(), 0.2));
       waterBodies.add(ps);
     }
     df.drawFeatures(waterBodies);
@@ -176,6 +293,9 @@ public class DVS3 {
     PdfSurface mapSurface = new PdfSurface("/tmp/tmp_mapsurface.pdf", w, h);
     MapCanvas mapCanvas = new MapCanvas(mapSurface, w, h);
     mapCanvas.addDataFrame(df);
+    for (DataFrame overviewFrame: overviewFrames) {
+      mapCanvas.addDataFrame(overviewFrame);
+    }
     mapCanvas.drawDataFrames();
 
     Rectangle frame = new Rectangle(20, 530, 430, 20);
@@ -184,54 +304,51 @@ public class DVS3 {
     /*
      * Draw the legend.
      */
-    List<LegendItem> legend = new ArrayList<LegendItem>();
-    legend.add(new LegendItem("Water", Palette.WATER.get()));
+    List<MapKeyItem> legend = new ArrayList<MapKeyItem>();
+    legend.add(new MapKeyItem("Water", Palette.GREY_10.get()));
 
-    Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
-    mapCanvas.drawLegend(legendFrame, legend);
+    Rectangle mapKeyFrame = new Rectangle(390, 555, 150, 200);
+    mapCanvas.drawKey(mapKeyFrame, legend);
+    
+    /*
+     * Draw scales
+     */
+    for (ContinuousScale cs : cScales) {
+      cs.draw(mapCanvas);
+    }
 
     /*
      * Title
      */
-    String mapTitle = String.format("The dominant vector species in %s",
-        country.getName());
+    String mapTitle = String.format("The top three dominant vector species in %s", areaName);
     mapCanvas.setTitle(mapTitle, frameConf.get("titleFrame"), 10);
 
     /*
-     * Text Map<String, Object> context = new HashMap<String, Object>();
-     * context.put("country_name", country.getName());
-     * 
-     * String mapText = mapTextFactory.processTemplate(context, "prText.ftl");
-     * mapCanvas.drawTextFrame(mapText, frameConf.get("mapTextFrame"), 6, 10);
+     * Text
      */
-    StringBuilder sb = new StringBuilder();
-    for (Anopheline ano : anos) {
-      sb.append(ano.getScientificName());
-      sb.append("<br>");
-    }
-    mapCanvas
-        .drawTextFrame(sb.toString(), frameConf.get("mapTextFrame"), 6, 10);
+    Map<String, Object> context = new HashMap<String, Object>();
+    context.put("anos", anos);
+    context.put("areaName", areaName);
+
+    String mapText = mapTextFactory.processTemplate(context, "dvsText.ftl");
+    mapCanvas.drawTextFrame(mapText, frameConf.get("mapTextFrame"), 5, 10);
 
     /*
      * Colour triangle
      */
     Pixbuf pbTri = new Pixbuf("/home/will/workspace/Carto/rgbcube.png");
-    int ctX = 365;
+    int ctX = 380;
     int ctY = 600;
     int ctW = 80;
     int ctH = 80;
     mapCanvas.drawImage(ctX, ctY, ctW, ctH, pbTri);
-    mapCanvas.annotateMap("<i>An. " + anos.get(0).getSpecies() + "</i>", ctX
-        + (ctW / 2), ctY, Anchor.CB);
-    mapCanvas.annotateMap("<i>An. " + anos.get(1).getSpecies() + "</i>", ctX
-        + ctW, ctY + ctH, Anchor.CT);
-    mapCanvas.annotateMap("<i>An. " + anos.get(2).getSpecies() + "</i>", ctX,
-        ctY + ctH, Anchor.CT);
+    mapCanvas.annotateMap(anos.get(0).getScientificAbbreviation(), ctX + (ctW / 2), ctY, Anchor.CB);
+    mapCanvas.annotateMap(anos.get(1).getScientificAbbreviation(), ctX + ctW, ctY + ctH, Anchor.CT);
+    mapCanvas.annotateMap(anos.get(2).getScientificAbbreviation(), ctX, ctY + ctH, Anchor.CT);
 
     mapSurface.finish();
 
-    SystemUtil.addBranding("dvs123", country.getId(), "dvs123",
-        "branding_final");
+    SystemUtil.addBranding("dvs123", fileName, "dvs123", "branding_dvs123");
 
   }
 }

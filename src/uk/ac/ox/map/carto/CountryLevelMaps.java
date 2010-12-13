@@ -28,7 +28,7 @@ import uk.ac.ox.map.base.service.CartoService;
 import uk.ac.ox.map.base.service.PRService;
 import uk.ac.ox.map.carto.canvas.ContinuousScale;
 import uk.ac.ox.map.carto.canvas.DataFrame;
-import uk.ac.ox.map.carto.canvas.LegendItem;
+import uk.ac.ox.map.carto.canvas.MapKeyItem;
 import uk.ac.ox.map.carto.canvas.MapCanvas;
 import uk.ac.ox.map.carto.canvas.Rectangle;
 import uk.ac.ox.map.carto.layer.LayerFactory;
@@ -71,7 +71,6 @@ public class CountryLevelMaps {
 	private static LayerFactory layerFactory = new LayerFactory();
 	
 	private static final MapTextFactory mapTextFactory = new MapTextFactory();
-
 	
 	public static void main(String[] args) throws Exception {
 		
@@ -138,13 +137,12 @@ public class CountryLevelMaps {
 	public static void drawAPIMap(Country country, Parasite parasite, Map<String, Rectangle> frameConf, int w, int h) throws OutOfMemoryError, Exception {
 	
 			// Legend items
-			List<LegendItem> legend = new ArrayList<LegendItem>();
+			List<MapKeyItem> legend = new ArrayList<MapKeyItem>();
 	
 			/*
 			 * Get country then use extent to: 1. Create map canvas 2. Get
 			 * appropriate admin units
 			 */
-	
 			Envelope env = new Envelope(country.getMinX(), country.getMaxX(), country.getMinY(), country.getMaxY());
 			env.expandBy(env.getWidth()/20);
 	
@@ -286,18 +284,18 @@ public class CountryLevelMaps {
 			/*
 			 * Draw the legend TODO: combine this and the styling in a layer
 			 */
-			legend.add(new LegendItem("Water", Palette.WATER.get()));
-			legend.add(new LegendItem("Malaria free", colours.get(0)));
+			legend.add(new MapKeyItem("Water", Palette.WATER.get()));
+			legend.add(new MapKeyItem("Malaria free", colours.get(0)));
 	
 			/*
 			 * Pv/Pv risk legend items
 			 */
-			legend.add(new LegendItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite.toString()), colours.get(1)));
-			legend.add(new LegendItem(String.format("<i>%s</i>API ≥ 0.1‰", parasite.toString()), colours.get(2)));
+			legend.add(new MapKeyItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite.toString()), colours.get(1)));
+			legend.add(new MapKeyItem(String.format("<i>%s</i>API ≥ 0.1‰", parasite.toString()), colours.get(2)));
 	
-			LegendItem ithgLi = new LegendItem("ITHG exclusion", exclColour);
-			LegendItem mohLi = new LegendItem("MoH exclusion", exclColour);
-			LegendItem medLi = new LegendItem("Med intel exclusion", exclColour);
+			MapKeyItem ithgLi = new MapKeyItem("ITHG exclusion", exclColour);
+			MapKeyItem mohLi = new MapKeyItem("MoH exclusion", exclColour);
+			MapKeyItem medLi = new MapKeyItem("Med intel exclusion", exclColour);
 	
 			// TODO: hatch hack
 			ithgLi.hatched = true;
@@ -311,9 +309,9 @@ public class CountryLevelMaps {
 				legend.add(mohLi);
 			// TODO: nodata shouldn't exist
 			if (noDataPresent)
-				legend.add(new LegendItem("No data", colours.get(9)));
+				legend.add(new MapKeyItem("No data", colours.get(9)));
 	
-			mapCanvas.drawLegend(frameConf.get("legendFrame"), legend);
+			mapCanvas.drawKey(frameConf.get("legendFrame"), legend);
 	
 			/*
 			 * Text stuff TODO: factor all this string building out
@@ -390,7 +388,7 @@ public class CountryLevelMaps {
 	
 		
 		// Legend items
-		List<LegendItem> legend = new ArrayList<LegendItem>();
+		List<MapKeyItem> legend = new ArrayList<MapKeyItem>();
 		HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
 		colours.put(0, Palette.GREY_20.get());
 		colours.put(1, Palette.GREY_40.get());
@@ -509,22 +507,22 @@ public class CountryLevelMaps {
 		/*
 		 * Draw the legend TODO: combine this and the styling in a layer
 		 */
-		legend.add(new LegendItem("Water", Palette.WATER.get()));
-		legend.add(new LegendItem("Malaria free", Palette.GREY_20.get()));
+		legend.add(new MapKeyItem("Water", Palette.WATER.get()));
+		legend.add(new MapKeyItem("Malaria free", Palette.GREY_20.get()));
 	
-		legend.add(new LegendItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
-		legend.add(new LegendItem(String.format("<i>%s</i>API ≥ 0.1‰", parasite), colours.get(2)));
+		legend.add(new MapKeyItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
+		legend.add(new MapKeyItem(String.format("<i>%s</i>API ≥ 0.1‰", parasite), colours.get(2)));
 		
 		/*
 		 * Add duffy if required
 		 */
 		if (duffyRequired) {
-			LegendItem li = new LegendItem("Duffy negativity ≥ 90%", Palette.BLACK.get(0));
+			MapKeyItem li = new MapKeyItem("Duffy negativity ≥ 90%", Palette.BLACK.get(0));
 			li.duffy = true;
 			legend.add(li);
 		}
 	
-		mapCanvas.drawLegend(frameConf.get("legendFrame"), legend);
+		mapCanvas.drawKey(frameConf.get("legendFrame"), legend);
 	
 		if(prPointsRequired) {
 			ContinuousScale cs = new ContinuousScale(frameConf.get("continuousScale"), "Probability", "(in units of <i>" + parasite + "</i>PR<sub><small>2-10</small></sub>, 0-100%)");
@@ -707,13 +705,13 @@ public class CountryLevelMaps {
 		/*
 		 * Draw the legend.
 		 */
-		List<LegendItem> legend = new ArrayList<LegendItem>();
-		legend.add(new LegendItem("Water", Palette.WATER.get()));
-		legend.add(new LegendItem("Malaria free", Palette.GREY_20.get()));
-		legend.add(new LegendItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
+		List<MapKeyItem> legend = new ArrayList<MapKeyItem>();
+		legend.add(new MapKeyItem("Water", Palette.WATER.get()));
+		legend.add(new MapKeyItem("Malaria free", Palette.GREY_20.get()));
+		legend.add(new MapKeyItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
 
 		Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
-		mapCanvas.drawLegend(legendFrame, legend);
+		mapCanvas.drawKey(legendFrame, legend);
 
 		cs.draw(mapCanvas);
 		
@@ -798,11 +796,11 @@ public class CountryLevelMaps {
 		/*
 		 * Draw the legend TODO: combine this and the styling in a layer
 		 */
-		List<LegendItem> legend = new ArrayList<LegendItem>();
-		legend.add(new LegendItem("Water", Palette.WATER.get()));
+		List<MapKeyItem> legend = new ArrayList<MapKeyItem>();
+		legend.add(new MapKeyItem("Water", Palette.WATER.get()));
 	
 		Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
-		mapCanvas.drawLegend(legendFrame, legend);
+		mapCanvas.drawKey(legendFrame, legend);
 	
 		ContinuousScale cs = new ContinuousScale(new Rectangle(390, 600, 15, 90), "Population", null);
 		
@@ -851,7 +849,7 @@ public class CountryLevelMaps {
 	
 		
 		// Legend items
-		List<LegendItem> legend = new ArrayList<LegendItem>();
+		List<MapKeyItem> legend = new ArrayList<MapKeyItem>();
 		HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
 		colours.put(0, Palette.GREY_20.get());
 		colours.put(1, Palette.GREY_40.get());
@@ -952,22 +950,22 @@ public class CountryLevelMaps {
 		/*
 		 * Draw the legend TODO: combine this and the styling in a layer
 		 */
-		legend.add(new LegendItem("Water", Palette.WATER.get()));
-		legend.add(new LegendItem("Malaria free", Palette.GREY_20.get()));
+		legend.add(new MapKeyItem("Water", Palette.WATER.get()));
+		legend.add(new MapKeyItem("Malaria free", Palette.GREY_20.get()));
 	
-		legend.add(new LegendItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
-		legend.add(new LegendItem(String.format("<i>%s</i>API ≥ 0.1‰", parasite), colours.get(2)));
+		legend.add(new MapKeyItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
+		legend.add(new MapKeyItem(String.format("<i>%s</i>API ≥ 0.1‰", parasite), colours.get(2)));
 		
 		/*
 		 * Add duffy if required
 		 */
 		if (duffyReq) {
-			LegendItem li = new LegendItem("Duffy negativity ≥ 90%", Palette.BLACK.get(0));
+			MapKeyItem li = new MapKeyItem("Duffy negativity ≥ 90%", Palette.BLACK.get(0));
 			li.duffy = true;
 			legend.add(li);
 		}
 	
-		mapCanvas.drawLegend(frameConf.get("legendFrame"), legend);
+		mapCanvas.drawKey(frameConf.get("legendFrame"), legend);
 	
 		if(prPointsRequired) {
 			ContinuousScale cs = new ContinuousScale(frameConf.get("continuousScale"), "Probability", "(in units of <i>" + parasite + "</i>PR<sub><small>2-10</small></sub>, 0-100%)");
@@ -1139,11 +1137,11 @@ public class CountryLevelMaps {
   	/*
   	 * Draw the legend TODO: combine this and the styling in a layer
   	 */
-  	List<LegendItem> legend = new ArrayList<LegendItem>();
-  	legend.add(new LegendItem("Water", Palette.WATER.get()));
+  	List<MapKeyItem> legend = new ArrayList<MapKeyItem>();
+  	legend.add(new MapKeyItem("Water", Palette.WATER.get()));
   
   	Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
-  	mapCanvas.drawLegend(legendFrame, legend);
+  	mapCanvas.drawKey(legendFrame, legend);
   
   	cs.draw(mapCanvas);
   	

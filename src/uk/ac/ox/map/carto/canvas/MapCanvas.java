@@ -116,7 +116,7 @@ public class MapCanvas extends BaseCanvas {
 		}
 	}
 
-	public void drawLegend(Rectangle rect, List<LegendItem> legend) {
+	public void drawKey(Rectangle rect, List<MapKeyItem> legend) {
 		/*
 		 * FIXME: Hacks to draw custom fillstyles
 		 */
@@ -132,7 +132,7 @@ public class MapCanvas extends BaseCanvas {
 		double textMargin = 35;
 
 		fontDesc.setSize(6);
-		for (LegendItem li : legend) {
+		for (MapKeyItem li : legend) {
 			setFillColour(li.colour);
 			cr.rectangle(x, y, patchWidth, patchHeight);
 			cr.fillPreserve();

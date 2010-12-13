@@ -23,7 +23,7 @@ import uk.ac.ox.map.base.service.AdminUnitService;
 import uk.ac.ox.map.base.service.PRService;
 import uk.ac.ox.map.carto.canvas.ContinuousScale;
 import uk.ac.ox.map.carto.canvas.DataFrame;
-import uk.ac.ox.map.carto.canvas.LegendItem;
+import uk.ac.ox.map.carto.canvas.MapKeyItem;
 import uk.ac.ox.map.carto.canvas.MapCanvas;
 import uk.ac.ox.map.carto.canvas.Rectangle;
 import uk.ac.ox.map.carto.raster.WMSRaster;
@@ -131,7 +131,7 @@ public class PRMaps {
 		Envelope env = new Envelope(region.getMinX(), region.getMaxX(), region.getMinY(), region.getMaxY());
 		
 		// Legend items
-		List<LegendItem> legend = new ArrayList<LegendItem>();
+		List<MapKeyItem> legend = new ArrayList<MapKeyItem>();
 		HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
 		colours.put(0, Palette.GREY_20.get());
 		colours.put(1, Palette.GREY_40.get());
@@ -231,16 +231,16 @@ public class PRMaps {
 		/*
 		 * Draw the legend TODO: combine this and the styling in a layer
 		 */
-		legend.add(new LegendItem("Water", waterColour));
-		legend.add(new LegendItem("Malaria free", Palette.GREY_20.get()));
+		legend.add(new MapKeyItem("Water", waterColour));
+		legend.add(new MapKeyItem("Malaria free", Palette.GREY_20.get()));
 
-		legend.add(new LegendItem(String.format("<i>%s</i>API &lt; 0.1‰", parasiteStr), colours.get(1)));
+		legend.add(new MapKeyItem(String.format("<i>%s</i>API &lt; 0.1‰", parasiteStr), colours.get(1)));
 		
 		if (mapConf.getName().equals("Limits")){
-			legend.add(new LegendItem(String.format("<i>%s</i>API ≥ 0.1‰", parasiteStr), colours.get(2)));
+			legend.add(new MapKeyItem(String.format("<i>%s</i>API ≥ 0.1‰", parasiteStr), colours.get(2)));
 		}
 
-		mapCanvas.drawLegend(frameConf.get("legendFrame"), legend);
+		mapCanvas.drawKey(frameConf.get("legendFrame"), legend);
 
 		cs.draw(mapCanvas);
 		

@@ -10,16 +10,13 @@ import freemarker.template.Template;
 import freemarker.template.TemplateException;
 
 public class MapTextFactory {
-	static final Configuration cfg = new Configuration();
-
-	public String processTemplate(Map<String, Object> root, String template)
-			throws IOException, TemplateException {
-
-		Template temp = cfg.getTemplate(template);
-		Writer out = new StringWriter();
-		temp.process(root, out);
-		return out.toString();
-
-	}
-
+  
+  private static final Configuration cfg = new Configuration();
+  
+  public String processTemplate(Map<String, Object> root, String template) throws IOException, TemplateException {
+    Template temp = cfg.getTemplate(template);
+    Writer out = new StringWriter();
+    temp.process(root, out);
+    return out.toString();
+  }
 }
