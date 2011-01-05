@@ -8,8 +8,11 @@ import java.util.List;
 import java.util.Map;
 
 import org.freedesktop.cairo.PdfSurface;
+import org.gnome.gdk.Pixbuf;
 import org.gnome.gdk.PixbufFormat;
 import org.gnome.gtk.Gtk;
+import org.gnome.rsvg.Handle;
+import org.gnome.rsvg.Rsvg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +36,6 @@ import uk.ac.ox.map.carto.canvas.MapCanvas;
 import uk.ac.ox.map.carto.canvas.Rectangle;
 import uk.ac.ox.map.carto.layer.LayerFactory;
 import uk.ac.ox.map.carto.raster.WMSRaster;
-import uk.ac.ox.map.carto.style.DummyRenderScale;
 import uk.ac.ox.map.carto.style.FillStyle;
 import uk.ac.ox.map.carto.style.FillStyle.FillType;
 import uk.ac.ox.map.carto.style.LineStyle;
@@ -41,6 +43,8 @@ import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.style.PolygonSymbolizer;
 import uk.ac.ox.map.carto.text.MapTextFactory;
 import uk.ac.ox.map.carto.text.MapTextResource;
+import uk.ac.ox.map.carto.util.OutputUtil;
+import uk.ac.ox.map.carto.util.OverlayUtil;
 import uk.ac.ox.map.carto.util.StringUtil;
 import uk.ac.ox.map.carto.util.SystemUtil;
 import uk.ac.ox.map.deps.Colour;
@@ -60,6 +64,7 @@ import com.vividsolutions.jts.operation.overlay.OverlayOp;
 import freemarker.template.Template;
 
 public class CountryLevelMaps {
+  
 
 	static final Logger logger = LoggerFactory.getLogger(CountryLevelMaps.class);
 	static final LineStyle defaultLineStyle = new LineStyle(Palette.BLACK.get(), 0.2);
@@ -75,6 +80,7 @@ public class CountryLevelMaps {
 	public static void main(String[] args) throws Exception {
 		
 		Gtk.init(null);
+		Rsvg.init();
 		AdminUnitService adminUnitService = new AdminUnitService();
 		H5RasterFactory h5RFpop = new H5RasterFactory("/home/will/workspace/ImageIO/pop10.h5");
 		H5RasterFactory h5RFpfLims = new H5RasterFactory("/home/will/workspace/ImageBase/pf_limits.h5");
@@ -110,20 +116,31 @@ public class CountryLevelMaps {
 		}
 		
 		List<String> duffyCountryIds = adminUnitService.getDuffyCountryIds();
+		List<String> toProcess = new ArrayList<String>();
+		toProcess.add("LKA");
+//		toProcess.add("THA");
+//		toProcess.add("VNM");
+//		toProcess.add("MMR");
+//		toProcess.add("KHM");
+//		toProcess.add("LAO");
+//		toProcess.add("CHN");
 		
 		for (Country c : countries) {
 			logger.debug(c.getId());
-			if(!(c.getId().equals("NAM") || c.getId().equals("DJI") || c.getId().equals("SWZ")|| c.getId().equals("BTN")))
-				continue;
+			if (!toProcess.contains(c.getId())) {
+			  continue;
+			}
+//			if(!(c.getId().equals("NAM") || c.getId().equals("DJI") || c.getId().equals("SWZ")|| c.getId().equals("BTN")))
+//				continue;
 			
 			if (c.getPfEndemic()) {
 				drawPRMap(c, Parasite.Pf, frameConfP, 500, 707, h5RFPfPR, h5RFpfLims);
 //				drawAPIMap(c, Parasite.Pf, frameConfP, 500, 707);
-//				drawLimitsMap(c, Parasite.Pf, h5RFpf, frameConfP, 500, 707, false, false);
+//				drawLimitsMap(c, Parasite.Pf, h5RFpfLims, frameConfP, 500, 707, false, false);
 			}
 			
 			if (c.getPvEndemic()) {
-//				drawLimitsMap(c, Parasite.Pv, h5RFpv, frameConfP, 500, 707, false, duffyCountryIds.contains(c.getId()));
+//				drawLimitsMap(c, Parasite.Pv, h5RFpvLims, frameConfP, 500, 707, false, duffyCountryIds.contains(c.getId()));
 //				drawAPIMap(c, Parasite.Pv, frameConfP, 500, 707);
 			}
 		}
@@ -143,7 +160,7 @@ public class CountryLevelMaps {
 			 * Get country then use extent to: 1. Create map canvas 2. Get
 			 * appropriate admin units
 			 */
-			Envelope env = new Envelope(country.getMinX(), country.getMaxX(), country.getMinY(), country.getMaxY());
+			Envelope env; env = new Envelope(country.getMinX(), country.getMaxX(), country.getMinY(), country.getMaxY()); 
 			env.expandBy(env.getWidth()/20);
 	
 			/*
@@ -198,20 +215,6 @@ public class CountryLevelMaps {
 			df.drawFeatures(pfFeats);
 	
 			/*
-			 * Draw limits layer
-			 */
-			DummyRenderScale dr = new DummyRenderScale();
-			dr.putColour(1, Palette.BLACK.get(0.5));
-			dr.putColour(0, Palette.BLACK.get(0));
-	
-	
-			DummyRenderScale dr2 = new DummyRenderScale();
-			dr2.putColour(1, Palette.GREY_30.get(0.5));
-			dr2.putColour(0, Palette.BLACK.get(0));
-	//		RasterLayer ras2 = FltReader.openFloatFile(tempLimsLoc, "templimspf_CLEAN", dr2, df.getEnvelope());
-	//		df.addRasterLayer(ras2);
-	
-			/*
 			 * Get excluded cities TODO: get enum type for exclusions
 			 */
 			List<PolygonSymbolizer> exclAreas = new ArrayList<PolygonSymbolizer>();
@@ -259,7 +262,7 @@ public class CountryLevelMaps {
 			/*
 			 * Draw excluded areas
 			 */
-			df.drawFeatures(exclAreas);
+  		df.drawFeatures(exclAreas);
 	
 		/*
 			 * Draw on water bodies
@@ -678,7 +681,6 @@ public class CountryLevelMaps {
 		df.drawMultiPolygon(aps);
 		df.drawFeatures(adminPolySym);
 		
-		
 		/*
 		 * Draw on water bodies
 		 */
@@ -694,7 +696,7 @@ public class CountryLevelMaps {
 		/*
 		 * Draw the rest of the canvas
 		 */
-		PdfSurface mapSurface = new PdfSurface("/tmp/tmp_mapsurface.pdf", w, h);
+		PdfSurface mapSurface = new PdfSurface(OutputUtil.getOutputLocation("pf_pr", country.getId()+"_Pf_PR"), w, h);
 		MapCanvas mapCanvas = new MapCanvas(mapSurface, w, h);
 		mapCanvas.addDataFrame(df);
 		mapCanvas.drawDataFrames();
@@ -729,10 +731,10 @@ public class CountryLevelMaps {
 		
 		String mapText = mapTextFactory.processTemplate(context, "prText.ftl");
 		mapCanvas.drawTextFrame(mapText, frameConf.get("mapTextFrame"), 6, 10);
+  	
+		OverlayUtil.drawStaticOverlays(mapCanvas);
+  	
 		mapSurface.finish();
-
-		SystemUtil.addBranding("pf_pr", country.getId(), "Pf_PR", "branding_final");
-		
 	}
 	
 	public static void drawRegionPopMap(String regionName, Map<String, Rectangle> frameConf, Template templ, int w, int h) throws Exception {
@@ -1166,7 +1168,6 @@ public class CountryLevelMaps {
   	mapSurface.finish();
   
   	SystemUtil.addBranding("population", country.getId(), "population", "portrait_n");
-  	
   }
-
+  
 }

@@ -185,7 +185,7 @@ public class PRMaps {
 		 * to produce a mask
 		 */
 		FillStyle transparent = new FillStyle(new Colour("#ffffff", 0));
-		List<AdminUnit> adminUnits2 = adminUnitService.getCountriesByRegion(resizedEnv, region);
+		List<AdminUnit> adminUnits2 = adminUnitService.getAdminUnitsByRegion(region);
 		List<PolygonSymbolizer> adminPolySym2 = new ArrayList<PolygonSymbolizer>();
 		for (AdminUnit admin0 : adminUnits2) {
 			PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) admin0.getGeom(), transparent, new LineStyle(Palette.GREY_60.get(), 0.2));

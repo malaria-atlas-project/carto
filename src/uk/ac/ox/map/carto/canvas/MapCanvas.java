@@ -12,6 +12,7 @@ import org.gnome.gdk.Pixbuf;
 import org.gnome.pango.Alignment;
 import org.gnome.pango.FontDescription;
 import org.gnome.pango.Layout;
+import org.gnome.rsvg.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -250,7 +251,10 @@ public class MapCanvas extends BaseCanvas {
 	}
 
 	public void setScaleBar(Rectangle frame, double scale, int fontSize) {
-		ScaleBar sb = new ScaleBar(this, frame, scale, fontSize);
+		ScaleBar sb = new ScaleBar(this, frame, scale, fontSize, "Kilometres");
+	}
+	public void setScaleBar(Rectangle frame, double scale, int fontSize, String unitText) {
+		ScaleBar sb = new ScaleBar(this, frame, scale, fontSize, unitText);
 	}
 
 	/**
@@ -262,17 +266,35 @@ public class MapCanvas extends BaseCanvas {
 		dataFrames.add(df);
 	}
 
-  public void drawImage(double i, double j, double w, double h, Pixbuf pbTri) {
+  public void drawImage(Rectangle frame, Pixbuf pbTri) {
     cr.save();
     
-    double sx = w / (double) pbTri.getWidth();
-    double sy = h / (double) pbTri.getHeight();
+    double sx = frame.width / (double) pbTri.getWidth();
+    double sy = frame.height / (double) pbTri.getHeight();
     
     cr.scale(sx, sy);
-    cr.setSource(pbTri, i/sx, j/sy);
+    cr.setSource(pbTri, frame.x/sx, frame.y/sy);
     
     cr.paint();
     
     cr.restore();
   }
+
+  public void drawSVG(Rectangle frame, Handle h) {
+    cr.save();
+    
+    double sx = frame.width / h.getDimensions().getWidth();
+    double sy = frame.height / h.getDimensions().getHeight();
+    logger.debug("sx: " + sx);
+    logger.debug("sy: " + sy);
+    
+    cr.scale(sx, sy);
+    cr.translate(frame.x/sx, frame.y/sy);
+    cr.showHandle(h);
+    
+    cr.restore();
+  }
+  
 }
+
+

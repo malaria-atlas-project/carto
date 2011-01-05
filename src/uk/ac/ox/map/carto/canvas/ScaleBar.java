@@ -26,7 +26,7 @@ public class ScaleBar {
 		HOLLOW, FILLED
 	}
 	
-	public ScaleBar(MapCanvas mapCanvas, Rectangle frame, double scale, int fontSize) {
+	public ScaleBar(MapCanvas mapCanvas, Rectangle frame, double scale, int fontSize, String unitText) {
 		this.mapCanvas = mapCanvas;
 		this.cr = this.mapCanvas.outer().cr;
 
@@ -77,7 +77,7 @@ public class ScaleBar {
 			drawSegment((int) divisionWidth, st, formatter.format(interval * (i + 1)));
 		}
 
-		this.mapCanvas.outer().annotateMap("Kilometres", offset + 10, frame.y, Anchor.LT);
+		this.mapCanvas.outer().annotateMap(unitText, offset + 10, frame.y, Anchor.LT);
 	}
 
 	private void drawSegment(int width, SegmentType st, String text) {

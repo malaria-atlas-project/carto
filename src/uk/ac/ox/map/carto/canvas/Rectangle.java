@@ -15,7 +15,7 @@ public class Rectangle {
 		LT, CT, RT, LC, CC, RC, LB, CB, RB;
 	}
 
-	final double x, y, width, height;
+	public final double x, y, width, height;
 
 	public Rectangle(double x, double y, double width, double height) {
 		this.x = x;
