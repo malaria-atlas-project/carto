@@ -22,16 +22,18 @@ public enum Palette {
 	ORANGE_DARK ("#FF8C00"),
 	GRID ("#0066cc"); 
 	
-	private String hexColour;
-	Palette(String hexColour){
-		this.hexColour = hexColour;
-	}
-	
-	public Colour get() {
-		return new Colour(hexColour, 1);
-    }
-	public Colour get(double a) {
-		return new Colour(hexColour, a);
-    }
+  private String hexColour;
+
+  Palette(String hexColour) {
+    this.hexColour = hexColour;
+  }
+
+  public Colour get() {
+    return new Colour(hexColour, 1);
+  }
+
+  public Colour get(double a) {
+    return new Colour(hexColour, a);
+  }
 	
 }

@@ -28,7 +28,7 @@ public class MapCanvas extends BaseCanvas {
 	final FontDescription fontDesc;
 	static final Logger logger = LoggerFactory.getLogger(MapCanvas.class);
 
-	public MapCanvas(PdfSurface pdf, int width, int height) {
+	public MapCanvas(PdfSurface pdf, double width, double height) {
 		super(pdf, width, height);
 
 		/*

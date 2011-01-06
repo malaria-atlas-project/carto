@@ -86,6 +86,7 @@ public class CountryLevelMaps {
 		H5RasterFactory h5RFpfLims = new H5RasterFactory("/home/will/workspace/ImageBase/pf_limits.h5");
 		H5RasterFactory h5RFpvLims = new H5RasterFactory("/home/will/workspace/ImageBase/pv_limits.h5");
 		H5RasterFactory h5RFPfPR = new H5RasterFactory("/home/will/workspace/ImageBase/pf_pr.h5");
+		H5RasterFactory h5RFPfStd = new H5RasterFactory("/home/will/workspace/ImageBase/pf_std.h5");
 		
 		Map<String, Rectangle> frameConfP = new HashMap<String, Rectangle>();
 		frameConfP.put("dataFrame", new Rectangle(20, 40, 460, 460));
