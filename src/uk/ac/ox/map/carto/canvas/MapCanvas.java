@@ -12,7 +12,6 @@ import org.gnome.gdk.Pixbuf;
 import org.gnome.pango.Alignment;
 import org.gnome.pango.FontDescription;
 import org.gnome.pango.Layout;
-import org.gnome.rsvg.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -280,6 +279,7 @@ public class MapCanvas extends BaseCanvas {
     cr.restore();
   }
 
+  /*
   public void drawSVG(Rectangle frame, Handle h) {
     cr.save();
     
@@ -294,6 +294,7 @@ public class MapCanvas extends BaseCanvas {
     
     cr.restore();
   }
+  */
   
 }
 

@@ -20,7 +20,12 @@ public enum Palette {
 	FERN ("#89CD66"),
 	YELLOW ("#ffff00"),
 	ORANGE_DARK ("#FF8C00"),
-	GRID ("#0066cc"); 
+	GRID ("#0066cc"), 
+	ULTRA_BLUE ("#004DA8"),
+	MACAW_GREEN ("#98E600"),
+	AUTUNITE_YELLOW ("#FFFF73")
+	; 
+	
 	
   private String hexColour;
 

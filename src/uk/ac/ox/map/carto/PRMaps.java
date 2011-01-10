@@ -18,7 +18,9 @@ import uk.ac.ox.map.base.model.adminunit.WaterBody;
 import uk.ac.ox.map.base.model.carto.Layer;
 import uk.ac.ox.map.base.model.carto.MapConf;
 import uk.ac.ox.map.base.model.carto.MapLayer;
+import uk.ac.ox.map.base.model.carto.Region;
 import uk.ac.ox.map.base.model.pr.PRPoint;
+import uk.ac.ox.map.base.model.pr.Parasite;
 import uk.ac.ox.map.base.service.AdminUnitService;
 import uk.ac.ox.map.base.service.PRService;
 import uk.ac.ox.map.carto.canvas.ContinuousScale;
@@ -69,11 +71,6 @@ public class PRMaps {
 		frameConfLS.put("continuousScale", new Rectangle(587, 440, 100, 15));
 		frameConfLS.put("titleFrame", new Rectangle(10, 3, 687, 0));
 		frameConfLS.put("mapTextFrame", new Rectangle(50, 410, 420, 0));
-		
-//		drawTestFrame(frameConf, w, h);
-//		drawTestFrame(frameConf, h, w);
-//		drawMap("pf", "Africa+", frameConf, w, h);
-//		drawMeanMap("pf", "Africa+", frameConf, w, h);
 		
 		
 		List<MapConf> mapConfs = adminUnitService.getMaps();
@@ -211,7 +208,7 @@ public class PRMaps {
 		 * Draw on points
 		 */
 		if (mapConf.getName().equals("Limits")) {
-			List<PRPoint> prPoints = prService.getPointsByRegion(regionName, parasite);
+			List<PRPoint> prPoints = prService.getPointsByRegion(new Region(adminUnitService.getRegion(regionName)), Parasite.Pf);
 			for (PRPoint prPoint : prPoints) {
 				df.drawPoint(prPoint.getLongitude(), prPoint.getLatitude(), prPoint.getColour());
 			}
@@ -253,7 +250,7 @@ public class PRMaps {
 		
 		String pointText = "The %s <i>P. falciparum</i> parasite rate surveys available for predicting prevalance within the stable limits were collected between %s and %s.";
 		if (mapConf.getName().equals("Limits")) {
-			Map<String, Object> yrs = prService.getSurveysByRegion(region.getId());
+			Map<String, Object> yrs = prService.getSurveysByRegion(new Region(region));
 			mapTextItems.add(String.format(pointText, yrs.get("n"), yrs.get("min"), yrs.get("max")));
 		}
 		

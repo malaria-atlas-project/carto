@@ -11,8 +11,6 @@ import org.freedesktop.cairo.PdfSurface;
 import org.gnome.gdk.Pixbuf;
 import org.gnome.gdk.PixbufFormat;
 import org.gnome.gtk.Gtk;
-import org.gnome.rsvg.Handle;
-import org.gnome.rsvg.Rsvg;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -80,7 +78,6 @@ public class CountryLevelMaps {
 	public static void main(String[] args) throws Exception {
 		
 		Gtk.init(null);
-		Rsvg.init();
 		AdminUnitService adminUnitService = new AdminUnitService();
 		H5RasterFactory h5RFpop = new H5RasterFactory("/home/will/workspace/ImageIO/pop10.h5");
 		H5RasterFactory h5RFpfLims = new H5RasterFactory("/home/will/workspace/ImageBase/pf_limits.h5");
@@ -439,7 +436,7 @@ public class CountryLevelMaps {
 			}
 		};
 		
-		H5IntRaster h5r = h5Fact.getRaster(resizedEnv, tm, cm);
+		H5IntRaster h5r = h5Fact.getRaster(resizedEnv, tm, cm, 1);
 		h5r.getPixbuf().save("/tmp/pixbuftest.png", PixbufFormat.PNG);
 		df.addRasterLayer(h5r);
 		
@@ -623,7 +620,7 @@ public class CountryLevelMaps {
 			public float transform(float fV) {
 				return fV;
 			}
-		}, cs);
+		}, cs, 5);
 		df.addRasterLayer(ras);
 		
 		/*
@@ -642,7 +639,7 @@ public class CountryLevelMaps {
 			}
 		};
 		
-		H5IntRaster h5r = h5RFPfLims.getRaster(resizedEnv, tm, cm);
+		H5IntRaster h5r = h5RFPfLims.getRaster(resizedEnv, tm, cm, 1);
 		h5r.getPixbuf().save("/tmp/pixbuftest.png", PixbufFormat.PNG);
 		df.addRasterLayer(h5r);
 		
@@ -916,7 +913,7 @@ public class CountryLevelMaps {
 			}
 		};
 		
-		H5IntRaster h5r = h5Fact.getRaster(resizedEnv, tm, cm);
+		H5IntRaster h5r = h5Fact.getRaster(resizedEnv, tm, cm, 1);
 //		h5r.getPixbuf().save("/tmp/pixbuftest.png", PixbufFormat.PNG);
 		df.addRasterLayer(h5r);
 		
@@ -1074,7 +1071,7 @@ public class CountryLevelMaps {
   			}
   			return fV;
   		}
-  	}, cs);
+  	}, cs, 1);
   	df.addRasterLayer(ras);
   	
   	/* Get admin units (level 0)
