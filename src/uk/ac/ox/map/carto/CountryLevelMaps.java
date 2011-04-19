@@ -41,6 +41,7 @@ import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.style.PolygonSymbolizer;
 import uk.ac.ox.map.carto.text.MapTextFactory;
 import uk.ac.ox.map.carto.text.MapTextResource;
+import uk.ac.ox.map.carto.util.GeometryUtil;
 import uk.ac.ox.map.carto.util.OutputUtil;
 import uk.ac.ox.map.carto.util.OverlayUtil;
 import uk.ac.ox.map.carto.util.StringUtil;
@@ -312,7 +313,7 @@ public class CountryLevelMaps {
 			if (noDataPresent)
 				legend.add(new MapKeyItem("No data", colours.get(9)));
 	
-			mapCanvas.drawKey(frameConf.get("legendFrame"), legend);
+			mapCanvas.drawKey(frameConf.get("legendFrame"), legend, 6);
 	
 			/*
 			 * Text stuff TODO: factor all this string building out
@@ -523,7 +524,7 @@ public class CountryLevelMaps {
 			legend.add(li);
 		}
 	
-		mapCanvas.drawKey(frameConf.get("legendFrame"), legend);
+		mapCanvas.drawKey(frameConf.get("legendFrame"), legend, 6);
 	
 		if(prPointsRequired) {
 			ContinuousScale cs = new ContinuousScale(frameConf.get("continuousScale"), "Probability", "(in units of <i>" + parasite + "</i>PR<sub><small>2-10</small></sub>, 0-100%)");
@@ -620,7 +621,7 @@ public class CountryLevelMaps {
 			public float transform(float fV) {
 				return fV;
 			}
-		}, cs, 5);
+		}, cs, 1);
 		df.addRasterLayer(ras);
 		
 		/*
@@ -711,7 +712,7 @@ public class CountryLevelMaps {
 		legend.add(new MapKeyItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
 
 		Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
-		mapCanvas.drawKey(legendFrame, legend);
+		mapCanvas.drawKey(legendFrame, legend, 6);
 
 		cs.draw(mapCanvas);
 		
@@ -800,7 +801,7 @@ public class CountryLevelMaps {
 		legend.add(new MapKeyItem("Water", Palette.WATER.get()));
 	
 		Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
-		mapCanvas.drawKey(legendFrame, legend);
+		mapCanvas.drawKey(legendFrame, legend, 6);
 	
 		ContinuousScale cs = new ContinuousScale(new Rectangle(390, 600, 15, 90), "Population", null);
 		
@@ -965,7 +966,7 @@ public class CountryLevelMaps {
 			legend.add(li);
 		}
 	
-		mapCanvas.drawKey(frameConf.get("legendFrame"), legend);
+		mapCanvas.drawKey(frameConf.get("legendFrame"), legend, 6);
 	
 		if(prPointsRequired) {
 			ContinuousScale cs = new ContinuousScale(frameConf.get("continuousScale"), "Probability", "(in units of <i>" + parasite + "</i>PR<sub><small>2-10</small></sub>, 0-100%)");
@@ -1099,13 +1100,7 @@ public class CountryLevelMaps {
   	/*
   	 * Sea mask
   	 */
-  	MultiPolygon mp;
-  	if (tempG.getNumGeometries() > 1) {
-  		mp = (MultiPolygon) tempG;
-  	} else {
-  		Polygon p = (Polygon) tempG;
-  		mp = new MultiPolygon(new Polygon[]{p}, new GeometryFactory());
-  	}
+  	MultiPolygon mp = GeometryUtil.toMultiPolygon(new GeometryFactory(), tempG);
   	PolygonSymbolizer aps = new PolygonSymbolizer(mp, new FillStyle(Palette.WATER.get()), new LineStyle(Palette.WATER.get(), 0.2));
   	df.drawMultiPolygon(aps);
   	df.drawFeatures(adminPolySym);
@@ -1141,7 +1136,7 @@ public class CountryLevelMaps {
   	legend.add(new MapKeyItem("Water", Palette.WATER.get()));
   
   	Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
-  	mapCanvas.drawKey(legendFrame, legend);
+  	mapCanvas.drawKey(legendFrame, legend, 6);
   
   	cs.draw(mapCanvas);
   	

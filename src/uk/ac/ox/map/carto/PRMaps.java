@@ -237,7 +237,7 @@ public class PRMaps {
 			legend.add(new MapKeyItem(String.format("<i>%s</i>API ≥ 0.1‰", parasiteStr), colours.get(2)));
 		}
 
-		mapCanvas.drawKey(frameConf.get("legendFrame"), legend);
+		mapCanvas.drawKey(frameConf.get("legendFrame"), legend, 6);
 
 		cs.draw(mapCanvas);
 		

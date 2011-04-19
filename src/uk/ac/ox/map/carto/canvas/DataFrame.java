@@ -7,6 +7,7 @@ import java.util.List;
 
 import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
+import org.freedesktop.cairo.SvgSurface;
 import org.gnome.gdk.Pixbuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -86,7 +87,7 @@ public class DataFrame extends BaseCanvas {
 	
 	public DataFrame(Builder builder) throws IOException {
 		
-		super((Surface) new PdfSurface(builder.fileName, builder.rect.width, builder.rect.height), builder.rect.width, builder.rect.height);
+		super(new PdfSurface(builder.fileName, builder.rect.width, builder.rect.height), builder.rect.width, builder.rect.height);
 
 		setEnvelope(builder.rect.width, builder.rect.height, builder.env);
 		this.origin = builder.rect.getUpperLeft();

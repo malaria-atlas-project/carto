@@ -8,6 +8,8 @@ import java.util.HashMap;
 import java.util.List;
 
 import org.freedesktop.cairo.PdfSurface;
+import org.freedesktop.cairo.SVGSurface;
+import org.freedesktop.cairo.SvgSurface;
 import org.gnome.gdk.Pixbuf;
 import org.gnome.pango.Alignment;
 import org.gnome.pango.FontDescription;
@@ -27,9 +29,20 @@ public class MapCanvas extends BaseCanvas {
 	final FontDescription fontDesc;
 	static final Logger logger = LoggerFactory.getLogger(MapCanvas.class);
 
-	public MapCanvas(PdfSurface pdf, double width, double height) {
+	public MapCanvas(SvgSurface pdf, double width, double height) {
 		super(pdf, width, height);
 
+		/*
+		 * Sensible defaults for font options.
+		 */
+		fontDesc = new FontDescription();
+		fontDesc.setFamily("Helvetica");
+		fontDesc.setSize(12);
+	}
+	
+	public MapCanvas(PdfSurface pdf, double width, double height) {
+		super(pdf, width, height);
+		
 		/*
 		 * Sensible defaults for font options.
 		 */
@@ -116,7 +129,7 @@ public class MapCanvas extends BaseCanvas {
 		}
 	}
 
-	public void drawKey(Rectangle rect, List<MapKeyItem> legend) {
+	public void drawKey(Rectangle rect, List<MapKeyItem> legend, double fontSize) {
 		/*
 		 * FIXME: Hacks to draw custom fillstyles
 		 */
@@ -131,7 +144,7 @@ public class MapCanvas extends BaseCanvas {
 		double spacing = 22;
 		double textMargin = 35;
 
-		fontDesc.setSize(6);
+		fontDesc.setSize(fontSize);
 		for (MapKeyItem li : legend) {
 			setFillColour(li.colour);
 			cr.rectangle(x, y, patchWidth, patchHeight);

@@ -21,7 +21,7 @@ public class UnitTests {
 		t.add("a");
 		s = StringUtil.getReadableList(t);
 		System.out.println(s);
-		assertTrue(s.compareTo("a") == 0);
+		assertTrue(s.compareTo("a") == 0)   ;
 		
 		t.clear();
 		t.add("a");

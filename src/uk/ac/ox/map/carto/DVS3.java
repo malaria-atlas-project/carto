@@ -298,7 +298,7 @@ public class DVS3 {
     List<MapKeyItem> key = new ArrayList<MapKeyItem>();
     key.add(new MapKeyItem("Water", waterColour));
 
-    mapCanvas.drawKey(frameConf.get("keyFrame"), key);
+    mapCanvas.drawKey(frameConf.get("keyFrame"), key, 6);
     
     /*
      * Draw scales

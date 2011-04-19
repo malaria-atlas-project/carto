@@ -49,7 +49,10 @@ import uk.ac.ox.map.imageio.RasterLayer;
 
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
+import com.vividsolutions.jts.geom.GeometryFactory;
 import com.vividsolutions.jts.geom.MultiPolygon;
+import com.vividsolutions.jts.geom.Polygon;
+import com.vividsolutions.jts.operation.overlay.OverlayOp;
 
 public class CountryPRMaps {
 	static Logger logger = LoggerFactory.getLogger(CountryPRMaps.class);
@@ -97,10 +100,14 @@ public class CountryPRMaps {
 		  logger.debug(mapConf.getName());
 		  
 			if (mapConf.getName().startsWith("Attack")) continue;
+			if (mapConf.getName().startsWith("Uncertainty class")) continue;
+			if (mapConf.getName().equals("Uncertainty")) continue;
+			if (mapConf.getName().startsWith("Probability")) continue;
+//			if (mapConf.getName().startsWith("Limits")) continue;
 			
 //      	drawCountryPRMaps(mapConf, para, cs, pfPRH5, pfLimsH5);
-      	drawRegionPRMaps(mapConf, para);
-//      	drawCountryPRMaps(mapConf, para);
+//      	drawRegionPRMaps(mapConf, para);
+      	drawCountryPRMaps(mapConf, para);
 //      	drawCountryPRMaps(mapConf, para, cs2, pfStdH5, pfLimsH5);
       	
 		}
@@ -161,7 +168,7 @@ public class CountryPRMaps {
   	env.expandBy(env.getWidth()/20);
 	  
 	  Map<String, Rectangle> frameConf;
-	  if(env.getWidth() > env.getHeight()) {
+  	if(reg.getName().equals("CSE Asia") || reg.getName().equals("World")) {
 	    frameConf = frameConfLS;
 	  } else {
 	    frameConf = frameConfP;
@@ -190,7 +197,16 @@ public class CountryPRMaps {
   	}
 	}
 	
+	
 	public static void drawPRMap(DataFrame df, Parasite parasite, MapConf mapConf, Region reg, List<AdminUnit> adminPolys, Map<String, Rectangle> frameConf) throws Exception {
+	  
+	  //Get admin units
+  	List<AdminUnit> aus = adminUnitService.getAdminUnitsByCountryId(reg.getId());
+  	List<PolygonSymbolizer> aups = new ArrayList<PolygonSymbolizer>();
+  	for (AdminUnit adminUnit : aus) {
+  	  aups.add(new PolygonSymbolizer((MultiPolygon) adminUnit.getGeom(), new FillStyle(Palette.GREY_20.get()), new LineStyle(Palette.GREY_20.get(), 0.2)));
+    }
+  	df.drawFeatures(aups);
     
   	/*
   	 * Get envelope as resized by dataframe 
@@ -211,7 +227,7 @@ public class CountryPRMaps {
     		public float transform(float fV) {
     			return fV;
     		}
-    	}, cs, 5);
+    	}, cs, 1);
     	
   	} else if (mapConf.getName().equals("Uncertainty")){
   		cs = new ContinuousScale(frameConf.get("CONTINUOUSSCALE"), "Standard deviation", "(in units of <i>" + parasite.toString() + "</i>PR<sub><small>2-10</small></sub>, 0-100%)");
@@ -225,7 +241,7 @@ public class CountryPRMaps {
     		public float transform(float fV) {
     			return fV;
     		}
-    	}, cs, 5);
+    	}, cs, 1);
   	  
   	} else {
   	  throw new Exception("Unknown map conf: " + mapConf.getName());
@@ -269,23 +285,18 @@ public class CountryPRMaps {
   	H5IntRaster h5r = pfLimsH5.getRaster(resizedEnv, tm, cm, 1);
   	df.addRasterLayer(h5r);
   	
-  	/* Get admin units (level 0)
-  	 * overlapping data frame and draw them, avoiding country in question
-  	 * to produce a mask
+  	/*
+  	 * Sea mask
   	 */
   	MultiPolygon rect = (MultiPolygon) cartoService.getWorldRect().getGeom();
   	Geometry tempG = rect;
   	
-  	FillStyle greyFS = new FillStyle(Palette.WHITE.get());
-  	List<PolygonSymbolizer> adminPolySym = new ArrayList<PolygonSymbolizer>();
-  	for(AdminUnit admin0: adminPolys) {
-  			PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) admin0.getGeom(), greyFS, new LineStyle(Palette.GREY_70.get(), 0.2));
-  			adminPolySym.add(ps);
-		}
-  	df.drawFeatures(adminPolySym);
+  	//TODO: regions not catered for here
+  	for (AdminUnit adminUnit : aus) {
+  		OverlayOp ol = new OverlayOp(tempG, adminUnit.getGeom());
+  		tempG = ol.getResultGeometry(OverlayOp.DIFFERENCE);
+    }
   	
-  	/*
-  	 * Sea mask
   	MultiPolygon mp;
   	if (tempG.getNumGeometries() > 1) {
   		mp = (MultiPolygon) tempG;
@@ -295,8 +306,21 @@ public class CountryPRMaps {
   	}
   	PolygonSymbolizer aps = new PolygonSymbolizer(mp, new FillStyle(Palette.WATER.get()), new LineStyle(Palette.WATER.get(), 0.2));
   	df.drawMultiPolygon(aps);
-  	df.drawFeatures(adminPolySym);
+  	
+  	
+  	/* Get admin units (level 0)
+  	 * overlapping data frame and draw them, avoiding country in question
+  	 * to produce a mask
   	 */
+  	
+  	FillStyle greyFS = new FillStyle(Palette.WHITE.get());
+  	List<PolygonSymbolizer> adminPolySym = new ArrayList<PolygonSymbolizer>();
+  	for(AdminUnit admin0: adminPolys) {
+  			PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) admin0.getGeom(), greyFS, new LineStyle(Palette.GREY_70.get(), 0.2));
+  			adminPolySym.add(ps);
+		}
+  	df.drawFeatures(adminPolySym);
+  	
   	
   	/*
   	 * Draw on water bodies
@@ -331,7 +355,7 @@ public class CountryPRMaps {
   	legend.add(new MapKeyItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
   
   	Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
-  	mapCanvas.drawKey(legendFrame, legend);
+  	mapCanvas.drawKey(legendFrame, legend, 6);
   
   	
    cs.draw(mapCanvas);
@@ -340,7 +364,7 @@ public class CountryPRMaps {
   	 * Title
   	 */
   	String mapTitle = String.format(mapConf.getTitle(), reg.getDisplayName());
-  	mapCanvas.setTitle(mapTitle, frameConf.get("TITLE"), 10);
+  	mapCanvas.setTitle(mapTitle, frameConf.get("TITLE"), 8);
   	
   	/*
   	 * Text
@@ -353,14 +377,34 @@ public class CountryPRMaps {
   	
   	mapSurface.finish();
   	
-		if (reg.getOrientation().equals(Orientation.LANDSCAPE)) {
-			SystemUtil.addBranding("pf_pr", reg.getFilePrefix(), mapConf.getName(), "branding_final_landscape");
-		} else {
-			SystemUtil.addBranding("pf_pr", reg.getFilePrefix(), mapConf.getName(), "branding_final");
-		}
+//		if (reg.getOrientation().equals(Orientation.LANDSCAPE)) {
+//			SystemUtil.addBranding("pf_pr", reg.getFilePrefix(), mapConf.getName(), "branding_final_landscape");
+//		} else {
+  	if(mapConf.getName().equals("Uncertainty")) {
+			SystemUtil.addBranding("pf_uncertainty", reg.getFilePrefix(), mapConf.getName(), "branding_final");
+  	} else {
+			SystemUtil.addBranding("pf_mean", reg.getFilePrefix(), mapConf.getName(), "branding_final");
+  	}
+//		}
   }
 
   public static void drawSurveyMap(DataFrame df, Parasite parasite, MapConf mapConf, Region region, List<AdminUnit> adminPolys, Map<String, Rectangle> frameConf) throws Exception {
+    
+    
+      
+    	ContinuousScale cs = null;
+    	cs = new ContinuousScale(frameConf.get("CONTINUOUSSCALE"), "Probability", "(in units of <i>" + parasite.toString() + "</i>PR<span rise='-3000' size='x-small'>2-10</span>, 0-100%)");
+    	cs.addColorStopRGB("0",   0.0, 1.0, 1.0, 0, false);
+    	cs.addColorStopRGB("100", 1.0, 1.0, 0.0, 0, false);
+    	cs.finish();
+    
+  	  //Get admin units
+    	List<AdminUnit> aus = adminUnitService.getAdminUnitsByCountryId(region.getId());
+    	List<PolygonSymbolizer> aups = new ArrayList<PolygonSymbolizer>();
+    	for (AdminUnit adminUnit : aus) {
+    	  aups.add(new PolygonSymbolizer((MultiPolygon) adminUnit.getGeom(), new FillStyle(Palette.GREY_20.get()), new LineStyle(Palette.GREY_20.get(), 0.2)));
+      }
+    	df.drawFeatures(aups);
       
     	/*
     	 * Get envelope as resized by dataframe 
@@ -375,7 +419,7 @@ public class CountryPRMaps {
     	HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
     	colours.put(0, Palette.GREY_20.get());
     	colours.put(1, Palette.GREY_40.get());
-    	colours.put(2, Palette.GREY_60.get(0));
+    	colours.put(2, Palette.GREY_60.get());
     	
     	/*
     	 * Draw limits layer
@@ -396,23 +440,18 @@ public class CountryPRMaps {
     	H5IntRaster h5r = pfLimsH5.getRaster(resizedEnv, tm, cm, 1);
     	df.addRasterLayer(h5r);
     	
-    	/* Get admin units (level 0)
-    	 * overlapping data frame and draw them, avoiding country in question
-    	 * to produce a mask
-    	 */
+  	/*
+  	 * Sea mask
+  	 */
     	MultiPolygon rect = (MultiPolygon) cartoService.getWorldRect().getGeom();
     	Geometry tempG = rect;
+  	
+    	//TODO: regions not catered for here
+    	for (AdminUnit adminUnit : aus) {
+    		OverlayOp ol = new OverlayOp(tempG, adminUnit.getGeom());
+    		tempG = ol.getResultGeometry(OverlayOp.DIFFERENCE);
+      }
     	
-    	FillStyle greyFS = new FillStyle(Palette.WHITE.get());
-    	List<PolygonSymbolizer> adminPolySym = new ArrayList<PolygonSymbolizer>();
-    	for(AdminUnit admin0: adminPolys) {
-    			PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) admin0.getGeom(), greyFS, new LineStyle(Palette.GREY_70.get(), 0.2));
-    			adminPolySym.add(ps);
-  		}
-    	df.drawFeatures(adminPolySym);
-    	
-    	/*
-    	 * Sea mask
     	MultiPolygon mp;
     	if (tempG.getNumGeometries() > 1) {
     		mp = (MultiPolygon) tempG;
@@ -422,8 +461,20 @@ public class CountryPRMaps {
     	}
     	PolygonSymbolizer aps = new PolygonSymbolizer(mp, new FillStyle(Palette.WATER.get()), new LineStyle(Palette.WATER.get(), 0.2));
     	df.drawMultiPolygon(aps);
-    	df.drawFeatures(adminPolySym);
+    	
+    	/* Get admin units (level 0)
+    	 * overlapping data frame and draw them, avoiding country in question
+    	 * to produce a mask
     	 */
+    	
+    	FillStyle greyFS = new FillStyle(Palette.WHITE.get());
+    	List<PolygonSymbolizer> adminPolySym = new ArrayList<PolygonSymbolizer>();
+    	for(AdminUnit admin0: adminPolys) {
+    			PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) admin0.getGeom(), greyFS, new LineStyle(Palette.GREY_70.get(), 0.2));
+    			adminPolySym.add(ps);
+  		}
+    	df.drawFeatures(adminPolySym);
+    	
     	
     	/*
     	 * Draw on water bodies
@@ -461,24 +512,30 @@ public class CountryPRMaps {
     	List<MapKeyItem> legend = new ArrayList<MapKeyItem>();
     	legend.add(new MapKeyItem("Water", Palette.WATER.get()));
     	legend.add(new MapKeyItem("Malaria free", Palette.GREY_20.get()));
-    	legend.add(new MapKeyItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
+  		legend.add(new MapKeyItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
+  		legend.add(new MapKeyItem(String.format("<i>%s</i>API ≥ 0.1‰", parasite), colours.get(2)));
     
     	Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
-    	mapCanvas.drawKey(legendFrame, legend);
+    	mapCanvas.drawKey(legendFrame, legend, 6);
     	
+    	cs.draw(mapCanvas);
+    	
+    	
+    	//survey text
 			Map<String, Object> surveyStats = prService.getSurveysByRegion(region);
     	
     	/*
     	 * Title
     	 */
     	String mapTitle = String.format(mapConf.getTitle(), region.getDisplayName());
-    	mapCanvas.setTitle(mapTitle, frameConf.get("TITLE"), 10);
+    	mapCanvas.setTitle(mapTitle, frameConf.get("TITLE"), 8);
     	
     	/*
     	 * Text
     	 */
     	Map<String, Object> context = new HashMap<String, Object>();
     	context.put("country_name", region.getName());
+    	context.put("parasiteAbbr", parasite.getSpeciesAbbr());
     	context.putAll(surveyStats);
     	
     	String mapText = mapTextFactory.processTemplate(context, "surveyText.ftl");
@@ -486,20 +543,24 @@ public class CountryPRMaps {
     	
     	mapSurface.finish();
     	
-  		if (region.getOrientation().equals(Orientation.LANDSCAPE)) {
-  			SystemUtil.addBranding("pf_pr", region.getFilePrefix(), mapConf.getName(), "branding_final_landscape");
-  		} else {
-  			SystemUtil.addBranding("pf_pr", region.getFilePrefix(), mapConf.getName(), "branding_final");
-  		}
+  		SystemUtil.addBranding("pf_surveys", region.getFilePrefix(), mapConf.getName(), "branding_final");
     }
 
   public static void drawUCMap(DataFrame df, Parasite parasite, MapConf mapConf, Region region, List<AdminUnit> adminPolys, Map<String, Rectangle> frameConf) throws Exception {
+    
+    
+	  //Get admin units
+  	List<AdminUnit> aus = adminUnitService.getAdminUnitsByCountryId(region.getId());
+  	List<PolygonSymbolizer> aups = new ArrayList<PolygonSymbolizer>();
+  	for (AdminUnit adminUnit : aus) {
+  	  aups.add(new PolygonSymbolizer((MultiPolygon) adminUnit.getGeom(), new FillStyle(Palette.GREY_20.get()), new LineStyle(Palette.GREY_20.get(), 0.2)));
+    }
+  	df.drawFeatures(aups);
     
   	/*
   	 * Get envelope as resized by dataframe 
   	 */
   	Envelope resizedEnv = df.getEnvelope();
-  	
   	
   	/*
   	 * Get country then use extent to create map canvas and get appropriate admin units.
@@ -519,15 +580,13 @@ public class CountryPRMaps {
   	cm.addColour(2, colours.get(2));
   	
   	cm.finish();
-  	H5IntRaster.Transform tm = new H5IntRaster.Transform() {
+  	
+  	H5FloatRaster.Transform tm = new H5FloatRaster.Transform() {
   		@Override
-  		public int transform(int inVal) {
+  		public float transform(float inVal) {
   			return inVal;
   		}
   	};
-  	
-  	H5IntRaster h5r = pfLimsH5.getRaster(resizedEnv, tm, cm, 1);
-  	df.addRasterLayer(h5r);
   	
   	/*
   	 * Draw PR uncertainty class layer
@@ -537,22 +596,18 @@ public class CountryPRMaps {
   	colours1.put(1, Palette.MACAW_GREEN.get());
   	colours1.put(2, Palette.AUTUNITE_YELLOW.get());
   	
-  	ColourMap cm1 = new ColourMap();
-  	cm1.addColour(0, colours1.get(0));
-  	cm1.addColour(1, colours1.get(1));
-  	cm1.addColour(2, colours1.get(2));
+  	//Hacky continuous scale
+  	ContinuousScale cs1 = new ContinuousScale(frameConf.get("CONTINUOUSSCALE"), "", "");
+  	cs1.addColorStopRGB("", 0, colours1.get(0), false);
+  	cs1.addColorStopRGB("", 0.1, colours1.get(0), false);
+  	cs1.addColorStopRGB("", 0.1, colours1.get(1), false);
+  	cs1.addColorStopRGB("", 0.2, colours1.get(1), false);
+  	cs1.addColorStopRGB("", 0.2, colours1.get(2), false);
+  	cs1.addColorStopRGB("", 1, colours1.get(2), false);
+  	cs1.finish();
   	
-  	cm1.finish();
-  	H5IntRaster.Transform tm1 = new H5IntRaster.Transform() {
-  		@Override
-  		public int transform(int inVal) {
-  			return inVal;
-  		}
-  	};
-  	
-  	H5IntRaster h5r1 = pfUncertaintyClass.getRaster(resizedEnv, tm1, cm1, 5);
-  	df.addRasterLayer(h5r1);
-  	
+  	H5FloatRaster h5r = pfStdH5.getRaster(resizedEnv, tm, cs1, 1);
+  	df.addRasterLayer(h5r);
   	
   	/* Get admin units (level 0)
   	 * overlapping data frame and draw them, avoiding country in question
@@ -595,12 +650,6 @@ public class CountryPRMaps {
   	}
   	df.drawFeatures(waterBodies);
   	
-  	
-  	List<PRPoint> prPoints = prService.getPointsByRegion(region, parasite);
-  	for (PRPoint prPoint : prPoints) {
-  		df.drawPoint(prPoint.getLongitude(), prPoint.getLatitude(), prPoint.getColour());
-  	}
-  	
   	/*
   	 * Draw the rest of the canvas
   	 */
@@ -621,8 +670,21 @@ public class CountryPRMaps {
   	legend.add(new MapKeyItem("Malaria free", Palette.GREY_20.get()));
   	legend.add(new MapKeyItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite), colours.get(1)));
   
-  	Rectangle legendFrame = new Rectangle(390, 555, 150, 200);
-  	mapCanvas.drawKey(legendFrame, legend);
+  	Rectangle legendFrame = new Rectangle(360, 555, 150, 200);
+  	mapCanvas.drawKey(legendFrame, legend, 5);
+  	
+  	/*
+  	 * Draw the second key
+  	 */
+  	legend.clear();
+  	legend.add(new MapKeyItem("Lower uncertainty (SD = 0-10%)", colours1.get(0)));
+  	legend.add(new MapKeyItem("Medium uncertainty (SD = 10-20%)", colours1.get(1)));
+  	legend.add(new MapKeyItem("Higher uncertainty (SD > 20%)", colours1.get(2)));
+  	Rectangle legendFrame2 = new Rectangle(360, 640, 150, 200);
+  	mapCanvas.drawKey(legendFrame2, legend, 5);
+  	mapCanvas.drawTextFrame("Classes of map uncertainty<br>(in units of <i>" 
+  	    + parasite.toString() + 
+  	    "</i>PR<span rise='-3000' size='x-small'>2-10</span>, 0-100%)", new Rectangle(360, 615, 150, 20), 6, 0);
   	
   	Map<String, Object> surveyStats = prService.getSurveysByRegion(region);
   	
@@ -630,7 +692,7 @@ public class CountryPRMaps {
   	 * Title
   	 */
   	String mapTitle = String.format(mapConf.getTitle(), region.getDisplayName());
-  	mapCanvas.setTitle(mapTitle, frameConf.get("TITLE"), 10);
+  	mapCanvas.setTitle(mapTitle, frameConf.get("TITLE"), 8);
   	
   	/*
   	 * Text
@@ -639,16 +701,12 @@ public class CountryPRMaps {
   	context.put("country_name", region.getName());
   	context.putAll(surveyStats);
   	
-  	String mapText = mapTextFactory.processTemplate(context, "surveyText.ftl");
-  	mapCanvas.drawTextFrame(mapText, frameConf.get("LEGEND"), 6, 10);
+  	String mapText = mapTextFactory.processTemplate(context, "ucText.ftl");
+  	mapCanvas.drawTextFrame(mapText, new Rectangle(50, 555, 290, 0), 6, 10);
   	
   	mapSurface.finish();
   	
-  	if (region.getOrientation().equals(Orientation.LANDSCAPE)) {
-  		SystemUtil.addBranding("pf_pr", region.getFilePrefix(), mapConf.getName(), "branding_final_landscape");
-  	} else {
-  		SystemUtil.addBranding("pf_pr", region.getFilePrefix(), mapConf.getName(), "branding_final");
-  	}
+  	SystemUtil.addBranding("pf_uncertainty_class", region.getFilePrefix(), mapConf.getName(), "branding_final");
   }
   
 

@@ -9,6 +9,7 @@ import org.freedesktop.cairo.LinearPattern;
 
 import uk.ac.ox.map.carto.canvas.Rectangle;
 import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
+import uk.ac.ox.map.deps.Colour;
 import uk.ac.ox.map.imageio.RenderScale;
 
 /**
@@ -74,6 +75,13 @@ public class ContinuousScale implements RenderScale {
 	public void addColorStopRGB(String annotation, double d, double e, double f, double g, boolean ignoreRGB) {
 		if (!ignoreRGB)	{
 			colourStops.add(new ColourStop(annotation, new double[] {d, e, f, g}));
+		}
+		scaleAnnotations.add(new ScaleAnnotation(annotation, d));
+	}
+	
+	public void addColorStopRGB(String annotation, double d, Colour colour, boolean ignoreRGB) {
+		if (!ignoreRGB)	{
+			colourStops.add(new ColourStop(annotation, new double[] {d, colour.getRed(), colour.getGreen(), colour.getBlue()}));
 		}
 		scaleAnnotations.add(new ScaleAnnotation(annotation, d));
 	}
