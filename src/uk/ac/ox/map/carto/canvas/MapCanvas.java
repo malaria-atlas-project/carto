@@ -71,6 +71,10 @@ public class MapCanvas extends BaseCanvas {
 		cr.moveTo(frame.x, frame.y);
 		cr.showLayout(layout);
 	}
+	
+	public void setFontSize(double size){
+	  fontDesc.setSize(size);
+	}
 
 	public void drawTextFrame(String text, Rectangle frame, float fontSize, int paraSpacing) {
 		Layout layout = new Layout(cr);
