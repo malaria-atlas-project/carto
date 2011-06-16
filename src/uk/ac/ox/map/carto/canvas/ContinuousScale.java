@@ -21,8 +21,6 @@ import uk.ac.ox.map.imageio.RenderScale;
  * Caches the colour stops to enable construction of LinearPattern when it is drawn on the map
  * done because we don't know until draw time where the gradient should be. 
  *
- * Also provides a 
- *
  */
 
 public class ContinuousScale implements RenderScale {
@@ -70,13 +68,17 @@ public class ContinuousScale implements RenderScale {
 
 	/**
 	 * Adds a colour stop.
+	 * @param offset start position 
+	 * @param r red
+	 * @param g green
+	 * @param b blue
 	 * @param ignoreRGB TODO
 	 */
-	public void addColorStopRGB(String annotation, double d, double e, double f, double g, boolean ignoreRGB) {
+	public void addColorStopRGB(String annotation, double offset, double r, double g, double b, boolean ignoreRGB) {
 		if (!ignoreRGB)	{
-			colourStops.add(new ColourStop(annotation, new double[] {d, e, f, g}));
+			colourStops.add(new ColourStop(annotation, new double[] {offset, r, g, b}));
 		}
-		scaleAnnotations.add(new ScaleAnnotation(annotation, d));
+		scaleAnnotations.add(new ScaleAnnotation(annotation, offset));
 	}
 	
 	public void addColorStopRGB(String annotation, double d, Colour colour, boolean ignoreRGB) {

@@ -3,13 +3,11 @@ package uk.ac.ox.map.carto;
 import java.io.File;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.freedesktop.cairo.PdfSurface;
-import org.gnome.gdk.PixbufFormat;
 import org.gnome.gtk.Gtk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,8 +16,6 @@ import uk.ac.ox.map.base.model.adminunit.AdminUnit;
 import uk.ac.ox.map.base.model.adminunit.AdminUnitRisk;
 import uk.ac.ox.map.base.model.adminunit.Country;
 import uk.ac.ox.map.base.model.adminunit.WaterBody;
-import uk.ac.ox.map.base.model.adminunit.World;
-import uk.ac.ox.map.base.model.carto.WorldPoly;
 import uk.ac.ox.map.base.model.pr.Parasite;
 import uk.ac.ox.map.base.model.site.Site;
 import uk.ac.ox.map.base.model.vector.Anopheline;
@@ -37,15 +33,12 @@ import uk.ac.ox.map.carto.style.LineStyle;
 import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.style.PolygonSymbolizer;
 import uk.ac.ox.map.carto.util.GeometryUtil;
-import uk.ac.ox.map.carto.util.SystemUtil;
 import uk.ac.ox.map.deps.Colour;
 import uk.ac.ox.map.h5.H5FloatRaster;
 import uk.ac.ox.map.h5.H5RasterFactory;
-import uk.ac.ox.map.imageio.FltReader;
 import uk.ac.ox.map.imageio.FltReader2;
 import uk.ac.ox.map.imageio.RasterLayer;
 
-import com.sun.java.swing.plaf.gtk.GTKColorType;
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -67,13 +60,13 @@ public class AMEMaps {
     // drawAMEMaps(Parasite.Pf);
     // drawAMEMaps(Parasite.Pv);
 
-//    drawScaleGraphic();
-//    if (1 == 1)
-//      return;
+    // drawScaleGraphic();
+    // if (1 == 1)
+    // return;
 
     H5RasterFactory h5RFpop = new H5RasterFactory("/home/will/map1_public/mbgw2/pop10.h5");
     Country c = adminUnitService.getCountry("LKA");
-    drawPopMap(c, h5RFpop);
+    // drawPopMap(c, h5RFpop);
 
     List<String> abbr = new ArrayList<String>();
     abbr.add("culicifacies");
@@ -131,10 +124,19 @@ public class AMEMaps {
     {
       Rectangle rect = new Rectangle(10, 200, 110, 12);
       ContinuousScale cs = new ContinuousScale(rect, "Probability", null);
-      cs.addColorStopRGB("0", 0.0, 0.0, 0.0, 0.0, false);
-      cs.addColorStopRGB(null, 0.5, 0.5, 0.5, 0.5, false);
+      cs.addColorStopRGB("0", 0.0, 26d / 255, 152d / 255, 80d / 255, false);
+      cs.addColorStopRGB(null, 0.5, 191d / 255, 217d / 255, 178d / 255, false);
       cs.addColorStopRGB("0.5", 0.5, 1, 0.8, 0.8, false);
       cs.addColorStopRGB("1", 1, 0.870588235, 0.188235294, 0.152941176, false);
+      cs.finish();
+      cs.draw(mapCanvas);
+    }
+    {
+      Rectangle rect = new Rectangle(10, 360, 110, 12);
+      ContinuousScale cs = new ContinuousScale(rect, "Altitude (metres)", null);
+      cs.addColorStopRGB("0", 0.0, 0.0, 0.0, 0.0, false);
+      cs.addColorStopRGB("", 0.5, 0.5, 0.5, 0.5, false);
+      cs.addColorStopRGB("8600", 1, 1, 1, 1, false);
       cs.finish();
       cs.draw(mapCanvas);
     }
@@ -392,14 +394,13 @@ public class AMEMaps {
      * Get colour scale for map gradient and for the image transform.
      */
 
-    // TODO: XML config file?? AMERICAS VERSION
     // ContinuousScale cs = new ContinuousScale(new Rectangle(400, 70, 15, 100),
     // "Probability", null);
     ContinuousScale cs = new ContinuousScale(frameConfLS.get("continuousScale"), "Probability", null);
-    cs.addColorStopRGB("0", 0.0, 0.0, 0.0, 0.0, false);
-    cs.addColorStopRGB(null, 0.5, 0.5, 0.5, 0.5, false);
-    cs.addColorStopRGB("0.5", 0.5, 1, 0.8, 0.8, false);
-    cs.addColorStopRGB("1", 1, 0.870588235, 0.188235294, 0.152941176, false);
+    cs.addColorStopRGB("0", 0.0, 255d / 255, 242d / 255, 0d / 255, false);
+    cs.addColorStopRGB(null, 0.5, 255d / 255, 251d / 255, 202d / 255, false);
+    cs.addColorStopRGB("0.5", 0.5, 191d / 255, 217d / 255, 178d / 255, false);
+    cs.addColorStopRGB("1", 1, 26d / 255, 152d / 255, 80d / 255, false);
     cs.finish();
 
     // Styles for masks

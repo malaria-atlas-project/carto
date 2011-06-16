@@ -80,11 +80,11 @@ public class CountryLevelMaps {
 		
 		Gtk.init(null);
 		AdminUnitService adminUnitService = new AdminUnitService();
-		H5RasterFactory h5RFpop = new H5RasterFactory("/home/will/workspace/ImageIO/pop10.h5");
-		H5RasterFactory h5RFpfLims = new H5RasterFactory("/home/will/workspace/ImageBase/pf_limits.h5");
-		H5RasterFactory h5RFpvLims = new H5RasterFactory("/home/will/workspace/ImageBase/pv_limits.h5");
-		H5RasterFactory h5RFPfPR = new H5RasterFactory("/home/will/workspace/ImageBase/pf_pr.h5");
-		H5RasterFactory h5RFPfStd = new H5RasterFactory("/home/will/workspace/ImageBase/pf_std.h5");
+		H5RasterFactory h5RFpop = new H5RasterFactory("/home/will/map1_public/mbgw2/pop10.h5");
+		H5RasterFactory h5RFpfLims = new H5RasterFactory("/home/will/map1_public/mbgw2/pf_limits.h5");
+		H5RasterFactory h5RFpvLims = new H5RasterFactory("/home/will/map1_public/mbgw2/pv_limits.h5");
+		H5RasterFactory h5RFPfPR = new H5RasterFactory("/home/will/map1_public/mbgw2/pf_pr.h5");
+		H5RasterFactory h5RFPfStd = new H5RasterFactory("/home/will/map1_public/mbgw2/pf_std.h5");
 		
 		Map<String, Rectangle> frameConfP = new HashMap<String, Rectangle>();
 		frameConfP.put("dataFrame", new Rectangle(20, 40, 460, 460));
@@ -116,7 +116,7 @@ public class CountryLevelMaps {
 		
 		List<String> duffyCountryIds = adminUnitService.getDuffyCountryIds();
 		List<String> toProcess = new ArrayList<String>();
-		toProcess.add("LKA");
+		toProcess.add("DJI");
 //		toProcess.add("THA");
 //		toProcess.add("VNM");
 //		toProcess.add("MMR");
