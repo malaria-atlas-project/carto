@@ -7,6 +7,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.freedesktop.cairo.Filter;
 import org.freedesktop.cairo.PdfSurface;
 import org.gnome.gdk.Pixbuf;
 import org.gnome.gdk.PixbufFormat;
@@ -161,6 +162,7 @@ public class CountryLevelMaps {
 			 */
 			Envelope env; env = new Envelope(country.getMinX(), country.getMaxX(), country.getMinY(), country.getMaxY()); 
 			env.expandBy(env.getWidth()/20);
+			
 	
 			/*
 			 * Create dataframe with specified envelope

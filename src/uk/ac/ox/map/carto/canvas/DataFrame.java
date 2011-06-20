@@ -5,6 +5,7 @@ import java.awt.geom.Point2D;
 import java.io.IOException;
 import java.util.List;
 
+import org.freedesktop.cairo.Filter;
 import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
 import org.freedesktop.cairo.SvgSurface;
@@ -170,6 +171,8 @@ public class DataFrame extends BaseCanvas {
 		 * therefore this needs to be corrected.
 		 */
 		cr.setSource(pb, pt.x/newScale, pt.y/newScale);
+		
+		cr.getSource().setFilter(Filter.NEAREST);
 		
 		cr.paint();
 		cr.restore();

@@ -7,13 +7,12 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
-import org.freedesktop.cairo.PdfSurface;
-import org.freedesktop.cairo.SVGSurface;
-import org.freedesktop.cairo.SvgSurface;
+import org.freedesktop.cairo.Surface;
 import org.gnome.gdk.Pixbuf;
 import org.gnome.pango.Alignment;
 import org.gnome.pango.FontDescription;
 import org.gnome.pango.Layout;
+import org.gnome.rsvg.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,18 +28,7 @@ public class MapCanvas extends BaseCanvas {
 	final FontDescription fontDesc;
 	static final Logger logger = LoggerFactory.getLogger(MapCanvas.class);
 
-	public MapCanvas(SvgSurface pdf, double width, double height) {
-		super(pdf, width, height);
-
-		/*
-		 * Sensible defaults for font options.
-		 */
-		fontDesc = new FontDescription();
-		fontDesc.setFamily("Helvetica");
-		fontDesc.setSize(12);
-	}
-	
-	public MapCanvas(PdfSurface pdf, double width, double height) {
+	public MapCanvas(Surface pdf, double width, double height) {
 		super(pdf, width, height);
 		
 		/*
@@ -296,7 +284,6 @@ public class MapCanvas extends BaseCanvas {
     cr.restore();
   }
 
-  /*
   public void drawSVG(Rectangle frame, Handle h) {
     cr.save();
     
@@ -311,7 +298,6 @@ public class MapCanvas extends BaseCanvas {
     
     cr.restore();
   }
-  */
   
 }
 

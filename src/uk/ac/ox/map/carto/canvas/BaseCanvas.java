@@ -10,8 +10,8 @@ import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.deps.Colour;
 
 /**
- * Encapsulates a cairo context, embracing the fact a cairo context is a state machine.
- * This means that if e.g. the fillColour is set, it will be used for multiple calls. 
+ * Encapsulates a cairo context
+ * Currently if the fillColour is set, it will be used for multiple calls. 
  * 
  */
 
@@ -22,6 +22,21 @@ public abstract class BaseCanvas {
 	private Colour lineColour;
 	protected final double width;
 	protected final double height;
+
+	public BaseCanvas(Surface surface, double width2, double height2) {
+		/*
+		 * Get context
+		 */
+		cr = new Context(surface);
+		/*
+		 * Initialise styles to sensible defaults.
+		 */
+		this.lineColour = Palette.BLACK.get();
+		this.fillColour = Palette.GREY_20.get();
+		this.width = width2;
+		this.height = height2;
+		this.surface = surface;
+	}
 
 	public void setBackgroundColour(Colour backgroundColour) {
 		setColour(backgroundColour);
@@ -51,21 +66,6 @@ public abstract class BaseCanvas {
 
 	protected void setFillColour() {
 		cr.setSource(fillColour.getRed(), fillColour.getGreen(), fillColour.getBlue(), fillColour.getAlpha());
-	}
-
-	public BaseCanvas(Surface surface, double width2, double height2) {
-		/*
-		 * Get context
-		 */
-		cr = new Context(surface);
-		/*
-		 * Initialise styles to sensible defaults.
-		 */
-		this.lineColour = Palette.BLACK.get();
-		this.fillColour = Palette.GREY_20.get();
-		this.width = width2;
-		this.height = height2;
-		this.surface = surface;
 	}
 
 	public void setFillColour(Colour fillColour) {
