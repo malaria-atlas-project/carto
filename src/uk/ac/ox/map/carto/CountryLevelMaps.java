@@ -17,6 +17,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.ox.map.base.model.adminunit.AdminUnit;
 import uk.ac.ox.map.base.model.adminunit.AdminUnitRisk;
+import uk.ac.ox.map.base.model.adminunit.AdminUnitRisk4Classes;
 import uk.ac.ox.map.base.model.adminunit.Country;
 import uk.ac.ox.map.base.model.adminunit.CountryPopulation;
 import uk.ac.ox.map.base.model.adminunit.Exclusion;
@@ -117,13 +118,28 @@ public class CountryLevelMaps {
 		
 		List<String> duffyCountryIds = adminUnitService.getDuffyCountryIds();
 		List<String> toProcess = new ArrayList<String>();
-		toProcess.add("DJI");
-//		toProcess.add("THA");
-//		toProcess.add("VNM");
-//		toProcess.add("MMR");
-//		toProcess.add("KHM");
-//		toProcess.add("LAO");
-//		toProcess.add("CHN");
+		toProcess.add("ARG");
+		toProcess.add("AZE");
+		toProcess.add("BWA");
+		toProcess.add("CHN");
+		toProcess.add("CPV");
+		toProcess.add("CRI");
+		toProcess.add("GEO");
+		toProcess.add("IRN");
+		toProcess.add("IRQ");
+		toProcess.add("KGZ");
+		toProcess.add("KOR");
+		toProcess.add("NAM");
+		toProcess.add("PHL");
+		toProcess.add("PRK");
+		toProcess.add("PRY");
+		toProcess.add("SAU");
+		toProcess.add("SLV");
+		toProcess.add("SWZ");
+		toProcess.add("TJK");
+		toProcess.add("TUR");
+		toProcess.add("UZB");
+		toProcess.add("ZAF");
 		
 		for (Country c : countries) {
 			logger.debug(c.getId());
@@ -134,12 +150,14 @@ public class CountryLevelMaps {
 //				continue;
 			
 			if (c.getPfEndemic()) {
-				drawPRMap(c, Parasite.Pf, frameConfP, 500, 707, h5RFPfPR, h5RFpfLims);
+				drawAPIMap4Classes(c, Parasite.Pf, frameConfP, 500, 707);
+//				drawPRMap(c, Parasite.Pf, frameConfP, 500, 707, h5RFPfPR, h5RFpfLims);
 //				drawAPIMap(c, Parasite.Pf, frameConfP, 500, 707);
 //				drawLimitsMap(c, Parasite.Pf, h5RFpfLims, frameConfP, 500, 707, false, false);
 			}
 			
 			if (c.getPvEndemic()) {
+				drawAPIMap4Classes(c, Parasite.Pv, frameConfP, 500, 707);
 //				drawLimitsMap(c, Parasite.Pv, h5RFpvLims, frameConfP, 500, 707, false, duffyCountryIds.contains(c.getId()));
 //				drawAPIMap(c, Parasite.Pv, frameConfP, 500, 707);
 			}
@@ -386,6 +404,250 @@ public class CountryLevelMaps {
 	
 			SystemUtil.addBranding(parasite.toString().toLowerCase()+"_api", country.getId(), parasite.toString() + "_med_intel", "branding_final");
 		}
+
+
+	public static void drawAPIMap4Classes(Country country, Parasite parasite, Map<String, Rectangle> frameConf, int w, int h) throws OutOfMemoryError, Exception {
+		
+		String outFileName = String.format("/home/will/c/Temp/maps/%s4class/%s_med_intel.pdf", parasite.toString(), country.getId());
+	
+		// Legend items
+		List<MapKeyItem> legend = new ArrayList<MapKeyItem>();
+	
+		/*
+		 * Get country then use extent to: 1. Create map canvas 2. Get
+		 * appropriate admin units
+		 */
+		Envelope env; env = new Envelope(country.getMinX(), country.getMaxX(), country.getMinY(), country.getMaxY()); 
+		env.expandBy(env.getWidth()/20);
+		
+	
+		/*
+		 * Create dataframe with specified envelope
+		 */
+		DataFrame df = new DataFrame.Builder(env, frameConf.get("dataFrame"), null).build();
+		df.setBackgroundColour(Palette.WATER.get());
+	
+		/*
+		 * Get envelope as resized by dataframe Get admin units (level 0)
+		 * overlapping data frame and draw them
+		 */
+		Envelope resizedEnv = df.getEnvelope();
+		List<AdminUnit> adminUnits = adminUnitService.getAdminUnits(resizedEnv);
+	
+		FillStyle greyFS = new FillStyle(Palette.GREY_20.get());
+		List<PolygonSymbolizer> adminPolySym = new ArrayList<PolygonSymbolizer>();
+		for (AdminUnit admin0 : adminUnits) {
+			PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) admin0.getGeom(), greyFS, defaultLineStyle);
+			adminPolySym.add(ps);
+		}
+		df.drawFeatures(adminPolySym);
+	
+		/*
+		 * Draw the risk units
+		 */
+		HashMap<Integer, Colour> colours = new HashMap<Integer, Colour>();
+		colours.put(0, Palette.WHITE.get());
+		colours.put(1, Palette.ROSE.get());
+		colours.put(2, Palette.CORAL.get());
+		colours.put(3, Palette.TUSCAN_RED.get());
+	
+		/*
+		 * TODO: possible to obtain a nice feature class, colours included,
+		 * direct from the hibernate service?
+		 */
+	
+		/*
+		 * Get risk admin units Check if we have no data
+		 */
+		boolean noDataPresent = false;
+		List<PolygonSymbolizer> pfFeats = new ArrayList<PolygonSymbolizer>();
+	
+		List<AdminUnitRisk4Classes> riskUnits = adminUnitService.getPfRiskUnits4Classes(country, parasite);
+	
+		for (AdminUnitRisk4Classes adminUnitRisk : riskUnits) {
+			FillStyle fs = new FillStyle(colours.get(adminUnitRisk.getRisk()), FillType.SOLID);
+			PolygonSymbolizer ps = new PolygonSymbolizer((MultiPolygon) adminUnitRisk.getGeom(), fs, defaultLineStyle);
+			pfFeats.add(ps);
+			if (adminUnitRisk.getRisk() == 9)
+				noDataPresent = true;
+		}
+		df.drawFeatures(pfFeats);
+	
+		/*
+		 * Get excluded cities TODO: get enum type for exclusions
+		 */
+		List<PolygonSymbolizer> exclAreas = new ArrayList<PolygonSymbolizer>();
+	
+		List<Exclusion> exclusions = adminUnitService.getExclusions(country);
+		Colour exclColour = Palette.WHITE.get();
+	
+		List<String> exclCities = new ArrayList<String>();
+		List<String> exclIslands = new ArrayList<String>();
+		List<String> exclAdminUnits = new ArrayList<String>();
+		List<String> exclMoh = new ArrayList<String>();
+		List<String> exclMedIntel = new ArrayList<String>();
+	
+		for (Exclusion exclusion : exclusions) {
+			logger.info("Exclusion {}", exclusion.getExclusionType());
+			if (exclusion.getExclusionType().equals("urban area"))
+				exclCities.add(exclusion.getName());
+			else if (exclusion.getExclusionType().equals("island"))
+				exclIslands.add(exclusion.getName());
+			else if (exclusion.getExclusionType().equals("ithg admin exclusion"))
+				exclAdminUnits.add(exclusion.getName());
+			else if (exclusion.getExclusionType().equals("moh exclusion"))
+				exclMoh.add(exclusion.getName());
+			else if (exclusion.getExclusionType().equals("med intel"))
+				exclMedIntel.add(exclusion.getName());
+			else
+				throw new IllegalArgumentException("Unknown exclusion type: " + exclusion.getExclusionType());
+	
+			// MOH hack... damn exclusions
+			FillStyle fsHatched = new FillStyle(Palette.WHITE.get(), FillType.HATCHED);
+			FillStyle fsStipple = new FillStyle(Palette.WHITE.get(), FillType.STIPPLED);
+	
+			PolygonSymbolizer ps;
+			if (exclusion.getExclusionType().equals("med intel")) {
+				ps = new PolygonSymbolizer((MultiPolygon) exclusion.getGeom(), fsHatched, defaultLineStyle);
+				exclAreas.add(ps);
+			} else if (exclusion.getExclusionType().equals("moh exclusion")) {
+				ps = new PolygonSymbolizer((MultiPolygon) exclusion.getGeom(), fsStipple, defaultLineStyle);
+				exclAreas.add(ps);
+			} else {
+				ps = new PolygonSymbolizer((MultiPolygon) exclusion.getGeom(), fsHatched, defaultLineStyle);
+				exclAreas.add(ps);
+			}
+		}
+		/*
+		 * Draw excluded areas
+		 */
+	df.drawFeatures(exclAreas);
+	
+	/*
+		 * Draw on water bodies
+		 */
+		List<PolygonSymbolizer> waterBodies = layerFactory.getPolygonLayer(
+			adminUnitService.getWaterBodies(resizedEnv),
+			new FillStyle(Palette.WATER.get(), FillType.SOLID),	
+			new LineStyle(Palette.WATER.get(), 0.2)
+		);
+		df.drawFeatures(waterBodies);
+	
+		/*
+		 * Draw the rest of the canvas
+		 */
+		PdfSurface mapSurface = new PdfSurface(outFileName, w, h);
+		MapCanvas mapCanvas = new MapCanvas(mapSurface, w, h);
+		mapCanvas.addDataFrame(df);
+		mapCanvas.drawDataFrames();
+	
+		mapCanvas.setScaleBar(frameConf.get("scalebar"), df.getScale(), 7);
+	
+		/*
+		 * Draw the legend TODO: combine this and the styling in a layer
+		 */
+		legend.add(new MapKeyItem("Water", Palette.WATER.get()));
+		legend.add(new MapKeyItem("Malaria free", colours.get(0)));
+	
+		/*
+		 * Pv/Pv risk legend items
+		 */
+		legend.add(new MapKeyItem(String.format("<i>%s</i>API &lt; 0.1‰", parasite.toString()), colours.get(1)));
+		legend.add(new MapKeyItem(String.format("<i>%s</i>API ≥ 0.1‰", parasite.toString()), colours.get(2)));
+		legend.add(new MapKeyItem(String.format("<i>%s</i>API ≥ 1‰", parasite.toString()), colours.get(3)));
+	
+		MapKeyItem ithgLi = new MapKeyItem("ITHG exclusion", exclColour);
+		MapKeyItem mohLi = new MapKeyItem("MoH exclusion", exclColour);
+		MapKeyItem medLi = new MapKeyItem("Med intel exclusion", exclColour);
+	
+		// TODO: hatch hack
+		ithgLi.hatched = true;
+		mohLi.stippled = true;
+		medLi.stippled = true;
+		if (exclCities.size() > 0 || exclAdminUnits.size() > 0)
+			legend.add(ithgLi);
+		if (exclMedIntel.size() > 0)
+			legend.add(medLi);
+		if (exclMoh.size() > 0)
+			legend.add(mohLi);
+		// TODO: nodata shouldn't exist
+		if (noDataPresent)
+			legend.add(new MapKeyItem("No data", colours.get(9)));
+	
+		mapCanvas.drawKey(frameConf.get("legendFrame"), legend, 6);
+	
+		/*
+		 * Text stuff TODO: factor all this string building out
+		 */
+		MapTextResource mtr = new MapTextResource();
+		
+		String mapTitle = "<i>%s</i> risk derived from medical intelligence in %s";
+		mapTitle = String.format(mapTitle, parasite.getSpecies(), country.getName());
+		mapCanvas.setTitle(mapTitle, frameConf.get("titleFrame"), 9.5);
+	
+		/*
+		 * Main map text
+		 */
+		List<Object[]> levelCounts = adminUnitService.getAdminLevels2(country, parasite);
+		List<String> mapTextItems = new ArrayList<String>();
+	
+		List<Integer> years = adminUnitService.getYears(country, parasite);
+		List<String> intelCountries = Arrays.asList(new String[] { "CPV", });
+	
+		if (intelCountries.contains(country.getId())) {
+			mapTextItems.add((String) mtr.getObject("apiTextNationalMedIntel"));
+		} else if (levelCounts.get(0)[0].equals("Admin0") && levelCounts.size() < 2) {
+			mapTextItems.add((String) mtr.getObject("apiTextNoInfo"));
+		} else {
+			mapTextItems.add(StringUtil.formatAdminString1((String) mtr.getObject("apiText"), levelCounts, years));
+		}
+	
+		List<String> modifiedRiskCountries = Arrays.asList(new String[] { "MMR", "IND" });
+		String ithgText = "";
+		if (modifiedRiskCountries.contains(country.getId())) {
+			ithgText = (String) mtr.getObject("ithgText2");
+		} else {
+			ithgText = (String) mtr.getObject("ithgText1");
+		}
+		String formatString = "the following %s: %s";
+		if (exclAdminUnits.size() > 0 || exclCities.size() > 0 || exclIslands.size() > 0) {
+	
+			List<String> txt = new ArrayList<String>();
+			if (exclAdminUnits.size() > 0) {
+				txt.add(StringUtil.formatPlaceName(formatString, "administrative unit", "administrative units", exclAdminUnits));
+			}
+			if (exclCities.size() > 0) {
+				txt.add(StringUtil.formatPlaceName(formatString, "city", "cities", exclCities));
+			}
+			if (exclIslands.size() > 0) {
+				txt.add(StringUtil.formatPlaceName(formatString, "island", "islands", exclIslands));
+			}
+			mapTextItems.add(String.format(ithgText, StringUtil.getReadableList(txt)));
+		}
+	
+		if (exclMoh.size() > 0) {
+			String mohText = (String) mtr.getObject("mohText");
+			mapTextItems.add(String.format(mohText, StringUtil.formatPlaceName(formatString, "administrative unit", "administrative units", exclMoh)));
+		}
+		if (exclMedIntel.size() > 0) {
+			String medIntelText = (String) mtr.getObject("medintelText");
+			mapTextItems.add(String.format(medIntelText, StringUtil.formatPlaceName(formatString, "administrative unit", "administrative units", exclMedIntel)));
+		}
+	
+		mapTextItems.add((String) mtr.getObject("copyright"));
+		StringBuilder sb = new StringBuilder();
+		for (String string : mapTextItems) {
+			sb.append(string);
+			sb.append("<br>");
+		}
+		mapCanvas.drawTextFrame(sb.toString(), frameConf.get("mapTextFrame"), 6, 10);
+		
+		OverlayUtil.drawStaticOverlays(mapCanvas);
+		
+		mapSurface.finish();
+	
+//		SystemUtil.addBranding(parasite.toString().toLowerCase()+"_api4class", country.getId(), parasite.toString() + "_med_intel", "branding_final");
+	}
 
 
 	public static void drawLimitsMap(Country country, Parasite parasite, H5RasterFactory h5Fact, Map<String, Rectangle> frameConf, int w, int h, boolean prPointsRequired, boolean duffyRequired) throws OutOfMemoryError, Exception {

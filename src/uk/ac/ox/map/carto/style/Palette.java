@@ -16,6 +16,7 @@ public enum Palette {
 	BLACK ("#000000"),
 	ROSE ("#FFBEBE"),
 	CORAL ("#cd6666"),
+	TUSCAN_RED ("#A80000"),
 	LIME_MED ("#CDF57A"),
 	FERN ("#89CD66"),
 	YELLOW ("#ffff00"),

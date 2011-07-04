@@ -60,9 +60,9 @@ public class AMEMaps {
     // drawAMEMaps(Parasite.Pf);
     // drawAMEMaps(Parasite.Pv);
 
-    // drawScaleGraphic();
-    // if (1 == 1)
-    // return;
+     drawScaleGraphic();
+//     if (1 == 1)
+//     return;
 
     H5RasterFactory h5RFpop = new H5RasterFactory("/home/will/map1_public/mbgw2/pop10.h5");
     Country c = adminUnitService.getCountry("LKA");
@@ -123,12 +123,7 @@ public class AMEMaps {
     }
     {
       Rectangle rect = new Rectangle(10, 200, 110, 12);
-      ContinuousScale cs = new ContinuousScale(rect, "Probability", null);
-      cs.addColorStopRGB("0", 0.0, 26d / 255, 152d / 255, 80d / 255, false);
-      cs.addColorStopRGB(null, 0.5, 191d / 255, 217d / 255, 178d / 255, false);
-      cs.addColorStopRGB("0.5", 0.5, 1, 0.8, 0.8, false);
-      cs.addColorStopRGB("1", 1, 0.870588235, 0.188235294, 0.152941176, false);
-      cs.finish();
+      ContinuousScale cs = ContinuousScaleFactory.getAmeGreen(rect);
       cs.draw(mapCanvas);
     }
     {
@@ -393,15 +388,7 @@ public class AMEMaps {
     /*
      * Get colour scale for map gradient and for the image transform.
      */
-
-    // ContinuousScale cs = new ContinuousScale(new Rectangle(400, 70, 15, 100),
-    // "Probability", null);
-    ContinuousScale cs = new ContinuousScale(frameConfLS.get("continuousScale"), "Probability", null);
-    cs.addColorStopRGB("0", 0.0, 255d / 255, 242d / 255, 0d / 255, false);
-    cs.addColorStopRGB(null, 0.5, 255d / 255, 251d / 255, 202d / 255, false);
-    cs.addColorStopRGB("0.5", 0.5, 191d / 255, 217d / 255, 178d / 255, false);
-    cs.addColorStopRGB("1", 1, 26d / 255, 152d / 255, 80d / 255, false);
-    cs.finish();
+    ContinuousScale cs = ContinuousScaleFactory.getAmeBrown(frameConfLS.get("continuousScale"));
 
     // Styles for masks
     Colour blueColour = new Colour(0.270588, 0.462745, 0.694117, 1);
