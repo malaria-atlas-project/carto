@@ -157,7 +157,10 @@ public class AMEMaps {
      */
     DataFrame df = new DataFrame.Builder(env, new Rectangle(20, 40, 460, 460), "/tmp/lka.pdf").build();
     df.setBackgroundColour(Palette.WATER.get());
-
+    
+//    MapCanvas mc = new MapCanvas(new PdfSurface("/tmp/lka_ms", 460, 460), 460, 460);
+//    mc.s
+    
     /*
      * Get envelope as resized by dataframe
      */

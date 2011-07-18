@@ -28,7 +28,7 @@ public class ScaleBar {
 	
 	public ScaleBar(MapCanvas mapCanvas, Rectangle frame, double scale, int fontSize, String unitText) {
 		this.mapCanvas = mapCanvas;
-		this.cr = this.mapCanvas.outer().cr;
+		this.cr = this.mapCanvas.cr;
 
 		// TODO: hard code
 		this.barHeight = 5;
@@ -36,7 +36,7 @@ public class ScaleBar {
 		this.offset = frame.x;
 
 		// Set the font size
-		this.mapCanvas.outer().fontDesc.setSize(fontSize);
+		this.mapCanvas.fontDesc.setSize(fontSize);
 		cr.setLineWidth(0.2);
 		cr.setSource(0, 0, 0, 1);
 		/*
@@ -66,7 +66,7 @@ public class ScaleBar {
 		int n = (int) nIntervals;
 		SegmentType st;
 
-		this.mapCanvas.outer().annotateMap("0", offset, frame.y, Anchor.CB);
+		this.mapCanvas.annotateMap("0", offset, frame.y, Anchor.CB);
 
 		for (int i = 0; i < n; i++) {
 			if ((i % 2) == 0)
@@ -77,7 +77,7 @@ public class ScaleBar {
 			drawSegment((int) divisionWidth, st, formatter.format(interval * (i + 1)));
 		}
 
-		this.mapCanvas.outer().annotateMap(unitText, offset + 10, frame.y, Anchor.LT);
+		this.mapCanvas.annotateMap(unitText, offset + 10, frame.y, Anchor.LT);
 	}
 
 	private void drawSegment(int width, SegmentType st, String text) {
@@ -87,6 +87,6 @@ public class ScaleBar {
 		}
 		cr.stroke();
 		offset += width;
-		this.mapCanvas.outer().annotateMap(text, offset, frame.y, Anchor.CB);
+		this.mapCanvas.annotateMap(text, offset, frame.y, Anchor.CB);
 	}
 }

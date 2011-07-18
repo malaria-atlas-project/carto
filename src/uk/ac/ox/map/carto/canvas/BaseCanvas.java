@@ -16,6 +16,7 @@ import uk.ac.ox.map.deps.Colour;
  */
 
 public abstract class BaseCanvas {
+	
 	protected final Context cr;
 	protected final Surface surface;
 	private Colour fillColour;
@@ -174,6 +175,10 @@ public abstract class BaseCanvas {
 			cr.lineTo(i + 0.5, height - 0.5);
 			cr.stroke();
 		}
+	}
+	
+	void drawScaleBar() {
+		
 	}
 	
 }

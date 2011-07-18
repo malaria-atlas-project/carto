@@ -6,6 +6,9 @@
 		
 		<dependency org="com.vividsolutions" name="jts" rev="1.11" />
 		<dependency org="org.freemarker" name="freemarker" rev="2.3.14"/>
+		
+		<dependency org="net.sf.opencsv" name="opencsv" rev="2.0.1" />
+		
 	</dependencies>
 </ivy-module>
 

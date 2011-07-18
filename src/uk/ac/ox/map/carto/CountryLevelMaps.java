@@ -1,5 +1,8 @@
 package uk.ac.ox.map.carto;
 
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,6 +58,8 @@ import uk.ac.ox.map.h5.H5RasterFactory;
 import uk.ac.ox.map.imageio.ColourMap;
 import uk.ac.ox.map.imageio.RasterLayer;
 
+import au.com.bytecode.opencsv.CSVReader;
+
 import com.vividsolutions.jts.geom.Envelope;
 import com.vividsolutions.jts.geom.Geometry;
 import com.vividsolutions.jts.geom.GeometryFactory;
@@ -77,6 +82,19 @@ public class CountryLevelMaps {
 	private static LayerFactory layerFactory = new LayerFactory();
 	
 	private static final MapTextFactory mapTextFactory = new MapTextFactory();
+	
+	public static List<String> getCountries(String fileName) throws IOException {
+		
+		List<String> toProcess = new ArrayList<String>();
+		
+		CSVReader reader = new CSVReader(new FileReader(fileName), ',');
+	    String[] arr;
+		while ((arr = reader.readNext()) != null) {
+			toProcess.add(arr[0]);
+	    }
+		
+		return toProcess;
+	}
 	
 	public static void main(String[] args) throws Exception {
 		
@@ -116,33 +134,19 @@ public class CountryLevelMaps {
 //			drawLimitsMapRegion("Southern Africa", currentParasite, h5RFpfOld, frameConfP, 500, 707, false, false);
 		}
 		
-		List<String> duffyCountryIds = adminUnitService.getDuffyCountryIds();
-		List<String> toProcess = new ArrayList<String>();
-		toProcess.add("ARG");
-		toProcess.add("AZE");
-		toProcess.add("BWA");
-		toProcess.add("CHN");
-		toProcess.add("CPV");
-		toProcess.add("CRI");
-		toProcess.add("GEO");
-		toProcess.add("IRN");
-		toProcess.add("IRQ");
-		toProcess.add("KGZ");
-		toProcess.add("KOR");
-		toProcess.add("NAM");
-		toProcess.add("PHL");
-		toProcess.add("PRK");
-		toProcess.add("PRY");
-		toProcess.add("SAU");
-		toProcess.add("SLV");
-		toProcess.add("SWZ");
-		toProcess.add("TJK");
-		toProcess.add("TUR");
-		toProcess.add("UZB");
-		toProcess.add("ZAF");
+//		List<String> duffyCountryIds = adminUnitService.getDuffyCountryIds();
+
+		List<String> toProcess = getCountries("pv_countries.txt");
+		
+//		drawAPIMap4Classes(adminUnitService.getCountry("SAU"), Parasite.Pf, frameConfP, 500, 707);
+		
+		for (String string : toProcess) {
+			
+			Country c = adminUnitService.getCountry(string);
+			drawAPIMap4Classes(c, Parasite.Pv, frameConfP, 500, 707);
+		}
 		
 		for (Country c : countries) {
-			logger.debug(c.getId());
 			if (!toProcess.contains(c.getId())) {
 			  continue;
 			}
@@ -150,14 +154,14 @@ public class CountryLevelMaps {
 //				continue;
 			
 			if (c.getPfEndemic()) {
-				drawAPIMap4Classes(c, Parasite.Pf, frameConfP, 500, 707);
+//				drawAPIMap4Classes(c, Parasite.Pf, frameConfP, 500, 707);
 //				drawPRMap(c, Parasite.Pf, frameConfP, 500, 707, h5RFPfPR, h5RFpfLims);
 //				drawAPIMap(c, Parasite.Pf, frameConfP, 500, 707);
 //				drawLimitsMap(c, Parasite.Pf, h5RFpfLims, frameConfP, 500, 707, false, false);
 			}
 			
 			if (c.getPvEndemic()) {
-				drawAPIMap4Classes(c, Parasite.Pv, frameConfP, 500, 707);
+//				drawAPIMap4Classes(c, Parasite.Pv, frameConfP, 500, 707);
 //				drawLimitsMap(c, Parasite.Pv, h5RFpvLims, frameConfP, 500, 707, false, duffyCountryIds.contains(c.getId()));
 //				drawAPIMap(c, Parasite.Pv, frameConfP, 500, 707);
 			}
@@ -408,7 +412,9 @@ public class CountryLevelMaps {
 
 	public static void drawAPIMap4Classes(Country country, Parasite parasite, Map<String, Rectangle> frameConf, int w, int h) throws OutOfMemoryError, Exception {
 		
-		String outFileName = String.format("/home/will/c/Temp/maps/%s4class/%s_med_intel.pdf", parasite.toString(), country.getId());
+		
+		String outFileName = String.format("/home/will/c/Temp/maps/%s4class/pdf/%s_med_intel.pdf", parasite.toString().toLowerCase(), country.getId());
+		System.out.println(outFileName);
 	
 		// Legend items
 		List<MapKeyItem> legend = new ArrayList<MapKeyItem>();
