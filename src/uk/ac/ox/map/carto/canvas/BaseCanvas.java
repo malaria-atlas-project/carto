@@ -7,7 +7,7 @@ import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
 
 import uk.ac.ox.map.carto.style.Palette;
-import uk.ac.ox.map.deps.Colour;
+import uk.ac.ox.map.domain.carto.Colour;
 
 /**
  * Encapsulates a cairo context
@@ -39,7 +39,7 @@ public abstract class BaseCanvas {
 		this.surface = surface;
 	}
 
-	public void setBackgroundColour(Colour backgroundColour) {
+	public void setBackgroundColour(uk.ac.ox.map.domain.carto.Colour backgroundColour) {
 		setColour(backgroundColour);
 		cr.rectangle(0, 0, width, height);
 		cr.fill();
@@ -51,7 +51,7 @@ public abstract class BaseCanvas {
 	}
 	
 	public void drawTestRectangle(Rectangle r) {
-		setFillColour(new Colour("#000000", 1));
+		setFillColour(new uk.ac.ox.map.domain.carto.Colour("#000000", 1));
 		cr.setLineWidth(1);
 		cr.rectangle(r.x, r.y, r.width, r.height);
 		cr.stroke();
@@ -175,10 +175,6 @@ public abstract class BaseCanvas {
 			cr.lineTo(i + 0.5, height - 0.5);
 			cr.stroke();
 		}
-	}
-	
-	void drawScaleBar() {
-		
 	}
 	
 }

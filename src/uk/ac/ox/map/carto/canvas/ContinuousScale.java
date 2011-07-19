@@ -7,9 +7,8 @@ import java.util.List;
 
 import org.freedesktop.cairo.LinearPattern;
 
-import uk.ac.ox.map.carto.canvas.Rectangle;
 import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
-import uk.ac.ox.map.deps.Colour;
+import uk.ac.ox.map.domain.carto.Colour;
 import uk.ac.ox.map.imageio.RenderScale;
 
 /**

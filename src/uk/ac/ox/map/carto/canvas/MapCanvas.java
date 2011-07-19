@@ -254,13 +254,6 @@ public class MapCanvas extends BaseCanvas {
 
 	}
 
-	public void setScaleBar(Rectangle frame, double scale, int fontSize) {
-		ScaleBar sb = new ScaleBar(this, frame, scale, fontSize, "Kilometres");
-	}
-	public void setScaleBar(Rectangle frame, double scale, int fontSize, String unitText) {
-		ScaleBar sb = new ScaleBar(this, frame, scale, fontSize, unitText);
-	}
-
 	/**
 	 * Add a dataframe for later usage in drawing grids and borders.
 	 * 
@@ -298,7 +291,30 @@ public class MapCanvas extends BaseCanvas {
     
     cr.restore();
   }
-  
+
+  void drawScaleBar(Rectangle frame, double scale, double barHeight, String units) {
+    ScaleBar sb = new ScaleBar(frame.width, scale);
+    
+    double x = frame.x;
+    //Draw zero
+    annotateMap("0", x, frame.y, Anchor.CB);
+    
+    List<String> annotations = sb.getAnnotations();
+    for (int i = 0; i < annotations.size(); i++) {
+      
+      String annotation = annotations.get(i);
+      cr.rectangle(x, frame.y, width, barHeight);
+      
+      //
+      if (i % 2 == 0) {
+        cr.fillPreserve();
+      }
+      
+      cr.stroke();
+      x += width;
+      annotateMap(annotation, x, frame.y, Anchor.CB);
+    }
+  }
 }
 
 

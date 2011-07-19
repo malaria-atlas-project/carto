@@ -3,11 +3,11 @@ package uk.ac.ox.map.carto.style;
 import java.util.HashMap;
 import java.util.Map;
 
-import uk.ac.ox.map.deps.Colour;
+import uk.ac.ox.map.domain.carto.Colour;
 import uk.ac.ox.map.imageio.RenderScale;
 
 public class DummyRenderScale implements RenderScale {
-	Map<Integer, Colour> colours = new HashMap<Integer, Colour>();
+	Map<Integer, uk.ac.ox.map.domain.carto.Colour> colours = new HashMap<Integer, Colour>();
 	
     public DummyRenderScale() {
 	}

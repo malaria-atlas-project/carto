@@ -1,6 +1,6 @@
 package uk.ac.ox.map.carto.canvas;
 
-import uk.ac.ox.map.deps.Colour;
+import uk.ac.ox.map.domain.carto.Colour;
 
 public class MapKeyItem {
 	public enum FillStyle {
