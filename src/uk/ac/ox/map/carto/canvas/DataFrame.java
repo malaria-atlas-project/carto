@@ -395,9 +395,6 @@ public class DataFrame extends BaseCanvas {
     return origin;
   }
 
-  public void finish() {
-    surface.finish();
-  }
 
   public Colour getBorderColour() {
     return borderColour;

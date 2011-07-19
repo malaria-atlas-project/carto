@@ -84,7 +84,16 @@ public class MapCanvas extends BaseCanvas {
 		}
 	}
 	
-	public void annotateMap(String text, double x, double y, Anchor anchor) {
+	/**
+	 * Annotates the frame with the text at the specified position and text anchor.
+	 * 
+	 * @param text the text to display
+	 * @param x the x coordinate of the anchor
+	 * @param y the y coordinate of the anchor
+	 * @param anchor the {@link Anchor} position
+	 * @return the {@link Rectangle} defining the text extent.
+	 */
+	public Rectangle annotateMap(String text, double x, double y, Anchor anchor) {
 
 		Layout layout = new Layout(cr);
 		layout.setFontDescription(fontDesc);
@@ -95,6 +104,8 @@ public class MapCanvas extends BaseCanvas {
 
 		cr.moveTo(pt.x, pt.y);
 		cr.showLayout(layout);
+		
+		return rect;
 	}
 
 	/**
@@ -292,28 +303,37 @@ public class MapCanvas extends BaseCanvas {
     cr.restore();
   }
 
-  void drawScaleBar(Rectangle frame, double scale, double barHeight, String units) {
+  public void drawScaleBar(Rectangle frame, double scale, double barHeight, String units, double fontSize) {
+    setFontSize(fontSize);
+    
     ScaleBar sb = new ScaleBar(frame.width, scale);
     
     double x = frame.x;
     //Draw zero
     annotateMap("0", x, frame.y, Anchor.CB);
     
+    double intervalWidth = sb.getIntervalWidth();
+    
     List<String> annotations = sb.getAnnotations();
     for (int i = 0; i < annotations.size(); i++) {
       
       String annotation = annotations.get(i);
-      cr.rectangle(x, frame.y, width, barHeight);
+      cr.rectangle(x, frame.y, intervalWidth, barHeight);
       
-      //
       if (i % 2 == 0) {
         cr.fillPreserve();
       }
       
       cr.stroke();
-      x += width;
-      annotateMap(annotation, x, frame.y, Anchor.CB);
+      x += intervalWidth;
+      
+      Rectangle rect = annotateMap(annotation, x, frame.y - 2, Anchor.CB);
+      
+      if (i == annotations.size() - 1) {
+		    annotateMap(units, rect.x + (rect.width / 2) + 5, rect.y, Anchor.LB);
+      }
     }
+    
   }
 }
 

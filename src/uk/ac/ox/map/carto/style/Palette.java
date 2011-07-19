@@ -27,7 +27,6 @@ public enum Palette {
 	AUTUNITE_YELLOW ("#FFFF73")
 	; 
 	
-	
   private String hexColour;
 
   Palette(String hexColour) {

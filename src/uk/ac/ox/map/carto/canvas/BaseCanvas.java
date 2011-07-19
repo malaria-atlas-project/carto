@@ -177,4 +177,8 @@ public abstract class BaseCanvas {
 		}
 	}
 	
+  public void finish() {
+    surface.finish();
+  }
+	
 }

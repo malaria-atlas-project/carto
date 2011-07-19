@@ -2,13 +2,11 @@ package uk.ac.ox.map.carto.raster;
 
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
-import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
 import javax.imageio.ImageIO;
 
-import org.gnome.gdk.Pixbuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
