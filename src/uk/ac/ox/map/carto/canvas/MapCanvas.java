@@ -39,10 +39,6 @@ public class MapCanvas extends BaseCanvas {
 		fontDesc.setSize(12);
 	}
 
-	MapCanvas outer() {
-		return this;
-	}
-
 	public void setTitle(String text, Rectangle frame, double d) {
 		/*
 		 * TODO look at Reportlab api to think of good ways of abstracting
@@ -86,6 +82,7 @@ public class MapCanvas extends BaseCanvas {
 	
 	/**
 	 * Annotates the frame with the text at the specified position and text anchor.
+	 * A {@link Rectangle} is returned that contains the dimensions of the text box.
 	 * 
 	 * @param text the text to display
 	 * @param x the x coordinate of the anchor
@@ -206,19 +203,23 @@ public class MapCanvas extends BaseCanvas {
 			 * TODO: all very brittle, no checking, hardcoding, ... in fact not
 			 * quite sure how it works.
 			 */
-			int I = intervals[i];
-			int nintervalX = (int) (Math.floor(env.getMaxX() / I) - Math.ceil(env.getMinX() / I));
-			int nintervalY = (int) (Math.floor(env.getMaxY() / I) - Math.ceil(env.getMinY() / I));
+			int intervalSize = intervals[i];
+			int nintervalX = (int) (Math.floor(env.getMaxX() / intervalSize) - Math.ceil(env.getMinX() / intervalSize));
+			int nintervalY = (int) (Math.floor(env.getMaxY() / intervalSize) - Math.ceil(env.getMinY() / intervalSize));
 			int n = Math.min(nintervalX, nintervalY);
 			if (n > 1 && n < 7) {
-				possible_intervals.put(n, I);
+				possible_intervals.put(n, intervalSize);
 			}
 		}
-		// This unreadable stuff gets the value with the minimum key
+		
+		
+		/*
+		 * Get the minimum interval
+		 */
+		Integer minInterval = Collections.min(possible_intervals.keySet());
 		try {
-			chosen_interval = possible_intervals.get(Collections.min(possible_intervals.keySet()));
-		} catch (Exception e) {
-			System.err.println(e.getMessage());
+	    chosen_interval = possible_intervals.get(minInterval);
+		} catch(Exception e){
 			chosen_interval = 1;
 		}
 

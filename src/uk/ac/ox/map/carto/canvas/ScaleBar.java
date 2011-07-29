@@ -16,6 +16,7 @@ public class ScaleBar {
   private final Logger logger = LoggerFactory.getLogger(ScaleBar.class);
   private final List<String> annotations = new ArrayList<String>();
   private double divisionWidth = 0;
+  
 
   public ScaleBar(double width, double scale) {
 

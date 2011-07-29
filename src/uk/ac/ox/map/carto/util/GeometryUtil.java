@@ -37,14 +37,26 @@ public class GeometryUtil {
     }
   }
   
-  public static MultiPolygon createMask(Envelope env, AdminUnit adminUnit) {
+  public static MultiPolygon createMask(Envelope env, List<AdminUnit> adminUnits) {
     
     Geometry mask = getPolygonFromEnvelope(env);
     
-    OverlayOp ol = new OverlayOp(mask, adminUnit.getAdminGeom().getGeom());
-    mask = ol.getResultGeometry(OverlayOp.DIFFERENCE);
+    for (AdminUnit adminUnit : adminUnits) {
+	    OverlayOp ol = new OverlayOp(mask, adminUnit.getAdminGeom().getGeom());
+	    mask = ol.getResultGeometry(OverlayOp.DIFFERENCE);
+    }
 
     return GeometryUtil.toMultiPolygon(mask);
+  }
+  
+  public static MultiPolygon clip(Envelope env, MultiPolygon mp) {
+    Geometry mask = getPolygonFromEnvelope(env);
+    OverlayOp ol = new OverlayOp(mask, mp);
+	  Geometry geom = ol.getResultGeometry(OverlayOp.INTERSECTION);
+	  if (geom.isEmpty()) {
+	    return null;
+	  }
+	  return toMultiPolygon(geom);
   }
 
   public static MultiPolygon getPolygonFromEnvelope(Envelope env) {

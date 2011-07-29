@@ -9,6 +9,7 @@ import org.freedesktop.cairo.Filter;
 import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
 import org.gnome.gdk.Pixbuf;
+import org.gnome.gdk.PixbufFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -153,7 +154,8 @@ public class DataFrame extends BaseCanvas {
 
     Pixbuf pb;
     pb = new Pixbuf(ras.getImageOutputStream().getBytes());
-
+//    pb.save("/tmp/x.png", PixbufFormat.PNG);
+    
     Point2D.Double pt = ras.getOrigin();
 
     logger.debug("Pixbuf width: {}", pb.getWidth());
