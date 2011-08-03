@@ -1,13 +1,8 @@
 package uk.ac.ox.map.carto.canvas;
 
-import java.awt.geom.Point2D;
-import java.awt.geom.Point2D.Double;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.freedesktop.cairo.LinearPattern;
-
-import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
 import uk.ac.ox.map.domain.carto.Colour;
 import uk.ac.ox.map.imageio.RenderScale;
 
@@ -21,48 +16,33 @@ import uk.ac.ox.map.imageio.RenderScale;
  * done because we don't know until draw time where the gradient should be. 
  *
  */
-
 public class ContinuousScale implements RenderScale {
 	
 	double[] r = new double[256];
 	double[] g = new double[256];
 	double[] b = new double[256];
 
-	private LinearPattern lp;
-	private final List<ColourStop> colourStops;
+	private final List<ColourStop> colourStops = new ArrayList<ColourStop>();
 	private final List<ScaleAnnotation> scaleAnnotations = new ArrayList<ContinuousScale.ScaleAnnotation>();
-	private final Rectangle rect;
 	
-	private final Orientation orientation;
-	private final String title;
-	private final String description;
 	//FIXME: hack with getting last number and normalizing scale
 	private double normalization;
 	
-	private enum Orientation {NS, EW}	
 
-	private class ColourStop {
+	public class ColourStop {
 		final double[] colourStop;
 		public ColourStop(String annotation, double[] cs) {
 			this.colourStop = cs;
 		}	
 	}
 	
-	private class ScaleAnnotation {
+	public class ScaleAnnotation {
 		public ScaleAnnotation(String annotation, double ratio) {
 			this.ratio = ratio;
 			this.annotation = annotation;
 		}
 		final double ratio;
 		final String annotation;
-	}
-	
-	public ContinuousScale(Rectangle rect, String title, String description) {
-		colourStops = new ArrayList<ColourStop>();
-		this.rect = rect;
-		orientation = (rect.height >= rect.width)? Orientation.NS: Orientation.EW;
-		this.title = title;
-		this.description = description;
 	}
 
 	/**
@@ -87,76 +67,6 @@ public class ContinuousScale implements RenderScale {
 		scaleAnnotations.add(new ScaleAnnotation(annotation, d));
 	}
 	
-	/**
-	 * TODO: Violates encapsulation.
-	 * Takes a cairo context and draws itself.
-	 */
-	public void draw(MapCanvas mapCanvas) {
-		Double startPoint; 
-		Double endPoint; 
-		
-		
-		if (orientation.equals(Orientation.NS)) {
-			startPoint = new Point2D.Double(rect.x, rect.y + rect.height);
-			endPoint = new Point2D.Double(rect.x, rect.y);
-		} else {
-			startPoint = new Point2D.Double(rect.x, rect.y);
-			endPoint = new Point2D.Double(rect.x + rect.width, rect.y);
-		}
-		
-		lp = new LinearPattern(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
-		
-		double[] cs;
-		
-		for (ColourStop colourStop : colourStops) {
-			cs = colourStop.colourStop;
-			lp.addColorStopRGB(cs[0]*normalization, cs[1]*normalization, cs[2]*normalization, cs[3]*normalization);
-		}
-		
-		mapCanvas.cr.save();
-		mapCanvas.cr.setSource(lp);
-		mapCanvas.cr.rectangle(rect.x, rect.y, rect.width, rect.height);
-		mapCanvas.cr.fillPreserve();
-		
-		//TODO: hardcoded source colour
-		mapCanvas.cr.setSource(0, 0, 0);
-		//TODO: hardcoded linewidth
-		mapCanvas.cr.setLineWidth(0.2);
-		mapCanvas.cr.stroke();
-		mapCanvas.cr.restore();
-		
-		
-		for (ScaleAnnotation colourStop : scaleAnnotations) {
-			if (colourStop.annotation == null)
-				continue;
-			if (orientation.equals(Orientation.NS)) {
-		    	mapCanvas.annotateMap(
-		    			colourStop.annotation, 
-		    			rect.x+rect.width+5, 
-						(rect.y + rect.height) - (rect.height * (colourStop.ratio * normalization)), 
-						Anchor.LC
-				);
-			} else {
-		    	mapCanvas.annotateMap(
-		    			colourStop.annotation, 
-		    			(rect.x + (rect.width * (colourStop.ratio * normalization))),
-						(rect.y + rect.height),
-						Anchor.CT
-				);
-			}
-		}
-		
-    	
-//    	mapCanvas.annotateMap("Incidence (‰)", rect.x, rect.y-10, AnchorX.L, AnchorY.B);
-		//TODO: hackery with description
-		if (description == null) {
-	    	mapCanvas.annotateMap(title, rect.x, rect.y-5, Anchor.LB);
-		} else {
-	    	mapCanvas.annotateMap(title, rect.x, rect.y-18, Anchor.LB);
-	    	mapCanvas.annotateMap(description, rect.x, rect.y-5, Anchor.LB);
-		}
-	}
-
 	/**
 	 * Takes a pair of colourstops and a value to interpolate. Returns an rgb triplet.
 	 * 
@@ -249,4 +159,16 @@ public class ContinuousScale implements RenderScale {
 			System.out.println(s);
 		}
 	}
+
+  public List<ColourStop> getColourStops() {
+    return colourStops;
+  }
+
+  public List<ScaleAnnotation> getScaleAnnotations() {
+    return scaleAnnotations;
+  }
+
+  public double getNormalization() {
+    return normalization;
+  }
 }

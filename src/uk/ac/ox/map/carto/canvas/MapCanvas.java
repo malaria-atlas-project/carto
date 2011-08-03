@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 
+import org.freedesktop.cairo.LinearPattern;
 import org.freedesktop.cairo.Surface;
 import org.gnome.gdk.Pixbuf;
 import org.gnome.pango.Alignment;
@@ -16,6 +17,8 @@ import org.gnome.rsvg.Handle;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.ox.map.carto.canvas.ContinuousScale.ColourStop;
+import uk.ac.ox.map.carto.canvas.ContinuousScale.ScaleAnnotation;
 import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
 import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.util.AnnotationFactory;
@@ -216,8 +219,8 @@ public class MapCanvas extends BaseCanvas {
 		/*
 		 * Get the minimum interval
 		 */
-		Integer minInterval = Collections.min(possible_intervals.keySet());
 		try {
+			Integer minInterval = Collections.min(possible_intervals.keySet());
 	    chosen_interval = possible_intervals.get(minInterval);
 		} catch(Exception e){
 			chosen_interval = 1;
@@ -336,6 +339,81 @@ public class MapCanvas extends BaseCanvas {
     }
     
   }
+
+  	public void drawColourScale(ContinuousScale scale, Rectangle rect, String description, String title) {
+  		Double startPoint; 
+  		Double endPoint; 
+  		
+  		boolean horizontal = true;
+  		if (rect.height >= rect.width) {
+  		  horizontal = false;
+  		}
+  		
+  		if (horizontal) {
+  			startPoint = new Point2D.Double(rect.x, rect.y);
+  			endPoint = new Point2D.Double(rect.x + rect.width, rect.y);
+  		} else {
+  			startPoint = new Point2D.Double(rect.x, rect.y + rect.height);
+  			endPoint = new Point2D.Double(rect.x, rect.y);
+  		}
+  		
+  		LinearPattern lp = new LinearPattern(startPoint.x, startPoint.y, endPoint.x, endPoint.y);
+  		
+  		double[] cs;
+  		
+  		List<ColourStop> colourStops = scale.getColourStops();
+  		
+      double normalization = scale.getNormalization();
+      
+      for (ColourStop colourStop : colourStops) {
+  			cs = colourStop.colourStop;
+  			lp.addColorStopRGB(cs[0]*normalization, cs[1]*normalization, cs[2]*normalization, cs[3]*normalization);
+  		}
+  		
+  		cr.save();
+  		cr.setSource(lp);
+  		cr.rectangle(rect.x, rect.y, rect.width, rect.height);
+  		cr.fillPreserve();
+  		
+  		//TODO: hardcoded source colour
+  		cr.setSource(0, 0, 0);
+  		//TODO: hardcoded linewidth
+  		cr.setLineWidth(0.2);
+  		cr.stroke();
+  		cr.restore();
+  		
+  		
+  		List<ScaleAnnotation> scaleAnnotations = scale.getScaleAnnotations();
+      for (ScaleAnnotation colourStop : scaleAnnotations) {
+  			if (colourStop.annotation == null)
+  				continue;
+  			if (!horizontal) {
+  		    	annotateMap(
+  		    			colourStop.annotation, 
+  		    			rect.x+rect.width+5, 
+  						(rect.y + rect.height) - (rect.height * (colourStop.ratio * normalization)), 
+  						Anchor.LC
+  				);
+  			} else {
+  		    	annotateMap(
+  		    			colourStop.annotation, 
+  		    			(rect.x + (rect.width * (colourStop.ratio * normalization))),
+  						(rect.y + rect.height),
+  						Anchor.CT
+  				);
+  			}
+  		}
+  		
+      	
+  		//TODO: hackery with description
+  		if (description == null) {
+  	    	annotateMap(title, rect.x, rect.y-5, Anchor.LB);
+  		} else {
+  	    	annotateMap(title, rect.x, rect.y-18, Anchor.LB);
+  	    	annotateMap(description, rect.x, rect.y-5, Anchor.LB);
+  		}
+  	}
+
 }
 
 
