@@ -43,6 +43,11 @@ public class MapCanvas extends BaseCanvas {
 	}
 
 	public void setTitle(String text, Rectangle frame, double d) {
+	  
+	  if (text == null) {
+	    logger.debug("No text to draw");
+	    return;
+	  }
 		/*
 		 * TODO look at Reportlab api to think of good ways of abstracting
 		 */
@@ -64,6 +69,12 @@ public class MapCanvas extends BaseCanvas {
 	}
 
 	public void drawTextFrame(String text, Rectangle frame, float fontSize, int paraSpacing) {
+	  
+	  if (text == null) {
+	    logger.debug("No text to draw");
+	    return;
+	  }
+	  
 		Layout layout = new Layout(cr);
 		fontDesc.setSize(fontSize);
 		layout.setFontDescription(fontDesc);
@@ -117,6 +128,9 @@ public class MapCanvas extends BaseCanvas {
 			cr.setSource(df.getSurface(), origin.x, origin.y);
 			cr.paint();
 			
+			//Free resources used by dataframe.
+			df.finish();
+			
 			if (df.hasBorder()) {
 				setColour(df.getBorderColour());
 				cr.setLineWidth(0.2);
@@ -124,11 +138,9 @@ public class MapCanvas extends BaseCanvas {
 				cr.stroke();
 			}
 			
-			//Free resources used by dataframe.
-			df.finish();
-			
-			if (df.hasGrid())
+			if (df.hasGrid()) {
 				drawMapGrid(4.5, df);
+			}
 		}
 	}
 
