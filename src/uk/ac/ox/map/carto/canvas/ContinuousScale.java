@@ -27,7 +27,6 @@ public class ContinuousScale implements RenderScale {
 	
 	//FIXME: hack with getting last number and normalizing scale
 	private double normalization;
-	
 
 	public class ColourStop {
 		final double[] colourStop;
@@ -44,6 +43,7 @@ public class ContinuousScale implements RenderScale {
 		final double ratio;
 		final String annotation;
 	}
+	
 
 	/**
 	 * Adds a colour stop.

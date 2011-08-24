@@ -9,6 +9,7 @@ import java.util.List;
 
 import org.freedesktop.cairo.LinearPattern;
 import org.freedesktop.cairo.Surface;
+import org.gnome.gdk.Color;
 import org.gnome.gdk.Pixbuf;
 import org.gnome.pango.Alignment;
 import org.gnome.pango.FontDescription;
@@ -68,7 +69,7 @@ public class MapCanvas extends BaseCanvas {
 	  fontDesc.setSize(size);
 	}
 
-	public void drawTextFrame(String text, Rectangle frame, float fontSize, int paraSpacing) {
+	public void drawTextFrame(String text, Rectangle frame, double fontSize, double paraSpacing) {
 	  
 	  if (text == null) {
 	    logger.debug("No text to draw");
@@ -321,6 +322,7 @@ public class MapCanvas extends BaseCanvas {
 
   public void drawScaleBar(Rectangle frame, double scale, double barHeight, String units, double fontSize) {
     setFontSize(fontSize);
+    cr.setSource(0.0, 0.0, 0.0);
     
     ScaleBar sb = new ScaleBar(frame.width, scale);
     
