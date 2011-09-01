@@ -9,7 +9,6 @@ import org.freedesktop.cairo.Filter;
 import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
 import org.gnome.gdk.Pixbuf;
-import org.gnome.gdk.PixbufFormat;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -233,12 +232,12 @@ public class DataFrame extends BaseCanvas {
     }
 
     /*
-     * Set transform
+     * Build transform. 
+     * Negative Y scale translates between +y geographical and -y cairo coordinates.
      */
     this.env = canvasEnv;
     transform.scale(this.scale, -this.scale);
-    transform.translate(-canvasEnv.getMinX(), -canvasEnv.getMinY()
-        - (height / scale));
+    transform.translate(-canvasEnv.getMinX(), -canvasEnv.getMaxY());
   }
 
   /**
