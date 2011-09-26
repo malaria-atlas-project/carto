@@ -13,10 +13,10 @@ public class MapKeyItem {
 	public boolean stippled = false;
 	public FillStyle fillStyle;
 	public boolean duffy = false;
+	public boolean point = false;
 
 	public MapKeyItem(String description, Colour colour) {
 		this.description = description;
 		this.colour = colour;
-//		this.fillStyle = fillStyle;
 	}
 }

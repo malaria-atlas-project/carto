@@ -49,9 +49,7 @@ public class MapCanvas extends BaseCanvas {
 	    logger.debug("No text to draw");
 	    return;
 	  }
-		/*
-		 * TODO look at Reportlab api to think of good ways of abstracting
-		 */
+	  
 		Layout layout = new Layout(cr);
 		fontDesc.setSize(d);
 		layout.setFontDescription(fontDesc);
@@ -59,7 +57,7 @@ public class MapCanvas extends BaseCanvas {
 		layout.setAlignment(Alignment.CENTER);
 		layout.setMarkup(text);
 
-		// Always default to black. Good idea?
+		//Title assumed to always be black.
 		cr.setSource(0.0, 0.0, 0.0);
 		cr.moveTo(frame.x, frame.y);
 		cr.showLayout(layout);
@@ -145,7 +143,15 @@ public class MapCanvas extends BaseCanvas {
 		}
 	}
 
-	public void drawKey(Rectangle rect, List<MapKeyItem> legend, double fontSize) {
+	/**
+	 * Draws the passed key items vertically.
+	 * 
+	 * @param rect
+	 * @param legend
+	 * @param fontSize
+	 * @return the last y position 
+	 */
+	public double drawKey(Rectangle rect, List<MapKeyItem> legend, double fontSize) {
 		/*
 		 * FIXME: Hacks to draw custom fillstyles
 		 */
@@ -162,6 +168,16 @@ public class MapCanvas extends BaseCanvas {
 
 		fontDesc.setSize(fontSize);
 		for (MapKeyItem li : legend) {
+		  if (li.point) {
+        cr.arc(x, y, 1.75, 0, 2 * Math.PI);
+        setFillColour(Palette.BLACK.get());
+        setFillColour();
+        cr.fillPreserve();
+        setLineColour(Palette.BLACK.get());
+        setLineColour();
+        cr.stroke();
+		    continue;
+      }
 			setFillColour(li.colour);
 			cr.rectangle(x, y, patchWidth, patchHeight);
 			cr.fillPreserve();
@@ -192,6 +208,7 @@ public class MapCanvas extends BaseCanvas {
 			annotateMap(li.description, x + textMargin, y + (patchHeight / 2), Anchor.LC);
 			y += spacing;
 		}
+		return y;
 	}
 
 	private void drawMapGrid(double fontSize, DataFrame df) {

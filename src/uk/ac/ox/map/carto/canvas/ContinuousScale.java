@@ -113,6 +113,11 @@ public class ContinuousScale implements RenderScale {
 			 */
 			int b0 = (int) Math.floor(prevCS.colourStop[0] * 255);
 			int b1 = (int) Math.floor(thisCS.colourStop[0] * 255);
+			if (thisCS.colourStop[0] == 1.0) {
+			  b1 = 256;
+			}
+			System.out.println(b0);
+			System.out.println(b1);
 			
 			
 			for (int j = b0; j < b1; j++) {
