@@ -44,21 +44,6 @@ public class ContinuousScale implements RenderScale {
 		final String annotation;
 	}
 	
-
-	/**
-	 * Adds a colour stop.
-	 * @param offset start position 
-	 * @param r red
-	 * @param g green
-	 * @param b blue
-	 * @param ignoreRGB TODO
-	 */
-	public void addColorStopRGB(String annotation, double offset, double r, double g, double b, boolean ignoreRGB) {
-		if (!ignoreRGB)	{
-			colourStops.add(new ColourStop(annotation, new double[] {offset, r, g, b}));
-		}
-		scaleAnnotations.add(new ScaleAnnotation(annotation, offset));
-	}
 	
 	public void addColorStopRGB(String annotation, double d, Colour colour, boolean ignoreRGB) {
 		if (!ignoreRGB)	{
@@ -68,7 +53,7 @@ public class ContinuousScale implements RenderScale {
 	}
 	
 	/**
-	 * Takes a pair of colourstops and a value to interpolate. Returns an rgb triplet.
+	 * Takes a pair of colourstops and an x axis value to determine. Returns an rgb triplet.
 	 * 
 	 * @param x
 	 * @param cs0
@@ -102,6 +87,8 @@ public class ContinuousScale implements RenderScale {
 	public void finish() {
 		
 		ColourStop prevCS = colourStops.subList(0, 1).get(0);
+		int b0 = (int) Math.floor(prevCS.colourStop[0] * 255);
+		
 		ColourStop thisCS;
 		
 		for (int i = 1; i < colourStops.size(); i++) {
@@ -109,16 +96,12 @@ public class ContinuousScale implements RenderScale {
 			thisCS = colourStops.get(i);
 			
 			/*
-			 * Get upper and lower bounds, flooring for consistency. 
+			 * Get upper bound of colourstop
 			 */
-			int b0 = (int) Math.floor(prevCS.colourStop[0] * 255);
-			int b1 = (int) Math.floor(thisCS.colourStop[0] * 255);
+			int b1 = (int) Math.ceil(thisCS.colourStop[0] * 255);
 			if (thisCS.colourStop[0] == 1.0) {
 			  b1 = 256;
 			}
-			System.out.println(b0);
-			System.out.println(b1);
-			
 			
 			for (int j = b0; j < b1; j++) {
 				double x = ((double) j) / 255;
@@ -128,7 +111,10 @@ public class ContinuousScale implements RenderScale {
 				b[j] = interp[2];
 			}
 			prevCS = colourStops.get(i);
+			b0 = b1;
 		}
+		
+		
 		double max = colourStops.get(colourStops.size()-1).colourStop[0];
 		normalization = 1/max;
 	}
@@ -147,10 +133,14 @@ public class ContinuousScale implements RenderScale {
 		int i = (int) (f * 255);
 		return this.b[i];
 	}
+	
+	/**
+	 * Not implemented, always returns one.
+	 */
 	public double getAlpha(float f) {
-		//FIXME: quick hack
 		return 1;
 	}
+	
 	public void printHex() {
 		for (ColourStop colourStop : colourStops) {
 			String s = "";
@@ -173,6 +163,9 @@ public class ContinuousScale implements RenderScale {
     return scaleAnnotations;
   }
 
+  /**
+   * @return the fraction to multiply colourstops by to normalize to a 0..1 scale.
+   */
   public double getNormalization() {
     return normalization;
   }

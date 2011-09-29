@@ -152,7 +152,7 @@ public class DataFrame extends BaseCanvas {
     cr.save();
 
     Pixbuf pb;
-    pb = new Pixbuf(ras.getImageOutputStream().getBytes());
+    pb = new Pixbuf(ras.getImageOutputStream().toByteArray());
 //    pb.save("/tmp/x.png", PixbufFormat.PNG);
     
     Point2D.Double pt = ras.getOrigin();

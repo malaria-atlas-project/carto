@@ -2,6 +2,7 @@ package uk.ac.ox.map.carto.raster;
 
 import java.awt.geom.Point2D;
 import java.awt.image.BufferedImage;
+import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.net.URL;
 
@@ -45,7 +46,7 @@ public class WMSRaster implements RasterLayer {
   }
 
   @Override
-  public ByteOutputStream getImageOutputStream() {
+  public ByteArrayOutputStream getImageOutputStream() {
 
     String bbox = "&BBOX=%s,%s,%s,%s";
     bbox = String.format(bbox, env.getMinX(), env.getMinY(), env.getMaxX(), env .getMaxY());
@@ -59,7 +60,7 @@ public class WMSRaster implements RasterLayer {
     try {
       URL u = new URL(url.toString());
       BufferedImage i = ImageIO.read(u);
-      ByteOutputStream bos = new ByteOutputStream();
+      ByteArrayOutputStream bos = new ByteArrayOutputStream();
       ImageIO.write(i, "PNG", bos);
       return bos;
 
