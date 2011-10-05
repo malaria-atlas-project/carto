@@ -437,7 +437,7 @@ public class MapCanvas extends BaseCanvas {
   		
       	
   		//TODO: hackery with description
-  		if (description == null) {
+  		if (description == null || description.isEmpty()) {
   	    	annotateMap(title, rect.x, rect.y-5, Anchor.LB);
   		} else {
   	    	annotateMap(title, rect.x, rect.y-18, Anchor.LB);

@@ -133,11 +133,11 @@ public class DataFrame extends BaseCanvas {
   /*
    * TODO: remove and put in pointsymbolizer
    */
-  public void drawPoint(double x, double y, String col) {
+  public void drawPoint(double x, double y, Colour colour) {
 
     Point2D.Double pt = new Point2D.Double(x, y);
 
-    Colour colour = new Colour(col, 1);
+//    Colour colour = new Colour(col, 1);
     transform.transform(pt, pt);
     cr.arc(pt.x, pt.y, 1.75, 0, 2 * Math.PI);
     setFillColour(colour);
