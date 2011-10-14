@@ -135,26 +135,27 @@ public abstract class BaseCanvas {
 	}
 	
 	void paintDuffy() {
-		Colour orangeC = Palette.ORANGE_DARK.get();
-		Colour blueColour = new Colour("#6495ED", 1);
+		Colour greyBlue = new Colour("#6B7EAE", 1);
+		Colour grey = new Colour("#D2D2D2", 1);
+//		Colour orangeC = Palette.ORANGE_DARK.get();
+//		Colour blueColour = new Colour("#6495ED", 1);
 		
-		int spacing = 12;
-		setLineColour(Palette.ORANGE_DARK.get());
+		int spacing = 6;
 		double offset = (height > width) ? height : width;
 		double x1 = -offset;
 		int y1 = 0;
 		for (int i = 0; i < (offset * 2); i += spacing) {
-			cr.setLineWidth(1.5);
-			setLineColour(orangeC);
+			cr.setLineWidth(1);
+			setLineColour(greyBlue);
 			cr.moveTo(x1, y1 + offset);
 			cr.lineTo(x1 + offset, y1);
 			cr.stroke();
 			
-			x1 += 1.2;
+			x1 += 2;
 			cr.setLineWidth(2);
 			cr.moveTo(x1, y1 + offset);
 			cr.lineTo(x1 + offset, y1);
-			setLineColour(blueColour);
+			setLineColour(grey);
 			cr.stroke();
 			x1 += spacing;
 		}
