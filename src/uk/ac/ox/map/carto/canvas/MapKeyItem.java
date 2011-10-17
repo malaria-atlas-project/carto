@@ -1,22 +1,15 @@
 package uk.ac.ox.map.carto.canvas;
 
-import uk.ac.ox.map.domain.carto.Colour;
+import uk.ac.ox.map.carto.style.FillStyle;
 
 public class MapKeyItem {
-	public enum FillStyle {
-		SOLID, HATCHED, STIPPLED;
-	}
 
 	public final String description;
-	public final Colour colour;
-	public boolean hatched = false;
-	public boolean stippled = false;
-	public FillStyle fillStyle;
-	public boolean duffy = false;
 	public boolean point = false;
+  public final FillStyle fillStyle;
 
-	public MapKeyItem(String description, Colour colour) {
+	public MapKeyItem(String description, FillStyle fs) {
 		this.description = description;
-		this.colour = colour;
+		this.fillStyle = fs;
 	}
 }

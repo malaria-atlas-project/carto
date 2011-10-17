@@ -20,8 +20,10 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ox.map.carto.canvas.ContinuousScale.ColourStop;
 import uk.ac.ox.map.carto.canvas.ContinuousScale.ScaleAnnotation;
 import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
+import uk.ac.ox.map.carto.style.IsFillLayer;
 import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.util.AnnotationFactory;
+import uk.ac.ox.map.domain.carto.Colour;
 
 import com.vividsolutions.jts.geom.Envelope;
 
@@ -177,14 +179,13 @@ public class MapCanvas extends BaseCanvas {
    * @return the last y position
    */
   public double drawKey(Rectangle rect, List<MapKeyItem> legend, double fontSize) {
-    /*
-     * FIXME: Hacks to draw custom fillstyles
-     */
+    
     double y = rect.y;
     double x = rect.x;
-
+    Colour black = Palette.BLACK.get();
+    
     /*
-     * Could be configuration options?
+     * Could be configuration options in MapKey class?
      */
     double patchWidth = 25;
     double patchHeight = 12.5;
@@ -224,31 +225,17 @@ public class MapCanvas extends BaseCanvas {
         cr.stroke();
         
       } else {
-        setFillColour(mki.colour);
+        
         cr.rectangle(x, y, patchWidth, patchHeight);
-        cr.fillPreserve();
-        setLineColour(Palette.BLACK.get());
-        cr.setLineWidth(0.15);
-        cr.strokePreserve();
-        if (mki.hatched) {
-          // don't clip preserve
-          cr.save();
-          cr.clip();
-          paintCrossHatch();
-          cr.restore();
-        } else if (mki.stippled) {
-          // don't clip preserve
-          cr.save();
-          cr.clip();
-          paintStipple();
-          cr.restore();
-        } else if (mki.duffy) {
-          cr.save();
-          cr.clip();
-          paintDuffy();
-          cr.restore();
+        
+        for (IsFillLayer lyr: mki.fillStyle.layers) {
+          boolean consumed = paintFill(lyr);
+          if (consumed) {
+            cr.rectangle(x, y, patchWidth, patchHeight);
+          }
         }
-        cr.setDash(new double[] { 1, 0 });
+        cr.setLineWidth(0.15);
+        setLineColour(black);
         cr.stroke();
       }
 

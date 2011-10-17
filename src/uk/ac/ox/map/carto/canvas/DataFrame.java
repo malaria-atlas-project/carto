@@ -15,9 +15,7 @@ import org.slf4j.LoggerFactory;
 
 import uk.ac.ox.map.carto.style.FillStyle;
 import uk.ac.ox.map.carto.style.IsFillLayer;
-import uk.ac.ox.map.carto.style.LineFillLayer;
 import uk.ac.ox.map.carto.style.Palette;
-import uk.ac.ox.map.carto.style.SolidFillLayer;
 import uk.ac.ox.map.domain.carto.Colour;
 import uk.ac.ox.map.imageio.RasterLayer;
 
@@ -247,7 +245,7 @@ public class DataFrame extends BaseCanvas {
     return this.env;
   }
   
-  public void drawFeatures2(List<MultiPolygon> ls, FillStyle fs) {
+  public void drawFeatures(List<MultiPolygon> ls, FillStyle fs) {
     for (MultiPolygon ps : ls) {
       drawMultiPolygon(ps, fs);
     }
@@ -267,26 +265,21 @@ public class DataFrame extends BaseCanvas {
      * Draw line strings
      */
     drawLineStrings(p);
+    
+    /*
+     * To draw hatches, line strings are sometimes consumed.
+     */
+    boolean lineStringsConsumed = false;
 
     /*
      * Filling
      */
     for (IsFillLayer layer : fs.layers) {
-      if (layer instanceof SolidFillLayer) {
-        SolidFillLayer lyr = (SolidFillLayer) layer;
-        setFillColour(lyr.colour);
-        cr.fillPreserve();
-      } else if (layer instanceof LineFillLayer) {
-        cr.save();
-        cr.clip();
-        paintLineLayer((LineFillLayer) layer);
-
-        cr.restore();
-        /*
-         * Has to be re-drawn
-         */
-        drawLineStrings(p);
-      }
+      lineStringsConsumed = paintFill(layer);
+    }
+    
+    if (lineStringsConsumed) {
+      drawLineStrings(p);
     }
     
     /*

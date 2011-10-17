@@ -6,8 +6,11 @@ import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
 
+import uk.ac.ox.map.carto.style.IsFillLayer;
 import uk.ac.ox.map.carto.style.LineFillLayer;
 import uk.ac.ox.map.carto.style.Palette;
+import uk.ac.ox.map.carto.style.SolidFillLayer;
+import uk.ac.ox.map.carto.style.StippleFillLayer;
 import uk.ac.ox.map.domain.carto.Colour;
 
 /**
@@ -136,79 +139,86 @@ public abstract class BaseCanvas {
 		}
 	}
 	
-	protected void paintLineLayer(LineFillLayer lyr) {
-		setLineColour(lyr.lineStyle.getLineColour());
-		cr.setLineWidth(lyr.lineStyle.getLineWidth());
-		
-		/*
-		 * Angle is analogous to compass bearings
-		 */
-//		double angle = Math.toRadians(lyr.angle);
-//		double offset = Math.tan(angle) * height;
-		
-		/*
-		 * Offset is the largest dimension of the canvas to ensure complete coverage.
-		 */
-		double offset = (height > width) ? height : width;
-		
-		double x1 = -offset;
-		System.out.println(offset);
-		x1 += lyr.offset;
-		int y1 = 0;
-		for (int i = 0; i < (offset * 2); i += lyr.spacing) {
-			cr.moveTo(x1, y1);
-			cr.lineTo(x1 + offset, y1 + offset);
-			cr.stroke();
-			x1 += lyr.spacing;
-		}
-	}
-	
-	void paintDuffy() {
-		Colour greyBlue = new Colour("#6B7EAE", 1);
-		Colour grey = new Colour("#D2D2D2", 1);
-//		Colour orangeC = Palette.ORANGE_DARK.get();
-//		Colour blueColour = new Colour("#6495ED", 1);
-		
-		int spacing = 12;
-		double offset = (height > width) ? height : width;
-		double x1 = -offset;
-		int y1 = 0;
-		for (int i = 0; i < (offset * 2); i += spacing) {
-			cr.setLineWidth(2);
-			setLineColour(greyBlue);
-			cr.moveTo(x1, y1 + offset);
-			cr.lineTo(x1 + offset, y1);
-			cr.stroke();
-			
-			x1 += 4;
-			cr.setLineWidth(4);
-			cr.moveTo(x1, y1 + offset);
-			cr.lineTo(x1 + offset, y1);
-			setLineColour(grey);
-			cr.stroke();
-			x1 += spacing;
-		}
-	}
-
-	void paintStipple() {
-		int spacing = 3;
-		cr.setDash(new double[] { 1, 3 });
-		for (int j = 0; j < height; j += spacing) {
-			cr.moveTo(0, j);
-			cr.lineTo(width, j);
-			cr.stroke();
-		}
-		cr.setDash(new double[] { 1, 2 });
-		spacing += 1;
-		for (int i = 0; i < height; i += spacing) {
-			cr.moveTo(i + 0.5, -0.5);
-			cr.lineTo(i + 0.5, height - 0.5);
-			cr.stroke();
-		}
-	}
-	
-  public void finish() {
+	public void finish() {
     surface.finish();
+  }
+
+  /**
+   * Paints an arbitrary pattern.
+   * returns true if the current strokes have been consumed which is necessary for
+   * 
+   * @param layer
+   *     the pattern layer to draw
+   * @return
+   */
+  protected boolean paintFill(IsFillLayer layer) {
+    if (layer instanceof SolidFillLayer) {
+      SolidFillLayer lyr = (SolidFillLayer) layer;
+      setFillColour(lyr.colour);
+      cr.fillPreserve();
+      return false;
+    } else if (layer instanceof LineFillLayer) {
+      cr.save();
+      cr.clip();
+      paintLineLayer((LineFillLayer) layer);
+  
+      cr.restore();
+      return true;
+    } else if (layer instanceof StippleFillLayer) {
+      cr.save();
+      cr.clip();
+      paintStippleFill((StippleFillLayer) layer);
+      cr.restore();
+      return true;
+      
+    } else {
+      throw new RuntimeException("Unknown FillLayer type.");
+    }
+  }
+
+  protected void paintLineLayer(LineFillLayer lyr) {
+  		setLineColour(lyr.lineStyle.getLineColour());
+  		cr.setLineWidth(lyr.lineStyle.getLineWidth());
+  		
+  		/*
+  		 * Angle is analogous to compass bearings
+  		 */
+  //		double angle = Math.toRadians(lyr.angle);
+  //		double offset = Math.tan(angle) * height;
+  		
+  		/*
+  		 * Offset is the largest dimension of the canvas to ensure complete coverage.
+  		 */
+  		double offset = (height > width) ? height : width;
+  		
+  		double x1 = -offset;
+  		System.out.println(offset);
+  		x1 += lyr.offset;
+  		int y1 = 0;
+  		for (int i = 0; i < (offset * 2); i += lyr.spacing) {
+  			cr.moveTo(x1, y1);
+  			cr.lineTo(x1 + offset, y1 + offset);
+  			cr.stroke();
+  			x1 += lyr.spacing;
+  		}
+  	}
+
+  void paintStippleFill(StippleFillLayer layer) {
+    
+  	double spacing = layer.spacing;
+  	
+  	cr.setDash(new double[] { 1, spacing });
+  	for (int j = 0; j < height; j += spacing) {
+  		cr.moveTo(0, j);
+  		cr.lineTo(width, j);
+  		cr.stroke();
+  	}
+  	cr.setDash(new double[] { 1, spacing });
+  	for (int i = 0; i < height; i += spacing) {
+  		cr.moveTo(i + 0.5, -0.5);
+  		cr.lineTo(i + 0.5, height - 0.5);
+  		cr.stroke();
+  	}
   }
 	
 }
