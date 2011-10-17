@@ -194,11 +194,11 @@ public class MapCanvas extends BaseCanvas {
     double availableTextWidth = rect.width - textMargin;
 
     fontDesc.setSize(fontSize);
-    for (MapKeyItem li : legend) {
+    for (MapKeyItem mki : legend) {
 
       Layout layout = new Layout(cr);
       layout.setFontDescription(fontDesc);
-      layout.setMarkup(li.description);
+      layout.setMarkup(mki.description);
       layout.setWidth(availableTextWidth);
 
       /*
@@ -209,7 +209,7 @@ public class MapCanvas extends BaseCanvas {
         y += (layout.getSizeHeight() - patchHeight) / 2;
       }
 
-      if (li.point) {
+      if (mki.point) {
         double ptY = y + (patchHeight / 2);
         double ptX = x + (patchWidth / 2);
         
@@ -224,25 +224,25 @@ public class MapCanvas extends BaseCanvas {
         cr.stroke();
         
       } else {
-        setFillColour(li.colour);
+        setFillColour(mki.colour);
         cr.rectangle(x, y, patchWidth, patchHeight);
         cr.fillPreserve();
         setLineColour(Palette.BLACK.get());
         cr.setLineWidth(0.15);
         cr.strokePreserve();
-        if (li.hatched) {
+        if (mki.hatched) {
           // don't clip preserve
           cr.save();
           cr.clip();
           paintCrossHatch();
           cr.restore();
-        } else if (li.stippled) {
+        } else if (mki.stippled) {
           // don't clip preserve
           cr.save();
           cr.clip();
           paintStipple();
           cr.restore();
-        } else if (li.duffy) {
+        } else if (mki.duffy) {
           cr.save();
           cr.clip();
           paintDuffy();

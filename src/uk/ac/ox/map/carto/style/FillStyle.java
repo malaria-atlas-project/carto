@@ -1,42 +1,21 @@
 package uk.ac.ox.map.carto.style;
 
-import uk.ac.ox.map.domain.carto.Colour;
+import java.util.ArrayList;
+import java.util.List;
+
 
 /**
- * @author will
- * 
- *         Incomplete
+ * Can represent a solid fill, a line fill, a picture fill or SVG fill
+ * Includes outline
  */
 public class FillStyle {
-
-  private final Colour fillColor;
-  private final FillType fillType;
-
-  public enum FillType {
-    SOLID, HATCHED, STIPPLED, DUFFY;
+  
+  public FillStyle(LineStyle outline) {
+    this.outline = outline;
   }
-
-  public FillStyle(Colour colour, FillType fillType) {
-    this.fillColor = colour;
-    this.fillType = fillType;
-  }
-
-  /**
-   * Fill type defaults to solid
-   * 
-   * @param colour
-   */
-  public FillStyle(Colour colour) {
-    this.fillColor = colour;
-    this.fillType = FillType.SOLID;
-  }
-
-  public Colour getFillColor() {
-    return fillColor;
-  }
-
-  public FillType getFillType() {
-    return fillType;
-  }
-
+  
+  public final LineStyle outline;
+  
+  public final List<IsFillLayer> layers = new ArrayList<IsFillLayer>();
+  
 }

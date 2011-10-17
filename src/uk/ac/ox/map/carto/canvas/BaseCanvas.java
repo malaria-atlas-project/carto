@@ -6,6 +6,7 @@ import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
 
+import uk.ac.ox.map.carto.style.LineFillLayer;
 import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.domain.carto.Colour;
 
@@ -116,6 +117,7 @@ public abstract class BaseCanvas {
 //		tempPdf.finish();
 		return tempPdf;
 	}
+	
 	void paintCrossHatch() {
 		/*
 		 * Very simple and unoptimised. Just draws a parallelogram of hatchings.
@@ -134,25 +136,52 @@ public abstract class BaseCanvas {
 		}
 	}
 	
+	protected void paintLineLayer(LineFillLayer lyr) {
+		setLineColour(lyr.lineStyle.getLineColour());
+		cr.setLineWidth(lyr.lineStyle.getLineWidth());
+		
+		/*
+		 * Angle is analogous to compass bearings
+		 */
+//		double angle = Math.toRadians(lyr.angle);
+//		double offset = Math.tan(angle) * height;
+		
+		/*
+		 * Offset is the largest dimension of the canvas to ensure complete coverage.
+		 */
+		double offset = (height > width) ? height : width;
+		
+		double x1 = -offset;
+		System.out.println(offset);
+		x1 += lyr.offset;
+		int y1 = 0;
+		for (int i = 0; i < (offset * 2); i += lyr.spacing) {
+			cr.moveTo(x1, y1);
+			cr.lineTo(x1 + offset, y1 + offset);
+			cr.stroke();
+			x1 += lyr.spacing;
+		}
+	}
+	
 	void paintDuffy() {
 		Colour greyBlue = new Colour("#6B7EAE", 1);
 		Colour grey = new Colour("#D2D2D2", 1);
 //		Colour orangeC = Palette.ORANGE_DARK.get();
 //		Colour blueColour = new Colour("#6495ED", 1);
 		
-		int spacing = 6;
+		int spacing = 12;
 		double offset = (height > width) ? height : width;
 		double x1 = -offset;
 		int y1 = 0;
 		for (int i = 0; i < (offset * 2); i += spacing) {
-			cr.setLineWidth(1);
+			cr.setLineWidth(2);
 			setLineColour(greyBlue);
 			cr.moveTo(x1, y1 + offset);
 			cr.lineTo(x1 + offset, y1);
 			cr.stroke();
 			
-			x1 += 2;
-			cr.setLineWidth(2);
+			x1 += 4;
+			cr.setLineWidth(4);
 			cr.moveTo(x1, y1 + offset);
 			cr.lineTo(x1 + offset, y1);
 			setLineColour(grey);

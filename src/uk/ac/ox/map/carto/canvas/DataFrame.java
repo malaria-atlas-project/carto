@@ -2,6 +2,7 @@ package uk.ac.ox.map.carto.canvas;
 
 import java.awt.geom.AffineTransform;
 import java.awt.geom.Point2D;
+import java.awt.geom.Point2D.Double;
 import java.io.IOException;
 import java.util.List;
 
@@ -12,9 +13,11 @@ import org.gnome.gdk.Pixbuf;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.ox.map.carto.style.FillStyle;
+import uk.ac.ox.map.carto.style.IsFillLayer;
+import uk.ac.ox.map.carto.style.LineFillLayer;
 import uk.ac.ox.map.carto.style.Palette;
-import uk.ac.ox.map.carto.style.PolygonSymbolizer;
-import uk.ac.ox.map.carto.style.FillStyle.FillType;
+import uk.ac.ox.map.carto.style.SolidFillLayer;
 import uk.ac.ox.map.domain.carto.Colour;
 import uk.ac.ox.map.imageio.RasterLayer;
 
@@ -116,7 +119,6 @@ public class DataFrame extends BaseCanvas {
 
     Point2D.Double pt = new Point2D.Double(x, y);
 
-//    Colour colour = new Colour(col, 1);
     transform.transform(pt, pt);
     cr.arc(pt.x, pt.y, 1.75, 0, 2 * Math.PI);
     setFillColour(colour);
@@ -132,8 +134,8 @@ public class DataFrame extends BaseCanvas {
 
     Pixbuf pb;
     pb = new Pixbuf(ras.getImageOutputStream().toByteArray());
-//    pb.save("/tmp/x.png", PixbufFormat.PNG);
-    
+    // pb.save("/tmp/x.png", PixbufFormat.PNG);
+
     Point2D.Double pt = ras.getOrigin();
 
     logger.debug("Pixbuf width: {}", pb.getWidth());
@@ -211,12 +213,30 @@ public class DataFrame extends BaseCanvas {
     }
 
     /*
-     * Build transform. 
-     * Negative Y scale translates between +y geographical and -y cairo coordinates.
+     * Build transform. Negative Y scale translates between +y geographical and
+     * -y cairo coordinates.
      */
     this.env = canvasEnv;
     transform.scale(this.scale, -this.scale);
     transform.translate(-canvasEnv.getMinX(), -canvasEnv.getMaxY());
+
+    /*
+     * Print debugging info
+     */
+    logger.debug("X Scale: {}", transform.getTranslateX());
+    logger.debug("Y Scale: {}", transform.getTranslateY());
+
+    Double urPt = new Point2D.Double(env.getMaxX(), env.getMaxY());
+    logger.debug("UR env before transform: {}", urPt);
+    transform.transform(urPt, urPt);
+    logger.debug("UR env after transform: {}", urPt);
+
+    Double llPt = new Point2D.Double(env.getMinX(), env.getMinY());
+    transform.transform(llPt, llPt);
+    logger.debug("LL env before transform: {}", llPt);
+    transform.transform(urPt, urPt);
+    logger.debug("LL env after transform: {}", llPt);
+
   }
 
   /**
@@ -226,96 +246,82 @@ public class DataFrame extends BaseCanvas {
   public Envelope getEnvelope() {
     return this.env;
   }
-
-  /*
-   * private void debugTransform(Envelope env){
-   * System.out.println("X Scale: "+transform.getTranslateX());
-   * System.out.println("Y Scale: "+transform.getTranslateY()); Point2D.Double
-   * llPt = new Point2D.Double(env.getMinX(), env.getMinY()); Point2D.Double
-   * urPt = new Point2D.Double(env.getMaxX(), env.getMaxY());
-   * 
-   * System.out.println("before:"); System.out.println(llPt);
-   * System.out.println(urPt); transform.transform(llPt, llPt);
-   * transform.transform(urPt, urPt); System.out.println("after:");
-   * System.out.println(llPt); System.out.println(urPt); }
-   */
-  public void drawFeatures(List<PolygonSymbolizer> ls) {
-    for (PolygonSymbolizer ps : ls) {
-      drawMultiPolygon(ps);
+  
+  public void drawFeatures2(List<MultiPolygon> ls, FillStyle fs) {
+    for (MultiPolygon ps : ls) {
+      drawMultiPolygon(ps, fs);
     }
   }
 
-  public void drawMultiPolygon(PolygonSymbolizer ps) {
-    Colour c = ps.getFillStyle().getFillColor();
-    setFillColour(c);
-
-    setLineColour(ps.getLineStyle().getLineColour());
-    cr.setLineWidth(ps.getLineStyle().getLineWidth());
-
-    MultiPolygon mp = ps.getMp();
+  public void drawMultiPolygon(MultiPolygon mp, FillStyle fs) {
 
     for (int i = 0; i < mp.getNumGeometries(); i++) {
-      drawPolygon((Polygon) mp.getGeometryN(i), ps);
+      drawPolygon((Polygon) mp.getGeometryN(i), fs);
     }
 
   }
 
-  private void drawPolygon(Polygon p, PolygonSymbolizer ps) {
+  private void drawPolygon(Polygon p, FillStyle fs) {
 
+    /*
+     * Draw line strings
+     */
+    drawLineStrings(p);
+
+    /*
+     * Filling
+     */
+    for (IsFillLayer layer : fs.layers) {
+      if (layer instanceof SolidFillLayer) {
+        SolidFillLayer lyr = (SolidFillLayer) layer;
+        setFillColour(lyr.colour);
+        cr.fillPreserve();
+      } else if (layer instanceof LineFillLayer) {
+        cr.save();
+        cr.clip();
+        paintLineLayer((LineFillLayer) layer);
+
+        cr.restore();
+        /*
+         * Has to be re-drawn
+         */
+        drawLineStrings(p);
+      }
+    }
+    
+    /*
+     * Stroking
+     */
+    setLineColour(fs.outline.getLineColour());
+    cr.stroke();
+  }
+
+  private void drawLineStrings(Polygon p) {
     LineString exteriorRing = p.getExteriorRing();
     drawLineString(exteriorRing);
-
-    FillType ft = ps.getFillStyle().getFillType();
-    if (!ft.equals(FillType.DUFFY)) {
-    }
 
     for (int i = 0; i < p.getNumInteriorRing(); i++) {
       drawLineString(p.getInteriorRingN(i));
     }
-
-    if (ft.equals(FillType.SOLID)) {
-      setFillColour();
-      cr.fillPreserve();
-      setLineColour();
-      cr.stroke();
-    } else {
-      setFillColour();
-      cr.fillPreserve();
-      cr.save();
-      cr.clipPreserve();
-
-      if (ft.equals(FillType.HATCHED)) {
-        logger.debug("hatch");
-        setLineColour();
-        paintCrossHatch();
-        cr.stroke();
-      } else if (ft.equals(FillType.STIPPLED)) {
-        logger.debug("stipple");
-        setLineColour();
-        paintStipple();
-        cr.stroke();
-      } else if (ft.equals(FillType.DUFFY)) {
-        cr.stroke();
-        logger.debug("duffy");
-        setLineColour();
-        paintDuffy();
-      }
-      cr.restore();
-    }
   }
 
+  /**
+   * Draws a line string onto the canvas. Stroking and filling operations happen afterwards.
+   * 
+   * @param ls
+   */
   private void drawLineString(LineString ls) {
 
     Coordinate[] coordinates = ls.getCoordinates();
-    for (int i = 0; i < coordinates.length; i++) {
-      Coordinate c = coordinates[i];
-      if (i == 0) {
-        moveTo(c.x, c.y);
-      } else {
-        lineTo(c.x, c.y);
-      }
+    if (coordinates.length < 2) {
+      return;
     }
-
+    Coordinate first = coordinates[0];
+    moveTo(first.x, first.y);
+    for (int i = 1; i < coordinates.length; i++) {
+      Coordinate c = coordinates[i];
+      lineTo(c.x, c.y);
+    }
   }
 
   /**
@@ -374,7 +380,6 @@ public class DataFrame extends BaseCanvas {
   public Point2D.Double getOrigin() {
     return origin;
   }
-
 
   public Colour getBorderColour() {
     return borderColour;
