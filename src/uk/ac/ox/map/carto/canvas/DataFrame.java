@@ -113,18 +113,12 @@ public class DataFrame extends BaseCanvas {
   /*
    * TODO: remove and put in pointsymbolizer
    */
-  public void drawPoint(double x, double y, Colour colour) {
+  public void drawPoint(double x, double y, FillStyle fs) {
 
     Point2D.Double pt = new Point2D.Double(x, y);
-
     transform.transform(pt, pt);
-    cr.arc(pt.x, pt.y, 1.75, 0, 2 * Math.PI);
-    setFillColour(colour);
-    setFillColour();
-    cr.fillPreserve();
-    setLineColour(Palette.BLACK.get());
-    setLineColour();
-    cr.stroke();
+    
+    drawPoint(fs, pt);
   }
 
   public void addRasterLayer(RasterLayer ras) throws IOException {
@@ -266,20 +260,19 @@ public class DataFrame extends BaseCanvas {
      */
     drawLineStrings(p);
     
+    
     /*
      * To draw hatches, line strings are sometimes consumed.
      */
-    boolean lineStringsConsumed = false;
 
     /*
      * Filling
      */
     for (IsFillLayer layer : fs.layers) {
-      lineStringsConsumed = paintFill(layer);
-    }
-    
-    if (lineStringsConsumed) {
-      drawLineStrings(p);
+      boolean lineStringsConsumed = paintFill(layer);
+      if (lineStringsConsumed) {
+        drawLineStrings(p);
+      }
     }
     
     /*
@@ -311,10 +304,11 @@ public class DataFrame extends BaseCanvas {
     }
     Coordinate first = coordinates[0];
     moveTo(first.x, first.y);
-    for (int i = 1; i < coordinates.length; i++) {
+    for (int i = 1; i < (coordinates.length - 1); i++) {
       Coordinate c = coordinates[i];
       lineTo(c.x, c.y);
     }
+    cr.closePath();
   }
 
   /**

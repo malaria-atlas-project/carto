@@ -20,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ox.map.carto.canvas.ContinuousScale.ColourStop;
 import uk.ac.ox.map.carto.canvas.ContinuousScale.ScaleAnnotation;
 import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
+import uk.ac.ox.map.carto.style.FillStyle;
 import uk.ac.ox.map.carto.style.IsFillLayer;
 import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.util.AnnotationFactory;
@@ -204,7 +205,7 @@ public class MapCanvas extends BaseCanvas {
 
       /*
        * Set the y position for new item. If the text height exceeds the patch
-       * height, increase the spacing. This is somewhat arb
+       * height, increase the spacing. This is somewhat arbitrary.
        */
       if (layout.getSizeHeight() > patchHeight) {
         y += (layout.getSizeHeight() - patchHeight) / 2;
@@ -214,15 +215,7 @@ public class MapCanvas extends BaseCanvas {
         double ptY = y + (patchHeight / 2);
         double ptX = x + (patchWidth / 2);
         
-        cr.moveTo(ptX, ptY);
-        
-        cr.arc(ptX, ptY, 1.75, 0, 2 * Math.PI);
-        setFillColour(Palette.BLACK.get(0.5));
-        setFillColour();
-        cr.fillPreserve();
-        setLineColour(Palette.BLACK.get());
-        setLineColour();
-        cr.stroke();
+        drawPoint(mki.fillStyle, new Point2D.Double(ptX, ptY));
         
       } else {
         

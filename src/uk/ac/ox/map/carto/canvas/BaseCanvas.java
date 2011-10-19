@@ -1,11 +1,13 @@
 package uk.ac.ox.map.carto.canvas;
 
+import java.awt.geom.Point2D;
 import java.io.IOException;
 
 import org.freedesktop.cairo.Context;
 import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
 
+import uk.ac.ox.map.carto.style.FillStyle;
 import uk.ac.ox.map.carto.style.IsFillLayer;
 import uk.ac.ox.map.carto.style.LineFillLayer;
 import uk.ac.ox.map.carto.style.Palette;
@@ -91,36 +93,6 @@ public abstract class BaseCanvas {
 		return lineColour;
 	}
 
-	public PdfSurface getSurfacePattern() {
-		PdfSurface tempPdf = null;
-		double w = width, h = height;
-		try {
-	        tempPdf = new PdfSurface(null, w, h);
-        } catch (IOException e) {
-	        e.printStackTrace();
-        }
-        Context tempCr = new Context(tempPdf);
-        tempCr.setLineWidth(0.2);
-        tempCr.setSource(1, 1, 1);
-        tempCr.rectangle(0, 0, w, h);
-        tempCr.fill();
-        tempCr.setSource(0,0,0);
-        
-		int spacing = 3;
-		double offset = (h > w) ? h : w;
-		double x1 = -offset;
-		int y1 = 0;
-		for (int i = 0; i < (offset * 2); i += spacing) {
-			tempCr.moveTo(x1, y1);
-			tempCr.lineTo(x1 + offset, y1 + offset);
-			tempCr.stroke();
-			x1 += spacing;
-		}
-		tempPdf.flush();
-//		tempPdf.finish();
-		return tempPdf;
-	}
-	
 	void paintCrossHatch() {
 		/*
 		 * Very simple and unoptimised. Just draws a parallelogram of hatchings.
@@ -220,5 +192,21 @@ public abstract class BaseCanvas {
   		cr.stroke();
   	}
   }
-	
+
+  protected void drawPoint(FillStyle fs, Point2D.Double pt) {
+    
+    cr.arc(pt.x, pt.y, 1.75, 0, 2 * Math.PI);
+    
+    for (IsFillLayer lyr: fs.layers) {
+      boolean consumed = paintFill(lyr);
+      if (consumed) {
+         cr.arc(pt.x, pt.y, 1.75, 0, 2 * Math.PI);
+      }
+    }
+    
+    setLineColour(Palette.BLACK.get());
+    cr.stroke();
+    
+  }
+  
 }
