@@ -10,9 +10,11 @@ import org.freedesktop.cairo.Filter;
 import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
 import org.gnome.gdk.Pixbuf;
+import org.gnome.gdk.PixbufLoader;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import uk.ac.ox.map.carto.PixbufLeak;
 import uk.ac.ox.map.carto.style.FillStyle;
 import uk.ac.ox.map.carto.style.IsFillLayer;
 import uk.ac.ox.map.carto.style.Palette;
@@ -125,9 +127,8 @@ public class DataFrame extends BaseCanvas {
     cr.save();
 
     Pixbuf pb;
-    pb = new Pixbuf(ras.getImageOutputStream().toByteArray());
-    // pb.save("/tmp/x.png", PixbufFormat.PNG);
-
+    pb = new Pixbuf(ras.getImageData());
+    
     Point2D.Double pt = ras.getOrigin();
 
     logger.debug("Pixbuf width: {}", pb.getWidth());
@@ -149,12 +150,12 @@ public class DataFrame extends BaseCanvas {
     cr.scale(newScale, newScale);
     /*
      * The scaling will move the origin, therefore this needs to be corrected.
+     * 
      */
     cr.setSource(pb, pt.x / newScale, pt.y / newScale);
-
     cr.getSource().setFilter(Filter.NEAREST);
-
     cr.paint();
+    
     cr.restore();
 
   }

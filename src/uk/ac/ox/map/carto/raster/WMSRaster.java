@@ -46,8 +46,8 @@ public class WMSRaster implements RasterLayer {
   }
 
   @Override
-  public ByteArrayOutputStream getImageOutputStream() {
-
+  public byte[] getImageData() {
+    
     String bbox = "&BBOX=%s,%s,%s,%s";
     bbox = String.format(bbox, env.getMinX(), env.getMinY(), env.getMaxX(), env .getMaxY());
     
@@ -62,7 +62,7 @@ public class WMSRaster implements RasterLayer {
       BufferedImage i = ImageIO.read(u);
       ByteArrayOutputStream bos = new ByteArrayOutputStream();
       ImageIO.write(i, "PNG", bos);
-      return bos;
+      return bos.toByteArray();
 
     } catch (IOException e) {
       logger.error(e.getMessage());
