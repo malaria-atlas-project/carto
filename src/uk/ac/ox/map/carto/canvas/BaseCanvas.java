@@ -195,6 +195,7 @@ public abstract class BaseCanvas {
 
   protected void drawPoint(FillStyle fs, Point2D.Double pt) {
     
+    cr.newSubPath();
     cr.arc(pt.x, pt.y, 1.75, 0, 2 * Math.PI);
     
     for (IsFillLayer lyr: fs.layers) {

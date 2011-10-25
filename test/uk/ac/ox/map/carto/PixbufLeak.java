@@ -16,24 +16,6 @@ import org.junit.Test;
 
 public class PixbufLeak {
 
-  class DestroyablePixbuf extends Pixbuf {
-    public DestroyablePixbuf(byte[] data) throws IOException {
-      super(data);
-    }
-
-    @Override
-    protected void finalize() {
-      System.out.println("finalizing Pixbuf");
-      super.finalize();
-    }
-
-    public void destroy() {
-      System.out.println("destroying");
-      finalize();
-    }
-
-  }
-
   @Test
   public void itLeaks() throws IOException, InterruptedException {
     Gtk.init(null);
@@ -50,17 +32,21 @@ public class PixbufLeak {
       ImageIO.write(b, "PNG", bos);
       byte[] arr = bos.toByteArray();
 
-      //comment out and memory usage remains steady
-      DestroyablePixbuf dpb = new DestroyablePixbuf(arr);
+      Pixbuf pb = new Pixbuf(arr);
 
-      dpb.destroy();
-
+    }
+    
+    while (Gtk.eventsPending()) {
+      Gtk.mainIterationDo(false);
     }
     
     System.gc();
     Thread.sleep(10000);
 
     long memFreeAfter = Runtime.getRuntime().freeMemory();
+    System.out.println(
+    String.format("Free JVM memory: %,d", memFreeAfter)
+        );
     System.out.println("Used: " + (memFreeBefore - memFreeAfter));
 
   }

@@ -229,6 +229,7 @@ public class MapCanvas extends BaseCanvas {
         }
         cr.setLineWidth(0.15);
         setLineColour(black);
+        cr.closePath();
         cr.stroke();
       }
 

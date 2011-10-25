@@ -10,11 +10,10 @@ import org.freedesktop.cairo.Filter;
 import org.freedesktop.cairo.PdfSurface;
 import org.freedesktop.cairo.Surface;
 import org.gnome.gdk.Pixbuf;
-import org.gnome.gdk.PixbufLoader;
+import org.gnome.gtk.Gtk;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import uk.ac.ox.map.carto.PixbufLeak;
 import uk.ac.ox.map.carto.style.FillStyle;
 import uk.ac.ox.map.carto.style.IsFillLayer;
 import uk.ac.ox.map.carto.style.Palette;
@@ -119,45 +118,49 @@ public class DataFrame extends BaseCanvas {
 
     Point2D.Double pt = new Point2D.Double(x, y);
     transform.transform(pt, pt);
-    
+
     drawPoint(fs, pt);
   }
 
   public void addRasterLayer(RasterLayer ras) throws IOException {
-    cr.save();
+    {
+      cr.save();
 
-    Pixbuf pb;
-    pb = new Pixbuf(ras.getImageData());
+      Pixbuf pb;
+      pb = new Pixbuf(ras.getImageData());
+
+      Point2D.Double pt = ras.getOrigin();
+
+      logger.debug("Pixbuf width: {}", pb.getWidth());
+      logger.debug("Pixbuf height: {}", pb.getHeight());
+      logger.debug("Orig x: {}", pt.x);
+      logger.debug("Orig y: {}", pt.y);
+
+      transform.transform(pt, pt);
+      double cellSize = ras.getCellSize();
+      logger.debug("Cellsize: {}", cellSize);
+
+      /*
+       * Determine the factor by which to scale the canvas to draw the image.
+       * NB: cellSize and scale are the inverse of one another cellSize is dd /
+       * pix scale is pix / dd
+       */
+      double newScale = scale * cellSize;
+
+      cr.scale(newScale, newScale);
+      /*
+       * The scaling will move the origin, therefore this needs to be corrected.
+       */
+      cr.setSource(pb, pt.x / newScale, pt.y / newScale);
+      cr.getSource().setFilter(Filter.NEAREST);
+      cr.paint();
+
+      cr.restore();
+    }
     
-    Point2D.Double pt = ras.getOrigin();
-
-    logger.debug("Pixbuf width: {}", pb.getWidth());
-    logger.debug("Pixbuf height: {}", pb.getHeight());
-    logger.debug("Orig x: {}", pt.x);
-    logger.debug("Orig y: {}", pt.y);
-
-    transform.transform(pt, pt);
-    double cellSize = ras.getCellSize();
-    logger.debug("Cellsize: {}", cellSize);
-
-    /*
-     * Determine the factor by which to scale the canvas to draw the image. NB:
-     * cellSize and scale are the inverse of one another cellSize is dd / pix
-     * scale is pix / dd
-     */
-    double newScale = scale * cellSize;
-
-    cr.scale(newScale, newScale);
-    /*
-     * The scaling will move the origin, therefore this needs to be corrected.
-     * 
-     */
-    cr.setSource(pb, pt.x / newScale, pt.y / newScale);
-    cr.getSource().setFilter(Filter.NEAREST);
-    cr.paint();
-    
-    cr.restore();
-
+    while (Gtk.eventsPending()) {
+      Gtk.mainIterationDo(false);
+    }
   }
 
   private void setEnvelope(double width, double height, Envelope dataEnv) {
@@ -239,7 +242,7 @@ public class DataFrame extends BaseCanvas {
   public Envelope getEnvelope() {
     return this.env;
   }
-  
+
   public void drawFeatures(List<MultiPolygon> ls, FillStyle fs) {
     for (MultiPolygon ps : ls) {
       drawMultiPolygon(ps, fs);
@@ -260,8 +263,7 @@ public class DataFrame extends BaseCanvas {
      * Draw line strings
      */
     drawLineStrings(p);
-    
-    
+
     /*
      * To draw hatches, line strings are sometimes consumed.
      */
@@ -275,7 +277,7 @@ public class DataFrame extends BaseCanvas {
         drawLineStrings(p);
       }
     }
-    
+
     /*
      * Stroking
      */
@@ -293,7 +295,8 @@ public class DataFrame extends BaseCanvas {
   }
 
   /**
-   * Draws a line string onto the canvas. Stroking and filling operations happen afterwards.
+   * Draws a line string onto the canvas. Stroking and filling operations happen
+   * afterwards.
    * 
    * @param ls
    */
