@@ -20,7 +20,6 @@ import org.slf4j.LoggerFactory;
 import uk.ac.ox.map.carto.canvas.ContinuousScale.ColourStop;
 import uk.ac.ox.map.carto.canvas.ContinuousScale.ScaleAnnotation;
 import uk.ac.ox.map.carto.canvas.Rectangle.Anchor;
-import uk.ac.ox.map.carto.style.FillStyle;
 import uk.ac.ox.map.carto.style.IsFillLayer;
 import uk.ac.ox.map.carto.style.Palette;
 import uk.ac.ox.map.carto.util.AnnotationFactory;
@@ -216,6 +215,12 @@ public class MapCanvas extends BaseCanvas {
         double ptX = x + (patchWidth / 2);
         
         drawPoint(mki.fillStyle, new Point2D.Double(ptX, ptY));
+        
+      } else if (mki.isSpacer) {
+        
+        y = rect.y + spacing;
+        x = rect.x + 100;
+        continue;
         
       } else {
         

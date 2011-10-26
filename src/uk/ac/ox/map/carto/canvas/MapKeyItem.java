@@ -6,6 +6,7 @@ public class MapKeyItem {
 
 	public final String description;
 	public boolean point = false;
+	public boolean isSpacer = false;
   public final FillStyle fillStyle;
 
 	public MapKeyItem(String description, FillStyle fs) {
