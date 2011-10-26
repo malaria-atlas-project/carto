@@ -178,24 +178,31 @@ public class MapCanvas extends BaseCanvas {
    * @param fontSize
    * @return the last y position
    */
-  public double drawKey(Rectangle rect, List<MapKeyItem> legend, double fontSize) {
-    
-    double y = rect.y;
-    double x = rect.x;
+  public double drawKey(MapKey mapKey) {
+
+    double y = mapKey.getRectangle().y;
+    double x = mapKey.getRectangle().x;
     Colour black = Palette.BLACK.get();
-    
+
     /*
      * Could be configuration options in MapKey class?
      */
-    double patchWidth = 25;
-    double patchHeight = 12.5;
-    double spacing = 22;
-    double textMargin = 35;
+    double patchWidth = mapKey.patchWidth;
+    double patchHeight = mapKey.patchHeight;
+    double spacing = mapKey.spacing;
+    double textMargin = mapKey.textMargin;
+    
+    
+    String title = mapKey.getTitle();
+    if (title != null) {
+       Rectangle titleRect = annotateMap(title, x, y, Anchor.LT);
+       y += titleRect.height;
+    }
 
-    double availableTextWidth = rect.width - textMargin;
+    double availableTextWidth = mapKey.getRectangle().width - textMargin;
 
-    fontDesc.setSize(fontSize);
-    for (MapKeyItem mki : legend) {
+    fontDesc.setSize(mapKey.fontSize);
+    for (MapKeyItem mki : mapKey.getKeyItems()) {
 
       Layout layout = new Layout(cr);
       layout.setFontDescription(fontDesc);
@@ -213,20 +220,20 @@ public class MapCanvas extends BaseCanvas {
       if (mki.point) {
         double ptY = y + (patchHeight / 2);
         double ptX = x + (patchWidth / 2);
-        
+
         drawPoint(mki.fillStyle, new Point2D.Double(ptX, ptY));
-        
+
       } else if (mki.isSpacer) {
-        
-        y = rect.y + spacing;
-        x = rect.x + 100;
+
+        y = mapKey.getRectangle().y + spacing;
+        x = mapKey.getRectangle().x + 100;
         continue;
-        
+
       } else {
-        
+
         cr.rectangle(x, y, patchWidth, patchHeight);
-        
-        for (IsFillLayer lyr: mki.fillStyle.layers) {
+
+        for (IsFillLayer lyr : mki.fillStyle.layers) {
           boolean consumed = paintFill(lyr);
           if (consumed) {
             cr.rectangle(x, y, patchWidth, patchHeight);
