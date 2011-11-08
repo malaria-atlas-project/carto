@@ -192,11 +192,13 @@ public class MapCanvas extends BaseCanvas {
     double spacing = mapKey.spacing;
     double textMargin = mapKey.textMargin;
     
+    double titleHeight = 0;
     
     String title = mapKey.getTitle();
     if (title != null) {
        Rectangle titleRect = annotateMap(title, x, y, Anchor.LT);
-       y += titleRect.height;
+       titleHeight = titleRect.height + 5;
+       y += titleHeight;
     }
 
     double availableTextWidth = mapKey.getRectangle().width - textMargin;
@@ -225,7 +227,7 @@ public class MapCanvas extends BaseCanvas {
 
       } else if (mki.isSpacer) {
 
-        y = mapKey.getRectangle().y + spacing;
+        y = mapKey.getRectangle().y + titleHeight;
         x = mapKey.getRectangle().x + 100;
         continue;
 
