@@ -11,3 +11,5 @@
 *.cache.html
 *.nocache.html
 .classpath
+bin/**
+src/hibernate.properties
