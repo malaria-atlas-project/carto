@@ -1,5 +1,0 @@
-<mapconf>
-	<overlays>
-		<overlay source="north_arrow.svg" type="image/svg+xml" x="10" y="550" width="20" height="100"/>
-	</overlays>
-</mapconf>
